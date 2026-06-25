@@ -601,22 +601,27 @@ window.checkSession = async function(){
   }
 }
 
-window.adminLogin = function(){
+window.adminLogin = async function(){
   const email = document.getElementById('adminEmailInput').value.trim();
   const pass = document.getElementById('adminPassInput').value;
   if(!email || !pass){
     showMessage('Please enter email and password.','red');
     return;
   }
-  if(email === ADMIN_EMAIL && pass === ADMIN_PASS){
-    localStorage.setItem('adminSession','true');
-    document.getElementById('adminLogin').classList.add('hidden');
-    document.getElementById('adminDashboard').classList.remove('hidden');
-    document.getElementById('adminEmail').textContent = email;
-    loadDashboard();
-  } else {
+  if(email !== ADMIN_EMAIL){
     showMessage('Invalid admin credentials.','red');
+    return;
   }
+  const { error } = await supabase.auth.signInWithPassword({ email, password: pass });
+  if(error){
+    showMessage(error.message === 'Invalid login credentials' ? 'Invalid admin credentials.' : error.message,'red');
+    return;
+  }
+  localStorage.setItem('adminSession','true');
+  document.getElementById('adminLogin').classList.add('hidden');
+  document.getElementById('adminDashboard').classList.remove('hidden');
+  document.getElementById('adminEmail').textContent = email;
+  loadDashboard();
 }
 
 window.logout = async function(){

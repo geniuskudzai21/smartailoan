@@ -614,6 +614,11 @@ document.getElementById('authMessage').innerHTML = '<p style="color:red;">' + er
 return;
 }
 
+if(contact === 'admin@smartloan.com'){
+window.location.href = 'admin.html';
+return;
+}
+
 document.getElementById('authPage').classList.add('hidden');
 document.getElementById('dashboardPage').classList.remove('hidden');
 }
