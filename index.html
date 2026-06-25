@@ -241,9 +241,10 @@ input:focus,select:focus,textarea:focus{border-color:#2563eb;}
   height:100%;
 }
 .sidebar h2{margin-bottom:20px;}
-.sidebar div{padding:12px;margin:10px 0;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:10px;}
-.sidebar div:hover{background:#1e3a8a;}
-.sidebar-footer{margin-top:auto;padding:12px 0 0;border-top:1px solid #1e3a8a;font-size:13px;color:#93c5fd;display:flex;align-items:center;gap:8px;}
+.sidebar div:not(.sidebar-footer){padding:12px;margin:10px 0;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:10px;}
+.sidebar div:not(.sidebar-footer):hover{background:#1e3a8a;}
+.sidebar div:not(.sidebar-footer):nth-last-child(2){margin-bottom:0;}
+.sidebar-footer{margin-top:auto;margin-bottom:0;padding:12px 0 0;border-top:1px solid #1e3a8a;font-size:13px;color:#93c5fd;display:flex;align-items:center;gap:8px;}
 .main{flex:1;padding:20px;overflow-y:auto;min-width:0;}
 
 .card{
@@ -439,18 +440,19 @@ Already have an account? <a onclick="showLogin()">Sign In</a>
 
 <div class="card section" id="loan">
 <h2><i data-lucide="hand-coins"></i> Apply for a Loan</h2>
-<input placeholder="Loan Amount Requested">
-<select><option>Loan Purpose</option><option>Business</option><option>Education</option><option>Emergency</option><option>Personal</option></select>
-<input placeholder="Monthly Income">
-<select><option>Employment Status</option><option>Employed</option><option>Self Employed</option><option>Vendor</option><option>Unemployed</option></select>
-<select><option>Repayment Period</option><option>3 Months</option><option>6 Months</option><option>12 Months</option><option>24 Months</option></select>
+<input id="loanAmount" placeholder="Loan Amount Requested">
+<select id="loanPurpose"><option>Loan Purpose</option><option>Business</option><option>Education</option><option>Emergency</option><option>Personal</option></select>
+<input id="loanDate" type="date" placeholder="Preferred Date">
+<input id="loanIncome" placeholder="Monthly Income">
+<select id="loanEmployment"><option>Employment Status</option><option>Employed</option><option>Self Employed</option><option>Vendor</option><option>Unemployed</option></select>
+<select id="loanPeriod"><option>Repayment Period</option><option>3 Months</option><option>6 Months</option><option>12 Months</option><option>24 Months</option></select>
 <h3 style="margin-top:16px;"><i data-lucide="file-text" style="width:16px;height:16px;"></i> Upload KYC & Documents</h3>
 <label>National ID</label><input type="file">
 <label>Payslip</label><input type="file">
 <label>Utility Bill</label><input type="file">
 <label>Insurance Documents</label><input type="file">
 <label>Bank Statements</label><input type="file">
-<button><i data-lucide="send"></i> Submit Loan Application</button>
+<button onclick="submitLoan()"><i data-lucide="send"></i> Submit Loan Application</button>
 </div>
 
 <div class="card section hidden" id="verification">
@@ -665,6 +667,41 @@ window.showSection = function(id){
  document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
  document.getElementById(id).classList.remove('hidden');
  closeSidebar();
+}
+
+window.submitLoan = async function(){
+  const { data: { session } } = await supabase.auth.getSession();
+  if(!session) return alert('Please login first.');
+
+  const amount = document.getElementById('loanAmount').value;
+  const purpose = document.getElementById('loanPurpose').value;
+  const date = document.getElementById('loanDate').value;
+  const income = document.getElementById('loanIncome').value;
+  const employment = document.getElementById('loanEmployment').value;
+  const period = document.getElementById('loanPeriod').value;
+
+  if(!amount || purpose === 'Loan Purpose' || !income || employment === 'Employment Status' || period === 'Repayment Period'){
+    return alert('Please complete all required fields.');
+  }
+
+  const { error } = await supabase.from('loan_applications').insert({
+    user_id: session.user.id,
+    amount: parseFloat(amount),
+    purpose,
+    monthly_income: parseFloat(income),
+    employment_status: employment,
+    repayment_period: period
+  });
+
+  if(error) return alert('Error: ' + error.message);
+
+  document.getElementById('loanAmount').value = '';
+  document.getElementById('loanPurpose').selectedIndex = 0;
+  document.getElementById('loanDate').value = '';
+  document.getElementById('loanIncome').value = '';
+  document.getElementById('loanEmployment').selectedIndex = 0;
+  document.getElementById('loanPeriod').selectedIndex = 0;
+  alert('Loan application submitted successfully!');
 }
 
 window.checkSession();

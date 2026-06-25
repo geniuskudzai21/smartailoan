@@ -1,4 +1,4 @@
-import pg from 'pg';
+const pg = require('pg');
 
 const pool = new pg.Pool({
   host: 'aws-0-us-east-1.pooler.supabase.com',
@@ -24,12 +24,15 @@ CREATE TABLE IF NOT EXISTS loan_applications (
   user_id UUID REFERENCES auth.users(id) NOT NULL,
   amount DECIMAL(12,2),
   purpose TEXT,
+  preferred_date DATE,
   monthly_income DECIMAL(12,2),
   employment_status TEXT,
   repayment_period TEXT,
   status TEXT DEFAULT 'Pending',
   created_at TIMESTAMPTZ DEFAULT now()
 );
+
+ALTER TABLE loan_applications ADD COLUMN IF NOT EXISTS preferred_date DATE;
 
 CREATE TABLE IF NOT EXISTS kyc_documents (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -60,11 +63,13 @@ CREATE TABLE IF NOT EXISTS support_tickets (
 );
 `;
 
-try {
-  await pool.query(sql);
-  console.log('Tables created successfully!');
-} catch (err) {
-  console.error('Migration failed:', err.message);
-} finally {
-  await pool.end();
-}
+(async () => {
+  try {
+    await pool.query(sql);
+    console.log('Migration completed successfully!');
+  } catch (err) {
+    console.error('Migration failed:', err.message);
+  } finally {
+    await pool.end();
+  }
+})();

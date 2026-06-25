@@ -431,9 +431,9 @@ tr:hover{background:#f8fafc;}
 <div class="card">
 <div class="table-wrap">
 <table>
-<thead><tr><th>Applicant</th><th>Amount</th><th>Purpose</th><th>Term</th><th>Status</th><th>Action</th></tr></thead>
+<thead><tr><th>Applicant</th><th>Amount</th><th>Purpose</th><th>Date</th><th>Term</th><th>Status</th><th>Action</th></tr></thead>
 <tbody id="loanTable">
-<tr><td colspan="6" class="empty-state"><i data-lucide="file-text"></i><p>No loan applications</p><div class="sub">Applications submitted by users will appear here</div></td></tr>
+<tr><td colspan="7" class="empty-state"><i data-lucide="file-text"></i><p>No loan applications</p><div class="sub">Applications submitted by users will appear here</div></td></tr>
 </tbody>
 </table>
 </div>
@@ -565,10 +565,10 @@ const mockUsers = [
 ];
 
 const mockLoans = [
-  {applicant:'Jane Doe',amount:5000,purpose:'Business',term:'12 Months',status:'Pending'},
-  {applicant:'John Smith',amount:2000,purpose:'Education',term:'6 Months',status:'Approved'},
-  {applicant:'Alice Wang',amount:10000,purpose:'Business',term:'24 Months',status:'Disbursed'},
-  {applicant:'Bob Kimani',amount:1500,purpose:'Emergency',term:'3 Months',status:'Pending'},
+  {applicant:'Jane Doe',amount:5000,purpose:'Business',date:'2026-06-10',term:'12 Months',status:'Pending'},
+  {applicant:'John Smith',amount:2000,purpose:'Education',date:'2026-06-12',term:'6 Months',status:'Approved'},
+  {applicant:'Alice Wang',amount:10000,purpose:'Business',date:'2026-06-14',term:'24 Months',status:'Disbursed'},
+  {applicant:'Bob Kimani',amount:1500,purpose:'Emergency',date:'2026-06-16',term:'3 Months',status:'Pending'},
 ];
 
 const mockKyc = [
@@ -744,16 +744,18 @@ function renderUsers(list){
 function renderLoans(list){
   const tbody = document.getElementById('loanTable');
   if(!list.length){
-    tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><i data-lucide="file-text" style="width:32px;height:32px;color:#cbd5e1;"></i><p>No loan applications</p></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="7" class="empty-state"><i data-lucide="file-text" style="width:32px;height:32px;color:#cbd5e1;"></i><p>No loan applications</p></td></tr>';
     lucide.createIcons();
     return;
   }
   tbody.innerHTML = list.map(l => {
     const cls = l.status === 'Approved' || l.status === 'Disbursed' ? 'badge-success' : l.status === 'Declined' ? 'badge-danger' : 'badge-warning';
+    const preferredDate = l.preferred_date ? new Date(l.preferred_date).toLocaleDateString() : (l.date || '—');
     return `<tr>
       <td><strong>${l.applicant||l.user_id?.slice(0,8)||'—'}</strong></td>
       <td>$${Number(l.amount).toLocaleString()}</td>
       <td>${l.purpose||'—'}</td>
+      <td>${preferredDate}</td>
       <td>${l.term||l.repayment_period||'—'}</td>
       <td><span class="badge ${cls}">${l.status}</span></td>
       <td>
