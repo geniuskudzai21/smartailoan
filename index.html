@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Smart Banking Application</title>
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+font-family:Arial,sans-serif;
+background:#eef2f7;
+}
+
+.hidden{
+display:none;
+}
+
+button{
+background:#1e3a8a;
+color:white;
+border:none;
+padding:12px 18px;
+border-radius:8px;
+cursor:pointer;
+font-weight:bold;
+}
+
+button:hover{
+background:#2563eb;
+}
+
+input,select,textarea{
+width:100%;
+padding:12px;
+margin:10px 0;
+border-radius:8px;
+border:1px solid #cbd5e1;
+}
+
+.header{
+background:#1e3a8a;
+color:white;
+padding:15px;
+font-size:24px;
+font-weight:bold;
+text-align:center;
+}
+
+.welcome{
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+flex-direction:column;
+background:linear-gradient(to right,#1e3a8a,#2563eb);
+color:white;
+text-align:center;
+padding:20px;
+}
+
+.welcome h1{
+font-size:50px;
+margin-bottom:20px;
+}
+
+.welcome p{
+max-width:700px;
+line-height:1.8;
+margin-bottom:20px;
+}
+
+.auth-container{
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+}
+
+.auth-card{
+background:white;
+width:420px;
+padding:30px;
+border-radius:15px;
+box-shadow:0 0 10px rgba(0,0,0,0.15);
+}
+
+.auth-card h2{
+text-align:center;
+margin-bottom:20px;
+color:#1e3a8a;
+}
+
+.dashboard{
+display:flex;
+height:100vh;
+}
+
+.sidebar{
+width:280px;
+background:#111827;
+color:white;
+padding:20px;
+overflow-y:auto;
+}
+
+.sidebar h2{
+margin-bottom:20px;
+}
+
+.sidebar div{
+padding:12px;
+margin:10px 0;
+border-radius:8px;
+cursor:pointer;
+}
+
+.sidebar div:hover{
+background:#1e3a8a;
+}
+
+.main{
+flex:1;
+padding:20px;
+overflow-y:auto;
+}
+
+.card{
+background:white;
+padding:20px;
+border-radius:15px;
+margin-bottom:20px;
+box-shadow:0 0 5px rgba(0,0,0,0.1);
+}
+
+.card h2{
+color:#1e3a8a;
+margin-bottom:15px;
+}
+
+.status{
+background:#f8fafc;
+padding:12px;
+border-left:5px solid #2563eb;
+border-radius:8px;
+margin:10px 0;
+}
+
+.notification{
+background:#eff6ff;
+padding:12px;
+border-radius:8px;
+margin:10px 0;
+}
+
+.grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:20px;
+}
+
+.logout{
+text-align:right;
+margin-bottom:20px;
+}
+
+@media(max-width:900px){
+.dashboard{
+flex-direction:column;
+}
+
+.sidebar{
+width:100%;
+height:auto;
+}
+
+.grid{
+grid-template-columns:1fr;
+}
+}
+</style>
+</head>
+
+<body>
+<!-- PAGE 3 -->
+<section id="dashboardPage">
+
+<div class="header">
+AI Smart Banking Customer Dashboard
+</div>
+
+<div class="dashboard">
+
+<div class="sidebar">
+
+<div onclick="showSection('loan')">Apply for a Loan</div>
+<div onclick="showSection('kyc')">Upload KYC & Documents</div>
+<div onclick="showSection('verification')">Verification Status</div>
+<div onclick="showSection('bureau')">Credit & Bureau Results</div>
+<div onclick="showSection('repayment')">Repayment & Smart Contracts</div>
+<div onclick="showSection('mobile')">Mobile Money & Transactions</div>
+<div onclick="showSection('notifications')">Notification Centre</div>
+<div onclick="showSection('profile')">Profile & Account Settings</div>
+<div onclick="showSection('support')">Support & Help</div>
+
+</div>
+
+<div class="main">
+
+<div class="logout">
+<button onclick="logout()">Logout</button>
+</div>
+
+<!-- LOAN -->
+<div class="card section" id="loan">
+
+<h2>Apply for a Loan</h2>
+
+<input placeholder="Loan Amount Requested">
+
+<select>
+<option>Loan Purpose</option>
+<option>Business</option>
+<option>Education</option>
+<option>Emergency</option>
+<option>Personal</option>
+</select>
+
+<input placeholder="Monthly Income">
+
+<select>
+<option>Employment Status</option>
+<option>Employed</option>
+<option>Self Employed</option>
+<option>Vendor</option>
+<option>Unemployed</option>
+</select>
+
+<select>
+<option>Repayment Period</option>
+<option>3 Months</option>
+<option>6 Months</option>
+<option>12 Months</option>
+<option>24 Months</option>
+</select>
+
+<button>Submit Loan Application</button>
+
+</div>
+
+<!-- KYC -->
+<div class="card section hidden" id="kyc">
+
+<h2>Upload KYC & Documents</h2>
+
+<label>National ID</label>
+<input type="file">
+
+<label>Payslip</label>
+<input type="file">
+
+<label>Utility Bill</label>
+<input type="file">
+
+<label>Insurance Documents</label>
+<input type="file">
+
+<label>Bank Statements</label>
+<input type="file">
+
+<button>Upload Documents</button>
+
+</div>
+
+<!-- VERIFICATION -->
+<div class="card section hidden" id="verification">
+
+<h2>Verification Status</h2>
+
+<div class="status">KYC Verification: PASSED</div>
+<div class="status">National ID Verification: VERIFIED</div>
+<div class="status">Document Review: COMPLETED</div>
+<div class="status">Eligibility Assessment: IN PROGRESS</div>
+
+</div>
+
+<!-- BUREAU -->
+<div class="card section hidden" id="bureau">
+
+<h2>Credit & Bureau Results</h2>
+
+<div class="status">CRB Result: CLEAR</div>
+<div class="status">FCB Result: CLEAR</div>
+<div class="status">SRL Status: CLEAR</div>
+<div class="status">Risk Category: MEDIUM RISK</div>
+<div class="status">Eligibility Status: CONDITIONALLY APPROVED</div>
+
+</div>
+
+<!-- REPAYMENT -->
+<div class="card section hidden" id="repayment">
+
+<h2>Repayment & Smart Contract Tracking</h2>
+
+<div class="grid">
+
+<div>
+<div class="status">Outstanding Balance: $1,200</div>
+<div class="status">Due Date: 15 June 2026</div>
+<div class="status">Penalty Charges: $25</div>
+<div class="status">Smart Contract Status: ACTIVE</div>
+</div>
+
+<div>
+
+<h3>Payment History</h3>
+
+<div class="notification">01 May 2026 - Payment Received ($150)</div>
+<div class="notification">01 April 2026 - Payment Received ($150)</div>
+<div class="notification">01 March 2026 - Payment Received ($150)</div>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- MOBILE -->
+<div class="card section hidden" id="mobile">
+
+<h2>Mobile Money & Transaction History</h2>
+
+<div class="grid">
+
+<div>
+
+<label>Upload Mobile Money Statement</label>
+<input type="file">
+
+<button>Analyze Transactions</button>
+
+</div>
+
+<div>
+
+<div class="status">AI Transaction Score: 82%</div>
+<div class="status">Spending Behaviour: MODERATE</div>
+<div class="status">Transaction Trend: STABLE</div>
+<div class="status">Cash Flow Rating: POSITIVE</div>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- NOTIFICATIONS -->
+<div class="card section hidden" id="notifications">
+
+<h2>Notification Centre</h2>
+
+<div class="notification">Loan Approved</div>
+<div class="notification">Loan Declined</div>
+<div class="notification">Payment Overdue</div>
+<div class="notification">Document Rejected</div>
+<div class="notification">KYC Successful</div>
+<div class="notification">New Loan Offer Available</div>
+
+</div>
+
+<!-- PROFILE -->
+<div class="card section hidden" id="profile">
+
+<h2>Profile & Account Settings</h2>
+
+<input placeholder="Update Phone Number">
+
+<input placeholder="Update Email Address">
+
+<input placeholder="Update Residential Address">
+
+<input type="password" placeholder="Change Password">
+
+<button>Update Profile</button>
+
+</div>
+
+<!-- SUPPORT -->
+<div class="card section hidden" id="support">
+
+<h2>Support & Help</h2>
+
+<h3>FAQ</h3>
+
+<p>Frequently asked questions about loans, repayments and account management.</p>
+
+<h3>Chat Support</h3>
+
+<textarea rows="4" placeholder="Type your message here"></textarea>
+
+<button>Send Message</button>
+
+<h3>Contact Details</h3>
+
+<p>Email: support@aismartsbank.com</p>
+<p>Phone: +263 77 000 0000</p>
+
+<h3>About</h3>
+
+<p>
+This AI-powered banking application helps customers with digital banking,
+loan applications, KYC verification, AI credit scoring,
+repayment monitoring and financial analytics.
+</p>
+
+<h3>Terms & Conditions</h3>
+
+<p>
+All customers agree to responsible borrowing,
+credit verification and repayment compliance policies.
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+<script>
+
+let users = [];
+
+function openAuth(){
+document.getElementById('welcomePage').classList.add('hidden');
+document.getElementById('authPage').classList.remove('hidden');
+}
+
+function registerUser(){
+
+let fullname=document.getElementById('fullname').value;
+let contact=document.getElementById('contact').value;
+let password=document.getElementById('password').value;
+
+if(!fullname || !contact || !password){
+
+document.getElementById('message').innerHTML='<p style="color:red;">Please complete all fields.</p>';
+return;
+
+}
+
+users.push({fullname,contact,password});
+
+document.getElementById('message').innerHTML='<p style="color:green;">Registration successful. Please sign in.</p>';
+
+}
+
+function loginUser(){
+
+let contact=document.getElementById('contact').value;
+let password=document.getElementById('password').value;
+
+let user=users.find(u=>u.contact===contact && u.password===password);
+
+if(user){
+
+document.getElementById('authPage').classList.add('hidden');
+document.getElementById('dashboardPage').classList.remove('hidden');
+
+}else{
+
+document.getElementById('message').innerHTML='<p style="color:red;">Invalid login credentials.</p>';
+
+}
+
+}
+
+function logout(){
+
+document.getElementById('dashboardPage').classList.add('hidden');
+document.getElementById('authPage').classList.remove('hidden');
+
+}
+
+function showSection(id){
+
+let sections=document.querySelectorAll('.section');
+
+sections.forEach(section=>{
+section.classList.add('hidden');
+});
+
+document.getElementById(id).classList.remove('hidden');
+
+}
+
+</script>
+
+</body>
+</html>
