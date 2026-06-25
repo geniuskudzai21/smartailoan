@@ -4,9 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SmartLoan - AI-Powered Banking</title>
+<script src="https://unpkg.com/lucide@latest" defer></script>
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
+[data-lucide]{width:18px;height:18px;flex-shrink:0;}
 
 body{
   font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
@@ -28,6 +30,9 @@ button{
   font-size:15px;
   transition:background .3s;
   min-height:44px;
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
 }
 
 button:hover{background:#2563eb;}
@@ -63,6 +68,9 @@ input:focus,select:focus,textarea:focus{border-color:#2563eb;}
 .nav-bar .brand{
   font-weight:800;
   font-size:20px;
+  display:flex;
+  align-items:center;
+  gap:8px;
 }
 
 .btn-signin{
@@ -107,9 +115,12 @@ input:focus,select:focus,textarea:focus{border-color:#2563eb;}
 
 .welcome-content .features span{
   background:rgba(255,255,255,.15);
-  padding:8px 16px;
+  padding:8px 18px;
   border-radius:20px;
-  font-size:clamp(11px,2vw,13px);
+  font-size:14px;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
 }
 
 .btn-cta{
@@ -163,7 +174,7 @@ input:focus,select:focus,textarea:focus{border-color:#2563eb;}
 
 .auth-card .btn-primary{width:100%;padding:13px;margin-top:4px;min-height:44px;}
 
-.auth-card label{font-size:13px;font-weight:600;color:#475569;}
+.auth-card label{font-size:13px;font-weight:600;color:#475569;display:inline-flex;align-items:center;gap:6px;}
 
 .toggle-link{text-align:center;margin-top:14px;font-size:14px;color:#64748b;}
 .toggle-link a{color:#2563eb;cursor:pointer;font-weight:600;}
@@ -182,6 +193,10 @@ input:focus,select:focus,textarea:focus{border-color:#2563eb;}
   position:sticky;
   top:0;
   z-index:100;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
 }
 
 .hamburger{
@@ -193,7 +208,6 @@ input:focus,select:focus,textarea:focus{border-color:#2563eb;}
   background:none;
   border:none;
   color:white;
-  font-size:24px;
   cursor:pointer;
   padding:8px 12px;
   line-height:1;
@@ -224,10 +238,9 @@ input:focus,select:focus,textarea:focus{border-color:#2563eb;}
   flex-direction:column;
 }
 .sidebar h2{margin-bottom:20px;}
-.sidebar div{padding:12px;margin:10px 0;border-radius:8px;cursor:pointer;}
+.sidebar div{padding:12px;margin:10px 0;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:10px;}
 .sidebar div:hover{background:#1e3a8a;}
-.sidebar-footer{margin-top:auto;padding:12px 0 0;border-top:1px solid #1e3a8a;font-size:13px;color:#93c5fd;}
-
+.sidebar-footer{margin-top:auto;padding:12px 0 0;border-top:1px solid #1e3a8a;font-size:13px;color:#93c5fd;display:flex;align-items:center;gap:8px;}
 .main{flex:1;padding:20px;overflow-y:auto;min-width:0;}
 
 .card{
@@ -238,7 +251,7 @@ input:focus,select:focus,textarea:focus{border-color:#2563eb;}
   box-shadow:0 2px 8px rgba(0,0,0,.08);
 }
 
-.card h2{color:#1e3a8a;margin-bottom:12px;}
+.card h2{color:#1e3a8a;margin-bottom:12px;display:flex;align-items:center;gap:10px;}
 
 .status{
   background:#f8fafc;
@@ -249,10 +262,14 @@ input:focus,select:focus,textarea:focus{border-color:#2563eb;}
 }
 
 .notification{
-  background:#eff6ff;
   padding:12px;
+  margin:8px 0;
+  background:#f8fafc;
   border-radius:8px;
-  margin:10px 0;
+  font-size:14px;
+  display:flex;
+  align-items:center;
+  gap:8px;
 }
 
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
@@ -317,7 +334,7 @@ input:focus,select:focus,textarea:focus{border-color:#2563eb;}
 <section id="welcomePage" class="welcome">
 
 <div class="nav-bar">
-<div class="brand">SmartLoan</div>
+<div class="brand"><i data-lucide="landmark" style="width:20px;height:20px;"></i> SmartLoan</div>
 <button onclick="openAuth()" class="btn-signin">Sign In</button>
 </div>
 
@@ -326,17 +343,17 @@ input:focus,select:focus,textarea:focus{border-color:#2563eb;}
 <p>AI-powered loan approvals, instant KYC verification, and intelligent credit scoring — all in one platform.</p>
 
 <div class="features">
-<span>AI Credit Scoring</span>
-<span>Instant KYC</span>
-<span>Fast Approvals</span>
-<span>Smart Contracts</span>
-<span>24/7 Support</span>
+<span><i data-lucide="brain"></i> AI Credit Scoring</span>
+<span><i data-lucide="check-circle"></i> Instant KYC</span>
+<span><i data-lucide="zap"></i> Fast Approvals</span>
+<span><i data-lucide="file-signature"></i> Smart Contracts</span>
+<span><i data-lucide="headset"></i> 24/7 Support</span>
 </div>
 
 <button onclick="openAuth()" class="btn-cta">Get Started</button>
 </div>
 
-<div class="footer">&copy; 2026 SmartLoan &mdash; <a href="admin.html" style="color:white;opacity:.7;text-decoration:none;">Admin Portal</a></div>
+<div class="footer">&copy; 2026 SmartLoan &mdash; <a href="admin.html" style="color:white;opacity:.7;text-decoration:none;"><i data-lucide="shield" style="width:14px;height:14px;"></i> Admin Portal</a></div>
 </section>
 
 <!-- PAGE 2: AUTH -->
@@ -350,13 +367,13 @@ input:focus,select:focus,textarea:focus{border-color:#2563eb;}
 <div id="authMessage"></div>
 
 <div id="loginForm">
-<label>Email or Phone</label>
+<label><i data-lucide="mail" style="width:14px;height:14px;"></i> Email or Phone</label>
 <input id="contact" placeholder="Enter your email or phone">
 
-<label>Password</label>
+<label><i data-lucide="lock" style="width:14px;height:14px;"></i> Password</label>
 <input id="password" type="password" placeholder="Enter your password">
 
-<button class="btn-primary" onclick="loginUser()">Sign In</button>
+<button class="btn-primary" onclick="loginUser()"><i data-lucide="log-in"></i> Sign In</button>
 
 <div class="toggle-link">
 No account? <a onclick="showRegister()">Create one</a>
@@ -367,16 +384,16 @@ No account? <a onclick="showRegister()">Create one</a>
 </div>
 
 <div id="registerForm" class="hidden">
-<label>Full Name</label>
+<label><i data-lucide="user" style="width:14px;height:14px;"></i> Full Name</label>
 <input id="fullname" placeholder="Enter your full name">
 
-<label>Email or Phone</label>
+<label><i data-lucide="mail" style="width:14px;height:14px;"></i> Email or Phone</label>
 <input id="regContact" placeholder="Enter your email or phone">
 
-<label>Password</label>
+<label><i data-lucide="lock" style="width:14px;height:14px;"></i> Password</label>
 <input id="regPassword" type="password" placeholder="Create a password">
 
-<button class="btn-primary" onclick="registerUser()">Create Account</button>
+<button class="btn-primary" onclick="registerUser()"><i data-lucide="user-plus"></i> Create Account</button>
 
 <div class="toggle-link">
 Already have an account? <a onclick="showLogin()">Sign In</a>
@@ -394,52 +411,52 @@ Already have an account? <a onclick="showLogin()">Sign In</a>
 <section id="dashboardPage" class="hidden">
 
 <div class="header">
-<button class="hamburger" onclick="toggleSidebar()" aria-label="Toggle menu">&#9776;</button>
-SmartLoan - AI Banking Dashboard
+<button class="hamburger" onclick="toggleSidebar()" aria-label="Toggle menu"><i data-lucide="menu"></i></button>
+<i data-lucide="sparkles"></i> SmartLoan - AI Banking Dashboard
 </div>
 
 <div class="dashboard">
 
 <div class="sidebar">
 <h2>Menu</h2>
-<div onclick="showSection('loan')">Apply for a Loan</div>
-<div onclick="showSection('kyc')">Upload KYC & Documents</div>
-<div onclick="showSection('repayment')">Loan Repayment Status</div>
-<div onclick="showSection('notifications')">Notification Centre</div>
-<div onclick="showSection('profile')">Profile & Account Settings</div>
-<div onclick="showSection('support')">Support & Help</div>
-<div class="sidebar-footer" id="sidebarUser">Not logged in</div>
+<div onclick="showSection('loan')"><i data-lucide="hand-coins"></i> Apply for a Loan</div>
+<div onclick="showSection('kyc')"><i data-lucide="file-text"></i> Upload KYC & Documents</div>
+<div onclick="showSection('repayment')"><i data-lucide="wallet"></i> Loan Repayment Status</div>
+<div onclick="showSection('notifications')"><i data-lucide="bell"></i> Notification Centre</div>
+<div onclick="showSection('profile')"><i data-lucide="settings"></i> Profile & Account Settings</div>
+<div onclick="showSection('support')"><i data-lucide="life-buoy"></i> Support & Help</div>
+<div class="sidebar-footer" id="sidebarUser"><i data-lucide="user"></i> Not logged in</div>
 </div>
 <div class="sidebar-overlay" onclick="closeSidebar()"></div>
 
 <div class="main">
 
 <div class="logout">
-<button onclick="logout()">Logout</button>
+<button onclick="logout()"><i data-lucide="log-out"></i> Logout</button>
 </div>
 
 <div class="card section" id="loan">
-<h2>Apply for a Loan</h2>
+<h2><i data-lucide="hand-coins"></i> Apply for a Loan</h2>
 <input placeholder="Loan Amount Requested">
 <select><option>Loan Purpose</option><option>Business</option><option>Education</option><option>Emergency</option><option>Personal</option></select>
 <input placeholder="Monthly Income">
 <select><option>Employment Status</option><option>Employed</option><option>Self Employed</option><option>Vendor</option><option>Unemployed</option></select>
 <select><option>Repayment Period</option><option>3 Months</option><option>6 Months</option><option>12 Months</option><option>24 Months</option></select>
-<button>Submit Loan Application</button>
+<button><i data-lucide="send"></i> Submit Loan Application</button>
 </div>
 
 <div class="card section hidden" id="kyc">
-<h2>Upload KYC & Documents</h2>
+<h2><i data-lucide="file-text"></i> Upload KYC & Documents</h2>
 <label>National ID</label><input type="file">
 <label>Payslip</label><input type="file">
 <label>Utility Bill</label><input type="file">
 <label>Insurance Documents</label><input type="file">
 <label>Bank Statements</label><input type="file">
-<button>Upload Documents</button>
+<button><i data-lucide="upload"></i> Upload Documents</button>
 </div>
 
 <div class="card section hidden" id="verification">
-<h2>Verification Status</h2>
+<h2><i data-lucide="badge-check"></i> Verification Status</h2>
 <div class="status">KYC Verification: PASSED</div>
 <div class="status">National ID Verification: VERIFIED</div>
 <div class="status">Document Review: COMPLETED</div>
@@ -447,7 +464,7 @@ SmartLoan - AI Banking Dashboard
 </div>
 
 <div class="card section hidden" id="bureau">
-<h2>Credit & Bureau Results</h2>
+<h2><i data-lucide="search-check"></i> Credit & Bureau Results</h2>
 <div class="status">CRB Result: CLEAR</div>
 <div class="status">FCB Result: CLEAR</div>
 <div class="status">SRL Status: CLEAR</div>
@@ -456,7 +473,7 @@ SmartLoan - AI Banking Dashboard
 </div>
 
 <div class="card section hidden" id="repayment">
-<h2>Repayment & Smart Contract Tracking</h2>
+<h2><i data-lucide="wallet"></i> Repayment & Smart Contract Tracking</h2>
 <div class="grid">
 <div>
 <div class="status">Outstanding Balance: $1,200</div>
@@ -474,12 +491,12 @@ SmartLoan - AI Banking Dashboard
 </div>
 
 <div class="card section hidden" id="mobile">
-<h2>Mobile Money & Transaction History</h2>
+<h2><i data-lucide="smartphone"></i> Mobile Money & Transaction History</h2>
 <div class="grid">
 <div>
 <label>Upload Mobile Money Statement</label>
 <input type="file">
-<button>Analyze Transactions</button>
+<button><i data-lucide="line-chart"></i> Analyze Transactions</button>
 </div>
 <div>
 <div class="status">AI Transaction Score: 82%</div>
@@ -491,26 +508,26 @@ SmartLoan - AI Banking Dashboard
 </div>
 
 <div class="card section hidden" id="notifications">
-<h2>Notification Centre</h2>
-<div class="notification">Loan Approved</div>
-<div class="notification">Loan Declined</div>
-<div class="notification">Payment Overdue</div>
-<div class="notification">Document Rejected</div>
-<div class="notification">KYC Successful</div>
-<div class="notification">New Loan Offer Available</div>
+<h2><i data-lucide="bell"></i> Notification Centre</h2>
+<div class="notification"><i data-lucide="check-circle" style="color:#22c55e;width:16px;height:16px;"></i> Loan Approved</div>
+<div class="notification"><i data-lucide="x-circle" style="color:#ef4444;width:16px;height:16px;"></i> Loan Declined</div>
+<div class="notification"><i data-lucide="alert-triangle" style="color:#f59e0b;width:16px;height:16px;"></i> Payment Overdue</div>
+<div class="notification"><i data-lucide="file-x" style="color:#ef4444;width:16px;height:16px;"></i> Document Rejected</div>
+<div class="notification"><i data-lucide="badge-check" style="color:#22c55e;width:16px;height:16px;"></i> KYC Successful</div>
+<div class="notification"><i data-lucide="sparkles" style="color:#3b82f6;width:16px;height:16px;"></i> New Loan Offer Available</div>
 </div>
 
 <div class="card section hidden" id="profile">
-<h2>Profile & Account Settings</h2>
+<h2><i data-lucide="settings"></i> Profile & Account Settings</h2>
 <input placeholder="Update Phone Number">
 <input placeholder="Update Email Address">
 <input placeholder="Update Residential Address">
 <input type="password" placeholder="Change Password">
-<button>Update Profile</button>
+<button><i data-lucide="save"></i> Update Profile</button>
 </div>
 
 <div class="card section hidden" id="support">
-<h2>Support & Help</h2>
+<h2><i data-lucide="life-buoy"></i> Support & Help</h2>
 <h3>FAQ</h3>
 <p>Frequently asked questions about loans, repayments and account management.</p>
 <h3>Chat Support</h3>
@@ -653,6 +670,7 @@ window.showSection = function(id){
 }
 
 window.checkSession();
+lucide.createIcons();
 </script>
 
 </body>

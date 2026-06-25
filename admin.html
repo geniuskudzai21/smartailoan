@@ -4,9 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SmartLoan - Admin Dashboard</title>
+<script src="https://unpkg.com/lucide@latest" defer></script>
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
+[data-lucide]{width:18px;height:18px;flex-shrink:0;}
 
 body{
   font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
@@ -28,6 +30,9 @@ button{
   font-size:15px;
   transition:background .3s;
   min-height:44px;
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
 }
 
 button:hover{background:#2563eb;}
@@ -79,7 +84,7 @@ tr:hover{background:#f8fafc;}
   border-radius:12px;
   box-shadow:0 2px 8px rgba(0,0,0,.08);
 }
-
+.stat-card > i{display:block;margin-bottom:8px;color:#1e3a8a;width:24px;height:24px;}
 .stat-card .label{font-size:13px;color:#94a3b8;margin-bottom:4px;}
 .stat-card .value{font-size:28px;font-weight:800;color:#1e3a8a;}
 
@@ -102,6 +107,10 @@ tr:hover{background:#f8fafc;}
   position:sticky;
   top:0;
   z-index:100;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
 }
 
 .hamburger{
@@ -113,7 +122,6 @@ tr:hover{background:#f8fafc;}
   background:none;
   border:none;
   color:white;
-  font-size:24px;
   cursor:pointer;
   padding:8px 12px;
   line-height:1;
@@ -133,6 +141,9 @@ tr:hover{background:#f8fafc;}
   padding:4px 10px;
   border-radius:6px;
   font-weight:400;
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
 }
 
 .sidebar-overlay{
@@ -162,9 +173,12 @@ tr:hover{background:#f8fafc;}
   border-radius:8px;
   cursor:pointer;
   font-size:14px;
+  display:flex;
+  align-items:center;
+  gap:10px;
 }
 .sidebar .menu-item:hover,.sidebar .menu-item.active{background:#1e3a8a;}
-.sidebar-footer{margin-top:auto;padding:12px 0 0;border-top:1px solid #1e3a8a;font-size:13px;color:#93c5fd;}
+.sidebar-footer{margin-top:auto;padding:12px 0 0;border-top:1px solid #1e3a8a;font-size:13px;color:#93c5fd;display:flex;align-items:center;gap:8px;}
 
 .main{flex:1;padding:20px;overflow-y:auto;min-width:0;}
 
@@ -173,6 +187,9 @@ tr:hover{background:#f8fafc;}
   font-weight:700;
   color:#1e3a8a;
   margin-bottom:20px;
+  display:flex;
+  align-items:center;
+  gap:10px;
 }
 
 .card{
@@ -200,10 +217,10 @@ tr:hover{background:#f8fafc;}
 
 .empty-state{
   text-align:center;
-  padding:48px 24px;
+  padding:40px 20px;
   color:#94a3b8;
 }
-
+.empty-state > i{display:block;margin:0 auto 12px;width:32px;height:32px;color:#cbd5e1;}
 .empty-state p{font-size:16px;margin-bottom:8px;}
 .empty-state .sub{font-size:13px;}
 
@@ -216,7 +233,7 @@ tr:hover{background:#f8fafc;}
   gap:10px;
 }
 
-.logout-bar .user-info{font-size:14px;color:#64748b;}
+.logout-bar .user-info{font-size:14px;color:#64748b;display:flex;align-items:center;gap:6px;}
 
 /* ===== AUTH OVERRIDES ===== */
 .auth-container{
@@ -328,56 +345,55 @@ tr:hover{background:#f8fafc;}
 <div id="adminDashboard" class="hidden">
 
 <div class="header">
-<button class="hamburger" onclick="toggleSidebar()" aria-label="Toggle menu">&#9776;</button>
-SmartLoan - Admin Dashboard
-<span class="admin-role">ADMIN</span>
+<button class="hamburger" onclick="toggleSidebar()" aria-label="Toggle menu"><i data-lucide="menu"></i></button>
+<i data-lucide="sparkles"></i> SmartLoan - Admin Dashboard
+<span class="admin-role"><i data-lucide="shield" style="width:12px;height:12px;"></i> ADMIN</span>
 </div>
 
 <div class="dashboard">
 
 <div class="sidebar">
 <h2>Admin Menu</h2>
-<div class="menu-item active" onclick="showSection('overview')">System Overview</div>
-<div class="menu-item" onclick="showSection('users')">User Management</div>
-<div class="menu-item" onclick="showSection('loans')">Loan Applications</div>
-<div class="menu-item" onclick="showSection('kyc')">KYC Verification</div>
-<div class="menu-item" onclick="showSection('credit')">Credit Reports</div>
-<div class="menu-item" onclick="showSection('transactions')">Transactions</div>
-<div class="menu-item" onclick="showSection('products')">Loan Products</div>
-<div class="menu-item" onclick="showSection('support')">Support Tickets</div>
-<div class="sidebar-footer" id="adminSidebarUser">admin@smartloan.com</div>
+<div class="menu-item active" onclick="showSection('overview')"><i data-lucide="layout-dashboard"></i> System Overview</div>
+<div class="menu-item" onclick="showSection('users')"><i data-lucide="users"></i> User Management</div>
+<div class="menu-item" onclick="showSection('loans')"><i data-lucide="file-text"></i> Loan Applications</div>
+<div class="menu-item" onclick="showSection('kyc')"><i data-lucide="shield-check"></i> KYC Verification</div>
+<div class="menu-item" onclick="showSection('credit')"><i data-lucide="scroll-text"></i> Credit Reports</div>
+<div class="menu-item" onclick="showSection('transactions')"><i data-lucide="arrow-left-right"></i> Transactions</div>
+<div class="menu-item" onclick="showSection('products')"><i data-lucide="package"></i> Loan Products</div>
+<div class="menu-item" onclick="showSection('support')"><i data-lucide="ticket"></i> Support Tickets</div>
+<div class="sidebar-footer" id="adminSidebarUser"><i data-lucide="shield"></i> admin@smartloan.com</div>
 </div>
 <div class="sidebar-overlay" onclick="closeSidebar()"></div>
 
 <div class="main">
 
 <div class="logout-bar">
-<div class="user-info">Logged in as <span id="adminEmail">admin@smartloan.com</span></div>
+<div class="user-info"><i data-lucide="user" style="width:16px;height:16px;"></i> Logged in as <span id="adminEmail">admin@smartloan.com</span></div>
 <div style="display:flex;gap:10px;flex-wrap:wrap;">
-<button onclick="goToUserDashboard()" style="background:#475569;">User Dashboard</button>
-<button onclick="logout()">Logout</button>
+<button onclick="logout()"><i data-lucide="log-out"></i> Logout</button>
 </div>
 </div>
 
 <!-- OVERVIEW -->
 <div class="section" id="overview">
-<div class="section-title">System Overview</div>
+<div class="section-title"><i data-lucide="layout-dashboard"></i> System Overview</div>
 <div class="stats-grid">
-<div class="stat-card"><div class="label">Total Users</div><div class="value" id="statUsers">0</div></div>
-<div class="stat-card"><div class="label">Active Loans</div><div class="value" id="statLoans">0</div></div>
-<div class="stat-card"><div class="label">Total Disbursed</div><div class="value" id="statDisbursed">$0</div></div>
-<div class="stat-card"><div class="label">Pending Approvals</div><div class="value" id="statPending">0</div></div>
-<div class="stat-card"><div class="label">KYC Pending</div><div class="value" id="statKyc">0</div></div>
-<div class="stat-card"><div class="label">Open Tickets</div><div class="value" id="statTickets">0</div></div>
+<div class="stat-card"><i data-lucide="users"></i><div class="label">Total Users</div><div class="value" id="statUsers">0</div></div>
+<div class="stat-card"><i data-lucide="landmark"></i><div class="label">Active Loans</div><div class="value" id="statLoans">0</div></div>
+<div class="stat-card"><i data-lucide="circle-dollar-sign"></i><div class="label">Total Disbursed</div><div class="value" id="statDisbursed">$0</div></div>
+<div class="stat-card"><i data-lucide="clock"></i><div class="label">Pending Approvals</div><div class="value" id="statPending">0</div></div>
+<div class="stat-card"><i data-lucide="shield-off"></i><div class="label">KYC Pending</div><div class="value" id="statKyc">0</div></div>
+<div class="stat-card"><i data-lucide="circle-help"></i><div class="label">Open Tickets</div><div class="value" id="statTickets">0</div></div>
 </div>
 
 <div class="card">
-<h3>Recent Activity</h3>
+<h3><i data-lucide="activity"></i> Recent Activity</h3>
 <div class="table-wrap">
 <table>
 <thead><tr><th>Event</th><th>User</th><th>Date</th><th>Status</th></tr></thead>
 <tbody id="recentActivity">
-<tr><td colspan="4" class="empty-state"><p>No recent activity</p><div class="sub">Activity will appear as users interact with the platform</div></td></tr>
+<tr><td colspan="4" class="empty-state"><i data-lucide="activity"></i><p>No recent activity</p><div class="sub">Activity will appear as users interact with the platform</div></td></tr>
 </tbody>
 </table>
 </div>
@@ -386,18 +402,18 @@ SmartLoan - Admin Dashboard
 
 <!-- USER MANAGEMENT -->
 <div class="section hidden" id="users">
-<div class="section-title">User Management</div>
+<div class="section-title"><i data-lucide="users"></i> User Management</div>
 <div class="toolbar">
 <input id="userSearch" placeholder="Search by name, email or phone..." oninput="filterUsers()">
 <select id="userStatusFilter" onchange="filterUsers()"><option value="all">All Status</option><option value="active">Active</option><option value="pending">Pending KYC</option><option value="suspended">Suspended</option></select>
-<button onclick="filterUsers()" style="background:#475569;">Refresh</button>
+<button onclick="filterUsers()" style="background:#475569;"><i data-lucide="refresh-cw" style="width:16px;height:16px;"></i> Refresh</button>
 </div>
 <div class="card">
 <div class="table-wrap">
 <table>
 <thead><tr><th>Name</th><th>Email / Phone</th><th>KYC Status</th><th>Loans</th><th>Joined</th><th>Action</th></tr></thead>
 <tbody id="userTable">
-<tr><td colspan="6" class="empty-state"><p>No users found</p><div class="sub">User data will appear here once users register</div></td></tr>
+<tr><td colspan="6" class="empty-state"><i data-lucide="users"></i><p>No users found</p><div class="sub">User data will appear here once users register</div></td></tr>
 </tbody>
 </table>
 </div>
@@ -406,7 +422,7 @@ SmartLoan - Admin Dashboard
 
 <!-- LOAN APPLICATIONS -->
 <div class="section hidden" id="loans">
-<div class="section-title">Loan Applications</div>
+<div class="section-title"><i data-lucide="file-text"></i> Loan Applications</div>
 <div class="toolbar">
 <select id="loanFilter" onchange="filterLoans()"><option value="all">All Status</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="declined">Declined</option><option value="disbursed">Disbursed</option></select>
 <input id="loanSearch" placeholder="Search applicant..." oninput="filterLoans()">
@@ -416,7 +432,7 @@ SmartLoan - Admin Dashboard
 <table>
 <thead><tr><th>Applicant</th><th>Amount</th><th>Purpose</th><th>Term</th><th>Status</th><th>Action</th></tr></thead>
 <tbody id="loanTable">
-<tr><td colspan="6" class="empty-state"><p>No loan applications</p><div class="sub">Applications submitted by users will appear here</div></td></tr>
+<tr><td colspan="6" class="empty-state"><i data-lucide="file-text"></i><p>No loan applications</p><div class="sub">Applications submitted by users will appear here</div></td></tr>
 </tbody>
 </table>
 </div>
@@ -425,7 +441,7 @@ SmartLoan - Admin Dashboard
 
 <!-- KYC VERIFICATION -->
 <div class="section hidden" id="kyc">
-<div class="section-title">KYC Verification Queue</div>
+<div class="section-title"><i data-lucide="shield-check"></i> KYC Verification Queue</div>
 <div class="toolbar">
 <select id="kycFilter" onchange="filterKyc()"><option value="pending">Pending Review</option><option value="all">All</option><option value="verified">Verified</option><option value="rejected">Rejected</option></select>
 </div>
@@ -434,7 +450,7 @@ SmartLoan - Admin Dashboard
 <table>
 <thead><tr><th>User</th><th>Documents</th><th>Submitted</th><th>Status</th><th>Action</th></tr></thead>
 <tbody id="kycTable">
-<tr><td colspan="5" class="empty-state"><p>No KYC submissions</p><div class="sub">User document uploads will appear here for review</div></td></tr>
+<tr><td colspan="5" class="empty-state"><i data-lucide="shield-check"></i><p>No KYC submissions</p><div class="sub">User document uploads will appear here for review</div></td></tr>
 </tbody>
 </table>
 </div>
@@ -443,17 +459,17 @@ SmartLoan - Admin Dashboard
 
 <!-- CREDIT REPORTS -->
 <div class="section hidden" id="credit">
-<div class="section-title">Credit & Bureau Reports</div>
+<div class="section-title"><i data-lucide="scroll-text"></i> Credit & Bureau Reports</div>
 <div class="toolbar">
 <input id="creditSearch" placeholder="Search by user name or ID...">
-<button onclick="searchCredit()">Search</button>
+<button onclick="searchCredit()"><i data-lucide="search"></i> Search</button>
 </div>
 <div class="card">
 <div class="table-wrap">
 <table>
 <thead><tr><th>User</th><th>CRB</th><th>FCB</th><th>SRL</th><th>Risk Category</th><th>Eligibility</th></tr></thead>
 <tbody id="creditTable">
-<tr><td colspan="6" class="empty-state"><p>Search for a user to view credit report</p><div class="sub">Enter a user name or ID above and click Search</div></td></tr>
+<tr><td colspan="6" class="empty-state"><i data-lucide="search"></i><p>Search for a user to view credit report</p><div class="sub">Enter a user name or ID above and click Search</div></td></tr>
 </tbody>
 </table>
 </div>
@@ -462,7 +478,7 @@ SmartLoan - Admin Dashboard
 
 <!-- TRANSACTIONS -->
 <div class="section hidden" id="transactions">
-<div class="section-title">Transaction Monitoring</div>
+<div class="section-title"><i data-lucide="arrow-left-right"></i> Transaction Monitoring</div>
 <div class="toolbar">
 <select id="txnFilter" onchange="filterTransactions()"><option value="all">All Types</option><option value="disbursement">Disbursements</option><option value="repayment">Repayments</option><option value="fee">Fees</option></select>
 <input id="txnSearch" placeholder="Search by user..." oninput="filterTransactions()">
@@ -472,7 +488,7 @@ SmartLoan - Admin Dashboard
 <table>
 <thead><tr><th>User</th><th>Type</th><th>Amount</th><th>Date</th><th>Reference</th><th>Status</th></tr></thead>
 <tbody id="txnTable">
-<tr><td colspan="6" class="empty-state"><p>No transactions recorded</p><div class="sub">Transaction history will appear once users interact with the platform</div></td></tr>
+<tr><td colspan="6" class="empty-state"><i data-lucide="arrow-left-right"></i><p>No transactions recorded</p><div class="sub">Transaction history will appear once users interact with the platform</div></td></tr>
 </tbody>
 </table>
 </div>
@@ -481,9 +497,9 @@ SmartLoan - Admin Dashboard
 
 <!-- LOAN PRODUCTS -->
 <div class="section hidden" id="products">
-<div class="section-title">Loan Products</div>
+<div class="section-title"><i data-lucide="package"></i> Loan Products</div>
 <div class="toolbar">
-<button onclick="showAddProduct()">+ Add Product</button>
+<button onclick="showAddProduct()"><i data-lucide="plus-circle"></i> Add Product</button>
 </div>
 <div id="productForm" class="card hidden">
 <h3>New Loan Product</h3>
@@ -493,7 +509,7 @@ SmartLoan - Admin Dashboard
 <input id="prodMax" placeholder="Max Amount" type="number">
 <input id="prodRate" placeholder="Interest Rate %" type="number" step="0.1">
 <select id="prodTerm"><option>Repayment Term</option><option>3 Months</option><option>6 Months</option><option>12 Months</option><option>24 Months</option></select>
-<button onclick="saveProduct()" style="margin:0;">Save Product</button>
+<button onclick="saveProduct()" style="margin:0;"><i data-lucide="save"></i> Save Product</button>
 </div>
 </div>
 <div class="card">
@@ -501,7 +517,7 @@ SmartLoan - Admin Dashboard
 <table>
 <thead><tr><th>Product</th><th>Min</th><th>Max</th><th>Rate</th><th>Term</th><th>Status</th><th>Action</th></tr></thead>
 <tbody id="productTable">
-<tr><td colspan="7" class="empty-state"><p>No loan products defined</p><div class="sub">Click "+ Add Product" to create your first loan product</div></td></tr>
+<tr><td colspan="7" class="empty-state"><i data-lucide="package"></i><p>No loan products defined</p><div class="sub">Click "Add Product" to create your first loan product</div></td></tr>
 </tbody>
 </table>
 </div>
@@ -510,7 +526,7 @@ SmartLoan - Admin Dashboard
 
 <!-- SUPPORT TICKETS -->
 <div class="section hidden" id="support">
-<div class="section-title">Support Tickets</div>
+<div class="section-title"><i data-lucide="ticket"></i> Support Tickets</div>
 <div class="toolbar">
 <select id="ticketFilter" onchange="filterTickets()"><option value="open">Open</option><option value="all">All</option><option value="resolved">Resolved</option></select>
 </div>
@@ -519,7 +535,7 @@ SmartLoan - Admin Dashboard
 <table>
 <thead><tr><th>User</th><th>Subject</th><th>Date</th><th>Status</th><th>Action</th></tr></thead>
 <tbody id="ticketTable">
-<tr><td colspan="5" class="empty-state"><p>No support tickets</p><div class="sub">User support inquiries will appear here</div></td></tr>
+<tr><td colspan="5" class="empty-state"><i data-lucide="ticket"></i><p>No support tickets</p><div class="sub">User support inquiries will appear here</div></td></tr>
 </tbody>
 </table>
 </div>
@@ -641,10 +657,6 @@ window.logout = async function(){
   showMessage('Logged out successfully.','green');
 }
 
-window.goToUserDashboard = function(){
-  window.location.href = 'index.html';
-}
-
 function showMessage(msg,color){
   document.getElementById('adminMessage').innerHTML = '<p style="color:'+color+';">'+msg+'</p>';
 }
@@ -691,7 +703,8 @@ function loadDashboard(){
 function renderUsers(list){
   const tbody = document.getElementById('userTable');
   if(!list.length){
-    tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><p>No users found</p></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><i data-lucide="users" style="width:32px;height:32px;color:#cbd5e1;"></i><p>No users found</p></td></tr>';
+    lucide.createIcons();
     return;
   }
   tbody.innerHTML = list.map(u => `<tr>
@@ -700,14 +713,16 @@ function renderUsers(list){
     <td><span class="badge ${u.kyc === 'Verified' ? 'badge-success' : 'badge-warning'}">${u.kyc}</span></td>
     <td>${u.loans}</td>
     <td>${u.joined}</td>
-    <td><button style="padding:6px 12px;font-size:12px;min-height:auto;">View</button></td>
+    <td><button style="padding:6px 12px;font-size:12px;min-height:auto;"><i data-lucide="eye" style="width:14px;height:14px;"></i> View</button></td>
   </tr>`).join('');
+  lucide.createIcons();
 }
 
 function renderLoans(list){
   const tbody = document.getElementById('loanTable');
   if(!list.length){
-    tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><p>No loan applications</p></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><i data-lucide="file-text" style="width:32px;height:32px;color:#cbd5e1;"></i><p>No loan applications</p></td></tr>';
+    lucide.createIcons();
     return;
   }
   tbody.innerHTML = list.map(l => {
@@ -719,16 +734,18 @@ function renderLoans(list){
       <td>${l.term}</td>
       <td><span class="badge ${cls}">${l.status}</span></td>
       <td>
-        ${l.status === 'Pending' ? `<button style="padding:6px 8px;font-size:11px;min-height:auto;background:#16a34a;margin-right:4px;" onclick="approveLoan(this)">Approve</button><button style="padding:6px 8px;font-size:11px;min-height:auto;background:#dc2626;" onclick="declineLoan(this)">Decline</button>` : '<span style="color:#94a3b8;font-size:12px;">No action</span>'}
+        ${l.status === 'Pending' ? `<button style="padding:6px 8px;font-size:11px;min-height:auto;background:#16a34a;margin-right:4px;" onclick="approveLoan(this)"><i data-lucide="check" style="width:12px;height:12px;"></i> Approve</button><button style="padding:6px 8px;font-size:11px;min-height:auto;background:#dc2626;" onclick="declineLoan(this)"><i data-lucide="x" style="width:12px;height:12px;"></i> Decline</button>` : '<span style="color:#94a3b8;font-size:12px;">No action</span>'}
       </td>
     </tr>`;
   }).join('');
+  lucide.createIcons();
 }
 
 function renderKyc(list){
   const tbody = document.getElementById('kycTable');
   if(!list.length){
-    tbody.innerHTML = '<tr><td colspan="5" class="empty-state"><p>No KYC submissions</p></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="5" class="empty-state"><i data-lucide="shield-check" style="width:32px;height:32px;color:#cbd5e1;"></i><p>No KYC submissions</p></td></tr>';
+    lucide.createIcons();
     return;
   }
   tbody.innerHTML = list.map(k => {
@@ -739,16 +756,18 @@ function renderKyc(list){
       <td>${k.submitted}</td>
       <td><span class="badge ${cls}">${k.status}</span></td>
       <td>
-        ${k.status === 'Pending' ? `<button style="padding:6px 8px;font-size:11px;min-height:auto;background:#16a34a;margin-right:4px;" onclick="verifyKyc(this)">Verify</button><button style="padding:6px 8px;font-size:11px;min-height:auto;background:#dc2626;" onclick="rejectKyc(this)">Reject</button>` : '<span style="color:#94a3b8;font-size:12px;">Complete</span>'}
+        ${k.status === 'Pending' ? `<button style="padding:6px 8px;font-size:11px;min-height:auto;background:#16a34a;margin-right:4px;" onclick="verifyKyc(this)"><i data-lucide="check-circle" style="width:12px;height:12px;"></i> Verify</button><button style="padding:6px 8px;font-size:11px;min-height:auto;background:#dc2626;" onclick="rejectKyc(this)"><i data-lucide="x-circle" style="width:12px;height:12px;"></i> Reject</button>` : '<span style="color:#94a3b8;font-size:12px;">Complete</span>'}
       </td>
     </tr>`;
   }).join('');
+  lucide.createIcons();
 }
 
 function renderCredit(list){
   const tbody = document.getElementById('creditTable');
   if(!list.length){
-    tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><p>Search for a user to view credit report</p></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><i data-lucide="search" style="width:32px;height:32px;color:#cbd5e1;"></i><p>Search for a user to view credit report</p></td></tr>';
+    lucide.createIcons();
     return;
   }
   tbody.innerHTML = list.map(c => {
@@ -763,45 +782,14 @@ function renderCredit(list){
       <td><span class="badge ${eligCls}">${c.eligibility}</span></td>
     </tr>`;
   }).join('');
-}
-
-function renderTransactions(list){
-  const tbody = document.getElementById('txnTable');
-  if(!list.length){
-    tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><p>No transactions recorded</p></td></tr>';
-    return;
-  }
-  tbody.innerHTML = list.map(t => `<tr>
-    <td><strong>${t.user}</strong></td>
-    <td>${t.type}</td>
-    <td>$${t.amount.toLocaleString()}</td>
-    <td>${t.date}</td>
-    <td style="font-family:monospace;font-size:12px;">${t.ref}</td>
-    <td><span class="badge badge-success">${t.status}</span></td>
-  </tr>`).join('');
-}
-
-function renderProducts(list){
-  const tbody = document.getElementById('productTable');
-  if(!list.length){
-    tbody.innerHTML = '<tr><td colspan="7" class="empty-state"><p>No loan products defined</p></td></tr>';
-    return;
-  }
-  tbody.innerHTML = list.map(p => `<tr>
-    <td><strong>${p.name}</strong></td>
-    <td>$${p.min.toLocaleString()}</td>
-    <td>$${p.max.toLocaleString()}</td>
-    <td>${p.rate}</td>
-    <td>${p.term}</td>
-    <td><span class="badge badge-success">${p.status}</span></td>
-    <td><button style="padding:6px 12px;font-size:12px;min-height:auto;background:#dc2626;" onclick="deactivateProduct(this)">Deactivate</button></td>
-  </tr>`).join('');
+  lucide.createIcons();
 }
 
 function renderTickets(list){
   const tbody = document.getElementById('ticketTable');
   if(!list.length){
-    tbody.innerHTML = '<tr><td colspan="5" class="empty-state"><p>No support tickets</p></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="5" class="empty-state"><i data-lucide="ticket" style="width:32px;height:32px;color:#cbd5e1;"></i><p>No support tickets</p></td></tr>';
+    lucide.createIcons();
     return;
   }
   tbody.innerHTML = list.map(t => `<tr>
@@ -809,14 +797,16 @@ function renderTickets(list){
     <td>${t.subject}</td>
     <td>${t.date}</td>
     <td><span class="badge ${t.status === 'Open' ? 'badge-warning' : 'badge-success'}">${t.status}</span></td>
-    <td>${t.status === 'Open' ? '<button style="padding:6px 12px;font-size:12px;min-height:auto;" onclick="resolveTicket(this)">Resolve</button>' : '<span style="color:#94a3b8;font-size:12px;">Resolved</span>'}</td>
+    <td>${t.status === 'Open' ? '<button style="padding:6px 12px;font-size:12px;min-height:auto;" onclick="resolveTicket(this)"><i data-lucide="check" style="width:14px;height:14px;"></i> Resolve</button>' : '<span style="color:#94a3b8;font-size:12px;">Resolved</span>'}</td>
   </tr>`).join('');
+  lucide.createIcons();
 }
 
 function renderActivity(txns){
   const tbody = document.getElementById('recentActivity');
   if(!txns.length){
-    tbody.innerHTML = '<tr><td colspan="4" class="empty-state"><p>No recent activity</p><div class="sub">Activity will appear as users interact with the platform</div></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="4" class="empty-state"><i data-lucide="activity" style="width:32px;height:32px;color:#cbd5e1;"></i><p>No recent activity</p><div class="sub">Activity will appear as users interact with the platform</div></td></tr>';
+    lucide.createIcons();
     return;
   }
   const sorted = [...txns].sort((a,b) => b.date.localeCompare(a.date)).slice(0,5);
@@ -883,7 +873,8 @@ window.approveLoan = function(btn){
   const statusCell = row.querySelector('td:nth-child(5)');
   statusCell.innerHTML = '<span class="badge badge-success">Approved</span>';
   const actionCell = row.querySelector('td:nth-child(6)');
-  actionCell.innerHTML = '<span style="color:#94a3b8;font-size:12px;">Approved</span>';
+  actionCell.innerHTML = '<span style="color:#94a3b8;font-size:12px;"><i data-lucide="check-circle" style="width:14px;height:14px;color:#16a34a;"></i> Approved</span>';
+  lucide.createIcons();
 }
 
 window.declineLoan = function(btn){
@@ -891,7 +882,8 @@ window.declineLoan = function(btn){
   const statusCell = row.querySelector('td:nth-child(5)');
   statusCell.innerHTML = '<span class="badge badge-danger">Declined</span>';
   const actionCell = row.querySelector('td:nth-child(6)');
-  actionCell.innerHTML = '<span style="color:#94a3b8;font-size:12px;">Declined</span>';
+  actionCell.innerHTML = '<span style="color:#94a3b8;font-size:12px;"><i data-lucide="x-circle" style="width:14px;height:14px;color:#dc2626;"></i> Declined</span>';
+  lucide.createIcons();
 }
 
 window.verifyKyc = function(btn){
@@ -899,8 +891,9 @@ window.verifyKyc = function(btn){
   const statusCell = row.querySelector('td:nth-child(4)');
   statusCell.innerHTML = '<span class="badge badge-success">Verified</span>';
   const actionCell = row.querySelector('td:nth-child(5)');
-  actionCell.innerHTML = '<span style="color:#94a3b8;font-size:12px;">Complete</span>';
+  actionCell.innerHTML = '<span style="color:#94a3b8;font-size:12px;"><i data-lucide="check-circle" style="width:14px;height:14px;color:#16a34a;"></i> Complete</span>';
   document.getElementById('statKyc').textContent = Math.max(0, parseInt(document.getElementById('statKyc').textContent) - 1);
+  lucide.createIcons();
 }
 
 window.rejectKyc = function(btn){
@@ -908,8 +901,9 @@ window.rejectKyc = function(btn){
   const statusCell = row.querySelector('td:nth-child(4)');
   statusCell.innerHTML = '<span class="badge badge-danger">Rejected</span>';
   const actionCell = row.querySelector('td:nth-child(5)');
-  actionCell.innerHTML = '<span style="color:#94a3b8;font-size:12px;">Complete</span>';
+  actionCell.innerHTML = '<span style="color:#94a3b8;font-size:12px;"><i data-lucide="x-circle" style="width:14px;height:14px;color:#dc2626;"></i> Complete</span>';
   document.getElementById('statKyc').textContent = Math.max(0, parseInt(document.getElementById('statKyc').textContent) - 1);
+  lucide.createIcons();
 }
 
 window.resolveTicket = function(btn){
@@ -917,26 +911,29 @@ window.resolveTicket = function(btn){
   const statusCell = row.querySelector('td:nth-child(4)');
   statusCell.innerHTML = '<span class="badge badge-success">Resolved</span>';
   const actionCell = row.querySelector('td:nth-child(5)');
-  actionCell.innerHTML = '<span style="color:#94a3b8;font-size:12px;">Resolved</span>';
+  actionCell.innerHTML = '<span style="color:#94a3b8;font-size:12px;"><i data-lucide="check-circle" style="width:14px;height:14px;color:#16a34a;"></i> Resolved</span>';
   document.getElementById('statTickets').textContent = Math.max(0, parseInt(document.getElementById('statTickets').textContent) - 1);
+  lucide.createIcons();
 }
 
 window.deactivateProduct = function(btn){
   const row = btn.closest('tr');
   const statusCell = row.querySelector('td:nth-child(6)');
   statusCell.innerHTML = '<span class="badge badge-danger">Inactive</span>';
-  btn.textContent = 'Activate';
+  btn.innerHTML = '<i data-lucide="toggle-right" style="width:14px;height:14px;"></i> Activate';
   btn.style.background = '#16a34a';
   btn.onclick = function(){ activateProduct(this); };
+  lucide.createIcons();
 }
 
 window.activateProduct = function(btn){
   const row = btn.closest('tr');
   const statusCell = row.querySelector('td:nth-child(6)');
   statusCell.innerHTML = '<span class="badge badge-success">Active</span>';
-  btn.textContent = 'Deactivate';
+  btn.innerHTML = '<i data-lucide="toggle-left" style="width:14px;height:14px;"></i> Deactivate';
   btn.style.background = '#dc2626';
   btn.onclick = function(){ deactivateProduct(this); };
+  lucide.createIcons();
 }
 
 window.showAddProduct = function(){
@@ -965,6 +962,7 @@ window.saveProduct = function(){
 }
 
 window.checkSession();
+lucide.createIcons();
 </script>
 
 </body>
