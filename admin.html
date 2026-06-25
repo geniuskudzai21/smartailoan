@@ -90,6 +90,8 @@ tr:hover{background:#f8fafc;}
   margin-bottom:24px;
 }
 
+#adminDashboard{display:flex;flex-direction:column;height:100vh;}
+
 .header{
   background:#1e3a8a;
   color:white;
@@ -97,7 +99,9 @@ tr:hover{background:#f8fafc;}
   font-size:clamp(18px,3vw,24px);
   font-weight:bold;
   text-align:center;
-  position:relative;
+  position:sticky;
+  top:0;
+  z-index:100;
 }
 
 .hamburger{
@@ -139,15 +143,16 @@ tr:hover{background:#f8fafc;}
   z-index:998;
 }
 
-.dashboard{display:flex;height:100vh;}
+.dashboard{display:flex;flex:1;min-height:0;}
 
 .sidebar{
   width:260px;
   background:#111827;
   color:white;
   padding:20px;
-  overflow-y:auto;
   flex-shrink:0;
+  display:flex;
+  flex-direction:column;
 }
 
 .sidebar h2{margin-bottom:20px;font-size:18px;}
@@ -159,6 +164,7 @@ tr:hover{background:#f8fafc;}
   font-size:14px;
 }
 .sidebar .menu-item:hover,.sidebar .menu-item.active{background:#1e3a8a;}
+.sidebar-footer{margin-top:auto;padding:12px 0 0;border-top:1px solid #1e3a8a;font-size:13px;color:#93c5fd;}
 
 .main{flex:1;padding:20px;overflow-y:auto;min-width:0;}
 
@@ -257,7 +263,7 @@ tr:hover{background:#f8fafc;}
 }
 
 @media(max-width:768px){
-  .dashboard{flex-direction:column;height:auto;min-height:100vh;}
+  .dashboard{flex:none;flex-direction:column;height:auto;min-height:100vh;}
   .sidebar{
     width:280px;
     position:fixed;
@@ -339,6 +345,7 @@ SmartLoan - Admin Dashboard
 <div class="menu-item" onclick="showSection('transactions')">Transactions</div>
 <div class="menu-item" onclick="showSection('products')">Loan Products</div>
 <div class="menu-item" onclick="showSection('support')">Support Tickets</div>
+<div class="sidebar-footer" id="adminSidebarUser">admin@smartloan.com</div>
 </div>
 <div class="sidebar-overlay" onclick="closeSidebar()"></div>
 

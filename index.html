@@ -179,7 +179,9 @@ input:focus,select:focus,textarea:focus{border-color:#2563eb;}
   font-size:clamp(18px,3vw,24px);
   font-weight:bold;
   text-align:center;
-  position:relative;
+  position:sticky;
+  top:0;
+  z-index:100;
 }
 
 .hamburger{
@@ -209,20 +211,22 @@ input:focus,select:focus,textarea:focus{border-color:#2563eb;}
   z-index:998;
 }
 
-.dashboard{display:flex;height:100vh;}
+#dashboardPage{display:flex;flex-direction:column;height:100vh;}
+.dashboard{display:flex;flex:1;min-height:0;}
 
 .sidebar{
   width:280px;
   background:#111827;
   color:white;
   padding:20px;
-  overflow-y:auto;
   flex-shrink:0;
+  display:flex;
+  flex-direction:column;
 }
-
 .sidebar h2{margin-bottom:20px;}
 .sidebar div{padding:12px;margin:10px 0;border-radius:8px;cursor:pointer;}
 .sidebar div:hover{background:#1e3a8a;}
+.sidebar-footer{margin-top:auto;padding:12px 0 0;border-top:1px solid #1e3a8a;font-size:13px;color:#93c5fd;}
 
 .main{flex:1;padding:20px;overflow-y:auto;min-width:0;}
 
@@ -261,7 +265,7 @@ input:focus,select:focus,textarea:focus{border-color:#2563eb;}
 }
 
 @media(max-width:768px){
-  .dashboard{flex-direction:column;height:auto;min-height:100vh;}
+  .dashboard{flex:none;flex-direction:column;height:auto;min-height:100vh;}
   .sidebar{
     width:280px;
     position:fixed;
@@ -400,10 +404,11 @@ SmartLoan - AI Banking Dashboard
 <h2>Menu</h2>
 <div onclick="showSection('loan')">Apply for a Loan</div>
 <div onclick="showSection('kyc')">Upload KYC & Documents</div>
-<div onclick="showSection('repayment')">Repayment & Smart Contracts</div>
+<div onclick="showSection('repayment')">Loan Repayment Status</div>
 <div onclick="showSection('notifications')">Notification Centre</div>
 <div onclick="showSection('profile')">Profile & Account Settings</div>
 <div onclick="showSection('support')">Support & Help</div>
+<div class="sidebar-footer" id="sidebarUser">Not logged in</div>
 </div>
 <div class="sidebar-overlay" onclick="closeSidebar()"></div>
 
@@ -540,6 +545,7 @@ if(session){
 document.getElementById('welcomePage').classList.add('hidden');
 document.getElementById('authPage').classList.add('hidden');
 document.getElementById('dashboardPage').classList.remove('hidden');
+document.getElementById('sidebarUser').textContent = session.user.user_metadata?.full_name || session.user.email;
 }
 }
 
@@ -616,6 +622,8 @@ window.location.href = 'admin.html';
 return;
 }
 
+const name = data.user?.user_metadata?.full_name || data.user?.email || contact;
+document.getElementById('sidebarUser').textContent = name;
 document.getElementById('authPage').classList.add('hidden');
 document.getElementById('dashboardPage').classList.remove('hidden');
 }
