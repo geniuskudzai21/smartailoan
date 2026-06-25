@@ -422,7 +422,6 @@ Already have an account? <a onclick="showLogin()">Sign In</a>
 <div class="sidebar">
 <h2>Menu</h2>
 <div onclick="showSection('loan')"><i data-lucide="hand-coins"></i> Apply for a Loan</div>
-<div onclick="showSection('kyc')"><i data-lucide="file-text"></i> Upload KYC & Documents</div>
 <div onclick="showSection('repayment')"><i data-lucide="wallet"></i> Loan Repayment Status</div>
 <div onclick="showSection('notifications')"><i data-lucide="bell"></i> Notification Centre</div>
 <div onclick="showSection('profile')"><i data-lucide="settings"></i> Profile & Account Settings</div>
@@ -444,17 +443,13 @@ Already have an account? <a onclick="showLogin()">Sign In</a>
 <input placeholder="Monthly Income">
 <select><option>Employment Status</option><option>Employed</option><option>Self Employed</option><option>Vendor</option><option>Unemployed</option></select>
 <select><option>Repayment Period</option><option>3 Months</option><option>6 Months</option><option>12 Months</option><option>24 Months</option></select>
-<button><i data-lucide="send"></i> Submit Loan Application</button>
-</div>
-
-<div class="card section hidden" id="kyc">
-<h2><i data-lucide="file-text"></i> Upload KYC & Documents</h2>
+<h3 style="margin-top:16px;"><i data-lucide="file-text" style="width:16px;height:16px;"></i> Upload KYC & Documents</h3>
 <label>National ID</label><input type="file">
 <label>Payslip</label><input type="file">
 <label>Utility Bill</label><input type="file">
 <label>Insurance Documents</label><input type="file">
 <label>Bank Statements</label><input type="file">
-<button><i data-lucide="upload"></i> Upload Documents</button>
+<button><i data-lucide="send"></i> Submit Loan Application</button>
 </div>
 
 <div class="card section hidden" id="verification">
