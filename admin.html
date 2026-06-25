@@ -445,6 +445,7 @@ tr:hover{background:#f8fafc;}
 <div class="section-title"><i data-lucide="shield-check"></i> KYC Verification Queue</div>
 <div class="toolbar">
 <select id="kycFilter" onchange="filterKyc()"><option value="pending">Pending Review</option><option value="all">All</option><option value="verified">Verified</option><option value="rejected">Rejected</option></select>
+<button onclick="refreshKyc()" style="background:#475569;"><i data-lucide="refresh-cw" style="width:16px;height:16px;"></i> Refresh</button>
 </div>
 <div class="card">
 <div class="table-wrap">
@@ -556,50 +557,6 @@ const supabase = createClient(
 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im96a2Nwdmx1dG11cHFibGZ6Y3JvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIzNDI2NDgsImV4cCI6MjA5NzkxODY0OH0.7aSDXDTvY3A5izw0lU_KUmiQSKtaYA0xPSyQ4kYqOyQ'
 );
 
-// ---- MOCK DATA ----
-const mockUsers = [
-  {name:'Jane Doe',contact:'jane@email.com',kyc:'Verified',loans:2,joined:'2026-05-01'},
-  {name:'John Smith',contact:'john@email.com',kyc:'Pending',loans:1,joined:'2026-05-15'},
-  {name:'Alice Wang',contact:'alice@email.com',kyc:'Verified',loans:0,joined:'2026-06-01'},
-  {name:'Bob Kimani',contact:'bob@email.com',kyc:'Pending',loans:0,joined:'2026-06-10'},
-];
-
-const mockLoans = [
-  {applicant:'Jane Doe',amount:5000,purpose:'Business',date:'2026-06-10',term:'12 Months',status:'Pending'},
-  {applicant:'John Smith',amount:2000,purpose:'Education',date:'2026-06-12',term:'6 Months',status:'Approved'},
-  {applicant:'Alice Wang',amount:10000,purpose:'Business',date:'2026-06-14',term:'24 Months',status:'Disbursed'},
-  {applicant:'Bob Kimani',amount:1500,purpose:'Emergency',date:'2026-06-16',term:'3 Months',status:'Pending'},
-];
-
-const mockKyc = [
-  {user:'Jane Doe',docs:'4/5 Uploaded',submitted:'2026-06-10',status:'Verified'},
-  {user:'John Smith',docs:'2/5 Uploaded',submitted:'2026-06-12',status:'Pending'},
-  {user:'Bob Kimani',docs:'5/5 Uploaded',submitted:'2026-06-14',status:'Pending'},
-];
-
-const mockCredit = [
-  {user:'Jane Doe',crb:'CLEAR',fcb:'CLEAR',srl:'CLEAR',risk:'Low',eligibility:'Approved'},
-  {user:'John Smith',crb:'CLEAR',fcb:'CLEAR',srl:'CLEAR',risk:'Medium',eligibility:'Conditionally Approved'},
-  {user:'Alice Wang',crb:'CLEAR',fcb:'CLEAR',srl:'CLEAR',risk:'Low',eligibility:'Approved'},
-];
-
-const mockTxn = [
-  {user:'Alice Wang',type:'Disbursement',amount:10000,date:'2026-06-15',ref:'TXN-001',status:'Completed'},
-  {user:'Jane Doe',type:'Repayment',amount:500,date:'2026-06-14',ref:'TXN-002',status:'Completed'},
-  {user:'John Smith',type:'Disbursement',amount:2000,date:'2026-06-10',ref:'TXN-003',status:'Completed'},
-];
-
-const mockProducts = [
-  {name:'Business Loan',min:5000,max:50000,rate:'12%',term:'12 Months',status:'Active'},
-  {name:'Education Loan',min:1000,max:20000,rate:'8%',term:'6 Months',status:'Active'},
-  {name:'Emergency Loan',min:500,max:5000,rate:'15%',term:'3 Months',status:'Active'},
-];
-
-const mockTickets = [
-  {user:'Jane Doe',subject:'Loan disbursement delay',date:'2026-06-16',status:'Open'},
-  {user:'Bob Kimani',subject:'Document upload error',date:'2026-06-15',status:'Open'},
-];
-
 // ---- AUTH ----
 const ADMIN_EMAIL = 'admin@smartloan.com';
 const ADMIN_PASS = 'Admin@123';
@@ -682,7 +639,8 @@ window.showSection = function(id){
 }
 
 // ---- LOAD DASHBOARD ----
-let dbUsers = [], dbLoans = [], dbKyc = [], dbTxn = [], dbTickets = [];
+let dbUsers = [], dbLoans = [], dbKyc = [], dbTxn = [], dbTickets = [], dbCredit = [];
+let products = [];
 
 async function loadDashboard(){
   const [usersRes, loansRes, kycRes, txnRes, ticketRes] = await Promise.all([
@@ -698,28 +656,21 @@ async function loadDashboard(){
   dbTxn = txnRes.data || [];
   dbTickets = ticketRes.data || [];
 
-  const allLoans = dbLoans.length ? dbLoans : mockLoans;
-  const allKyc = dbKyc.length ? dbKyc : mockKyc;
-  const allTxn = dbTxn.length ? dbTxn : mockTxn;
-  const allTickets = dbTickets.length ? dbTickets : mockTickets;
-  const allUsers = dbUsers.length ? dbUsers : mockUsers;
-  const allProducts = mockProducts;
+  document.getElementById('statUsers').textContent = dbUsers.length;
+  document.getElementById('statLoans').textContent = dbLoans.filter(l => l.status === 'Approved' || l.status === 'Disbursed').length;
+  document.getElementById('statDisbursed').textContent = '$' + dbLoans.filter(l => l.status === 'Disbursed').reduce((s,l) => s + Number(l.amount), 0);
+  document.getElementById('statPending').textContent = dbLoans.filter(l => l.status === 'Pending').length;
+  document.getElementById('statKyc').textContent = dbKyc.filter(k => k.status === 'Pending').length;
+  document.getElementById('statTickets').textContent = dbTickets.filter(t => t.status === 'Open').length;
 
-  document.getElementById('statUsers').textContent = allUsers.length;
-  document.getElementById('statLoans').textContent = allLoans.filter(l => l.status === 'Approved' || l.status === 'Disbursed').length;
-  document.getElementById('statDisbursed').textContent = '$' + allLoans.filter(l => l.status === 'Disbursed').reduce((s,l) => s + Number(l.amount), 0);
-  document.getElementById('statPending').textContent = allLoans.filter(l => l.status === 'Pending').length;
-  document.getElementById('statKyc').textContent = allKyc.filter(k => k.status === 'Pending').length;
-  document.getElementById('statTickets').textContent = allTickets.filter(t => t.status === 'Open').length;
-
-  renderUsers(allUsers);
-  renderLoans(allLoans);
-  renderKyc(allKyc);
-  renderCredit(mockCredit);
-  renderTransactions(allTxn);
-  renderProducts(allProducts);
-  renderTickets(allTickets);
-  renderActivity(allTxn);
+  renderUsers(dbUsers);
+  renderLoans(dbLoans);
+  renderKyc(dbKyc);
+  renderCredit(dbCredit);
+  renderTransactions(dbTxn);
+  renderProducts(products);
+  renderTickets(dbTickets);
+  renderActivity(dbTxn);
 }
 
 // ---- RENDER HELPERS ----
@@ -777,6 +728,8 @@ function renderLoans(list){
 
 function renderKyc(list){
   const tbody = document.getElementById('kycTable');
+  const userMap = {};
+  dbUsers.forEach(u => { userMap[u.user_id] = u.full_name || u.name || u.email || '—'; });
   if(!list.length){
     tbody.innerHTML = '<tr><td colspan="5" class="empty-state"><i data-lucide="shield-check" style="width:32px;height:32px;color:#cbd5e1;"></i><p>No KYC submissions</p></td></tr>';
     lucide.createIcons();
@@ -784,9 +737,11 @@ function renderKyc(list){
   }
   tbody.innerHTML = list.map(k => {
     const cls = k.status === 'Verified' ? 'badge-success' : k.status === 'Rejected' ? 'badge-danger' : 'badge-warning';
+    const userName = k.user || userMap[k.user_id] || k.user_id?.slice(0,8) || '—';
+    const docDisplay = k.file_url ? `<a href="${k.file_url}" target="_blank" style="color:#60a5fa;text-decoration:underline;font-size:13px;">${k.document_type||'View'}</a>` : (k.docs||k.document_type||'—');
     return `<tr>
-      <td><strong>${k.user||k.user_id?.slice(0,8)||'—'}</strong></td>
-      <td>${k.docs||k.document_type||'—'}</td>
+      <td><strong>${userName}</strong></td>
+      <td>${docDisplay}</td>
       <td>${k.submitted||(k.created_at?new Date(k.created_at).toLocaleDateString():'—')}</td>
       <td><span class="badge ${cls}">${k.status}</span></td>
       <td>
@@ -856,7 +811,7 @@ function renderActivity(txns){
 window.filterUsers = function(){
   const q = document.getElementById('userSearch').value.toLowerCase();
   const status = document.getElementById('userStatusFilter').value;
-  let filtered = dbUsers.length ? dbUsers : mockUsers;
+  let filtered = dbUsers;
   if(q) filtered = filtered.filter(u => (u.full_name||u.name).toLowerCase().includes(q) || (u.email||u.contact).toLowerCase().includes(q));
   if(status === 'pending') filtered = filtered.filter(u => u.kyc === 'Pending');
   else if(status === 'suspended') filtered = [];
@@ -866,30 +821,37 @@ window.filterUsers = function(){
 window.filterLoans = function(){
   const status = document.getElementById('loanFilter').value;
   const q = document.getElementById('loanSearch').value.toLowerCase();
-  let filtered = dbLoans.length ? dbLoans : mockLoans;
+  let filtered = dbLoans;
   if(status !== 'all') filtered = filtered.filter(l => l.status.toLowerCase() === status);
-  if(q) filtered = filtered.filter(l => l.applicant?.toLowerCase().includes(q) || l.purpose?.toLowerCase().includes(q));
+  if(q) filtered = filtered.filter(l => l.purpose?.toLowerCase().includes(q));
   renderLoans(filtered);
 }
 
 window.filterKyc = function(){
   const status = document.getElementById('kycFilter').value;
-  let filtered = dbKyc.length ? dbKyc : mockKyc;
+  let filtered = dbKyc;
   if(status !== 'all') filtered = filtered.filter(k => k.status.toLowerCase() === status);
   renderKyc(filtered);
 }
 
+window.refreshKyc = async function(){
+  const { data } = await supabase.from('kyc_documents').select('*');
+  if(data) dbKyc = data;
+  document.getElementById('kycFilter').value = 'all';
+  renderKyc(dbKyc);
+}
+
 window.searchCredit = function(){
   const q = document.getElementById('creditSearch').value.toLowerCase();
-  if(!q){ renderCredit(mockCredit); return; }
-  const filtered = mockCredit.filter(c => c.user.toLowerCase().includes(q));
+  if(!q){ renderCredit(dbCredit); return; }
+  const filtered = dbCredit.filter(c => c.user.toLowerCase().includes(q));
   renderCredit(filtered);
 }
 
 window.filterTransactions = function(){
   const type = document.getElementById('txnFilter').value;
   const q = document.getElementById('txnSearch').value.toLowerCase();
-  let filtered = dbTxn.length ? dbTxn : mockTxn;
+  let filtered = dbTxn;
   if(type !== 'all') filtered = filtered.filter(t => t.type.toLowerCase() === type);
   if(q) filtered = filtered.filter(t => (t.user||'').toLowerCase().includes(q));
   renderTransactions(filtered);
@@ -897,7 +859,7 @@ window.filterTransactions = function(){
 
 window.filterTickets = function(){
   const status = document.getElementById('ticketFilter').value;
-  let filtered = dbTickets.length ? dbTickets : mockTickets;
+  let filtered = dbTickets;
   if(status !== 'all') filtered = filtered.filter(t => t.status.toLowerCase() === status);
   renderTickets(filtered);
 }
@@ -1014,8 +976,8 @@ window.saveProduct = function(){
     alert('Please complete all fields');
     return;
   }
-  mockProducts.push({name,min:parseInt(min),max:parseInt(max),rate:rate+'%',term,status:'Active'});
-  renderProducts(mockProducts);
+  products.push({name,min:parseInt(min),max:parseInt(max),rate:rate+'%',term,status:'Active'});
+  renderProducts(products);
   document.getElementById('productForm').classList.add('hidden');
   document.getElementById('prodName').value = '';
   document.getElementById('prodMin').value = '';

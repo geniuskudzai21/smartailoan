@@ -447,11 +447,11 @@ Already have an account? <a onclick="showLogin()">Sign In</a>
 <select id="loanEmployment"><option>Employment Status</option><option>Employed</option><option>Self Employed</option><option>Vendor</option><option>Unemployed</option></select>
 <select id="loanPeriod"><option>Repayment Period</option><option>3 Months</option><option>6 Months</option><option>12 Months</option><option>24 Months</option></select>
 <h3 style="margin-top:16px;"><i data-lucide="file-text" style="width:16px;height:16px;"></i> Upload KYC & Documents</h3>
-<label>National ID</label><input type="file">
-<label>Payslip</label><input type="file">
-<label>Utility Bill</label><input type="file">
-<label>Insurance Documents</label><input type="file">
-<label>Bank Statements</label><input type="file">
+<label>National ID</label><input id="kycNationalId" type="file">
+<label>Payslip</label><input id="kycPayslip" type="file">
+<label>Utility Bill</label><input id="kycUtility" type="file">
+<label>Insurance Documents</label><input id="kycInsurance" type="file">
+<label>Bank Statements</label><input id="kycBank" type="file">
 <button onclick="submitLoan()"><i data-lucide="send"></i> Submit Loan Application</button>
 </div>
 
@@ -684,7 +684,7 @@ window.submitLoan = async function(){
     return alert('Please complete all required fields.');
   }
 
-  const { error } = await supabase.from('loan_applications').insert({
+  const { error: loanErr } = await supabase.from('loan_applications').insert({
     user_id: session.user.id,
     amount: parseFloat(amount),
     purpose,
@@ -693,7 +693,44 @@ window.submitLoan = async function(){
     repayment_period: period
   });
 
-  if(error) return alert('Error: ' + error.message);
+  if(loanErr) return alert('Error: ' + loanErr.message);
+
+  const kycFields = [
+    {id:'kycNationalId', type:'National ID'},
+    {id:'kycPayslip', type:'Payslip'},
+    {id:'kycUtility', type:'Utility Bill'},
+    {id:'kycInsurance', type:'Insurance Documents'},
+    {id:'kycBank', type:'Bank Statements'},
+  ];
+
+  let uploadErrors = [];
+
+  const hasFiles = kycFields.some(f => document.getElementById(f.id)?.files?.[0]);
+  if(hasFiles){
+    await supabase.storage.createBucket('kyc-documents', { public: true }).catch(() => {});
+  }
+
+  for(const field of kycFields){
+    const fileInput = document.getElementById(field.id);
+    const file = fileInput?.files?.[0];
+    if(!file) continue;
+
+    const filePath = `${session.user.id}/${field.type}_${Date.now()}`;
+    const { error: uploadErr } = await supabase.storage.from('kyc-documents').upload(filePath, file);
+    if(uploadErr){
+      uploadErrors.push(field.type);
+      continue;
+    }
+
+    const { data: { publicUrl } } = supabase.storage.from('kyc-documents').getPublicUrl(filePath);
+
+    await supabase.from('kyc_documents').insert({
+      user_id: session.user.id,
+      document_type: field.type,
+      file_url: publicUrl,
+      status: 'Pending'
+    });
+  }
 
   document.getElementById('loanAmount').value = '';
   document.getElementById('loanPurpose').selectedIndex = 0;
@@ -701,7 +738,15 @@ window.submitLoan = async function(){
   document.getElementById('loanIncome').value = '';
   document.getElementById('loanEmployment').selectedIndex = 0;
   document.getElementById('loanPeriod').selectedIndex = 0;
-  alert('Loan application submitted successfully!');
+  for(const field of kycFields){
+    document.getElementById(field.id).value = '';
+  }
+
+  let msg = 'Loan application submitted successfully!';
+  if(uploadErrors.length){
+    msg += '\n\nCould not upload: ' + uploadErrors.join(', ') + '.\nMake sure the KYC storage bucket exists in your Supabase project.';
+  }
+  alert(msg);
 }
 
 window.checkSession();
