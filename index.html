@@ -3,46 +3,152 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Smart Banking Application</title>
-
+<title>SmartLoan - AI-Powered Banking</title>
 <style>
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-}
+*{margin:0;padding:0;box-sizing:border-box;}
 
 body{
-font-family:Arial,sans-serif;
-background:#eef2f7;
+font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+background:#f0f4f8;
+color:#1e293b;
 }
 
-.hidden{
-display:none;
-}
+.hidden{display:none !important;}
 
 button{
 background:#1e3a8a;
 color:white;
 border:none;
-padding:12px 18px;
+padding:12px 24px;
 border-radius:8px;
 cursor:pointer;
-font-weight:bold;
+font-weight:600;
+font-size:15px;
+transition:background .3s;
 }
 
-button:hover{
-background:#2563eb;
-}
+button:hover{background:#2563eb;}
 
 input,select,textarea{
 width:100%;
 padding:12px;
 margin:10px 0;
 border-radius:8px;
-border:1px solid #cbd5e1;
+border:1.5px solid #e2e8f0;
+font-size:14px;
+outline:none;
 }
 
+input:focus,select:focus,textarea:focus{border-color:#2563eb;}
+
+/* ===== WELCOME ===== */
+.welcome{
+min-height:100vh;
+display:flex;
+flex-direction:column;
+background:linear-gradient(135deg,#1e3a8a,#3b82f6);
+color:white;
+}
+
+.welcome-content{
+flex:1;
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+text-align:center;
+padding:40px 24px;
+max-width:700px;
+margin:0 auto;
+}
+
+.welcome-content h1{
+font-size:42px;
+font-weight:800;
+margin-bottom:12px;
+}
+
+.welcome-content p{
+font-size:16px;
+line-height:1.7;
+opacity:.85;
+margin-bottom:8px;
+}
+
+.welcome-content .features{
+display:flex;
+flex-wrap:wrap;
+justify-content:center;
+gap:12px;
+margin:24px 0 32px;
+}
+
+.welcome-content .features span{
+background:rgba(255,255,255,.15);
+padding:8px 16px;
+border-radius:20px;
+font-size:13px;
+}
+
+.welcome-content button{
+padding:14px 40px;
+font-size:16px;
+background:white;
+color:#1e3a8a;
+border-radius:10px;
+font-weight:700;
+}
+
+.welcome-content button:hover{background:#e2e8f0;}
+
+.footer{
+padding:20px;
+text-align:center;
+font-size:13px;
+opacity:.5;
+}
+
+/* ===== AUTH ===== */
+.auth-container{
+min-height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+background:#f0f4f8;
+padding:20px;
+}
+
+.auth-card{
+background:white;
+width:420px;
+padding:36px;
+border-radius:16px;
+box-shadow:0 10px 40px rgba(0,0,0,.12);
+}
+
+.auth-card h2{
+color:#1e3a8a;
+margin-bottom:4px;
+font-size:24px;
+}
+
+.auth-card .subtitle{
+color:#94a3b8;
+font-size:14px;
+margin-bottom:24px;
+}
+
+.auth-card .btn-primary{width:100%;padding:13px;margin-top:4px;}
+
+.auth-card label{font-size:13px;font-weight:600;color:#475569;}
+
+.toggle-link{text-align:center;margin-top:14px;font-size:14px;color:#64748b;}
+.toggle-link a{color:#2563eb;cursor:pointer;font-weight:600;}
+.toggle-link a:hover{text-decoration:underline;}
+
+#authMessage{min-height:24px;font-size:13px;text-align:center;}
+
+/* ===== DASHBOARD (existing) ===== */
 .header{
 background:#1e3a8a;
 color:white;
@@ -52,54 +158,7 @@ font-weight:bold;
 text-align:center;
 }
 
-.welcome{
-height:100vh;
-display:flex;
-justify-content:center;
-align-items:center;
-flex-direction:column;
-background:linear-gradient(to right,#1e3a8a,#2563eb);
-color:white;
-text-align:center;
-padding:20px;
-}
-
-.welcome h1{
-font-size:50px;
-margin-bottom:20px;
-}
-
-.welcome p{
-max-width:700px;
-line-height:1.8;
-margin-bottom:20px;
-}
-
-.auth-container{
-height:100vh;
-display:flex;
-justify-content:center;
-align-items:center;
-}
-
-.auth-card{
-background:white;
-width:420px;
-padding:30px;
-border-radius:15px;
-box-shadow:0 0 10px rgba(0,0,0,0.15);
-}
-
-.auth-card h2{
-text-align:center;
-margin-bottom:20px;
-color:#1e3a8a;
-}
-
-.dashboard{
-display:flex;
-height:100vh;
-}
+.dashboard{display:flex;height:100vh;}
 
 .sidebar{
 width:280px;
@@ -109,39 +168,21 @@ padding:20px;
 overflow-y:auto;
 }
 
-.sidebar h2{
-margin-bottom:20px;
-}
+.sidebar h2{margin-bottom:20px;}
+.sidebar div{padding:12px;margin:10px 0;border-radius:8px;cursor:pointer;}
+.sidebar div:hover{background:#1e3a8a;}
 
-.sidebar div{
-padding:12px;
-margin:10px 0;
-border-radius:8px;
-cursor:pointer;
-}
-
-.sidebar div:hover{
-background:#1e3a8a;
-}
-
-.main{
-flex:1;
-padding:20px;
-overflow-y:auto;
-}
+.main{flex:1;padding:20px;overflow-y:auto;}
 
 .card{
 background:white;
 padding:20px;
-border-radius:15px;
+border-radius:12px;
 margin-bottom:20px;
-box-shadow:0 0 5px rgba(0,0,0,0.1);
+box-shadow:0 2px 8px rgba(0,0,0,.08);
 }
 
-.card h2{
-color:#1e3a8a;
-margin-bottom:15px;
-}
+.card h2{color:#1e3a8a;margin-bottom:12px;}
 
 .status{
 background:#f8fafc;
@@ -158,46 +199,106 @@ border-radius:8px;
 margin:10px 0;
 }
 
-.grid{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:20px;
-}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
 
-.logout{
-text-align:right;
-margin-bottom:20px;
-}
+.logout{text-align:right;margin-bottom:20px;}
 
 @media(max-width:900px){
-.dashboard{
-flex-direction:column;
-}
-
-.sidebar{
-width:100%;
-height:auto;
-}
-
-.grid{
-grid-template-columns:1fr;
-}
+.dashboard{flex-direction:column;}
+.sidebar{width:100%;}
+.grid{grid-template-columns:1fr;}
+.welcome-content h1{font-size:32px;}
 }
 </style>
 </head>
-
 <body>
-<!-- PAGE 3 -->
-<section id="dashboardPage">
 
-<div class="header">
-AI Smart Banking Customer Dashboard
+<!-- PAGE 1: WELCOME -->
+<section id="welcomePage" class="welcome">
+
+<div style="display:flex;justify-content:space-between;align-items:center;padding:20px 24px;">
+<div style="font-weight:800;font-size:20px;">SmartLoan</div>
+<button onclick="openAuth()" style="background:rgba(255,255,255,.2);color:white;font-size:13px;">Sign In</button>
 </div>
+
+<div class="welcome-content">
+<h1>Smart Loans, Smarter Future</h1>
+<p>AI-powered loan approvals, instant KYC verification, and intelligent credit scoring — all in one platform.</p>
+
+<div class="features">
+<span>AI Credit Scoring</span>
+<span>Instant KYC</span>
+<span>Fast Approvals</span>
+<span>Smart Contracts</span>
+<span>24/7 Support</span>
+</div>
+
+<button onclick="openAuth()">Get Started</button>
+</div>
+
+<div class="footer">&copy; 2026 SmartLoan</div>
+</section>
+
+<!-- PAGE 2: AUTH -->
+<section id="authPage" class="auth-container hidden">
+
+<div class="auth-card">
+
+<h2>Welcome</h2>
+<p class="subtitle">Sign in or create your account</p>
+
+<div id="authMessage"></div>
+
+<div id="loginForm">
+<label>Email or Phone</label>
+<input id="contact" placeholder="Enter your email or phone">
+
+<label>Password</label>
+<input id="password" type="password" placeholder="Enter your password">
+
+<button class="btn-primary" onclick="loginUser()">Sign In</button>
+
+<div class="toggle-link">
+No account? <a onclick="showRegister()">Create one</a>
+</div>
+<div class="toggle-link">
+<a onclick="goHome()" style="color:#94a3b8;">&larr; Back</a>
+</div>
+</div>
+
+<div id="registerForm" class="hidden">
+<label>Full Name</label>
+<input id="fullname" placeholder="Enter your full name">
+
+<label>Email or Phone</label>
+<input id="regContact" placeholder="Enter your email or phone">
+
+<label>Password</label>
+<input id="regPassword" type="password" placeholder="Create a password">
+
+<button class="btn-primary" onclick="registerUser()">Create Account</button>
+
+<div class="toggle-link">
+Already have an account? <a onclick="showLogin()">Sign In</a>
+</div>
+<div class="toggle-link">
+<a onclick="goHome()" style="color:#94a3b8;">&larr; Back</a>
+</div>
+</div>
+
+</div>
+
+</section>
+
+<!-- PAGE 3: DASHBOARD -->
+<section id="dashboardPage" class="hidden">
+
+<div class="header">SmartLoan - AI Banking Dashboard</div>
 
 <div class="dashboard">
 
 <div class="sidebar">
-
+<h2>Menu</h2>
 <div onclick="showSection('loan')">Apply for a Loan</div>
 <div onclick="showSection('kyc')">Upload KYC & Documents</div>
 <div onclick="showSection('verification')">Verification Status</div>
@@ -207,7 +308,6 @@ AI Smart Banking Customer Dashboard
 <div onclick="showSection('notifications')">Notification Centre</div>
 <div onclick="showSection('profile')">Profile & Account Settings</div>
 <div onclick="showSection('support')">Support & Help</div>
-
 </div>
 
 <div class="main">
@@ -216,215 +316,111 @@ AI Smart Banking Customer Dashboard
 <button onclick="logout()">Logout</button>
 </div>
 
-<!-- LOAN -->
 <div class="card section" id="loan">
-
 <h2>Apply for a Loan</h2>
-
 <input placeholder="Loan Amount Requested">
-
-<select>
-<option>Loan Purpose</option>
-<option>Business</option>
-<option>Education</option>
-<option>Emergency</option>
-<option>Personal</option>
-</select>
-
+<select><option>Loan Purpose</option><option>Business</option><option>Education</option><option>Emergency</option><option>Personal</option></select>
 <input placeholder="Monthly Income">
-
-<select>
-<option>Employment Status</option>
-<option>Employed</option>
-<option>Self Employed</option>
-<option>Vendor</option>
-<option>Unemployed</option>
-</select>
-
-<select>
-<option>Repayment Period</option>
-<option>3 Months</option>
-<option>6 Months</option>
-<option>12 Months</option>
-<option>24 Months</option>
-</select>
-
+<select><option>Employment Status</option><option>Employed</option><option>Self Employed</option><option>Vendor</option><option>Unemployed</option></select>
+<select><option>Repayment Period</option><option>3 Months</option><option>6 Months</option><option>12 Months</option><option>24 Months</option></select>
 <button>Submit Loan Application</button>
-
 </div>
 
-<!-- KYC -->
 <div class="card section hidden" id="kyc">
-
 <h2>Upload KYC & Documents</h2>
-
-<label>National ID</label>
-<input type="file">
-
-<label>Payslip</label>
-<input type="file">
-
-<label>Utility Bill</label>
-<input type="file">
-
-<label>Insurance Documents</label>
-<input type="file">
-
-<label>Bank Statements</label>
-<input type="file">
-
+<label>National ID</label><input type="file">
+<label>Payslip</label><input type="file">
+<label>Utility Bill</label><input type="file">
+<label>Insurance Documents</label><input type="file">
+<label>Bank Statements</label><input type="file">
 <button>Upload Documents</button>
-
 </div>
 
-<!-- VERIFICATION -->
 <div class="card section hidden" id="verification">
-
 <h2>Verification Status</h2>
-
 <div class="status">KYC Verification: PASSED</div>
 <div class="status">National ID Verification: VERIFIED</div>
 <div class="status">Document Review: COMPLETED</div>
 <div class="status">Eligibility Assessment: IN PROGRESS</div>
-
 </div>
 
-<!-- BUREAU -->
 <div class="card section hidden" id="bureau">
-
 <h2>Credit & Bureau Results</h2>
-
 <div class="status">CRB Result: CLEAR</div>
 <div class="status">FCB Result: CLEAR</div>
 <div class="status">SRL Status: CLEAR</div>
 <div class="status">Risk Category: MEDIUM RISK</div>
 <div class="status">Eligibility Status: CONDITIONALLY APPROVED</div>
-
 </div>
 
-<!-- REPAYMENT -->
 <div class="card section hidden" id="repayment">
-
 <h2>Repayment & Smart Contract Tracking</h2>
-
 <div class="grid">
-
 <div>
 <div class="status">Outstanding Balance: $1,200</div>
 <div class="status">Due Date: 15 June 2026</div>
 <div class="status">Penalty Charges: $25</div>
 <div class="status">Smart Contract Status: ACTIVE</div>
 </div>
-
 <div>
-
 <h3>Payment History</h3>
-
 <div class="notification">01 May 2026 - Payment Received ($150)</div>
 <div class="notification">01 April 2026 - Payment Received ($150)</div>
 <div class="notification">01 March 2026 - Payment Received ($150)</div>
-
+</div>
+</div>
 </div>
 
-</div>
-
-</div>
-
-<!-- MOBILE -->
 <div class="card section hidden" id="mobile">
-
 <h2>Mobile Money & Transaction History</h2>
-
 <div class="grid">
-
 <div>
-
 <label>Upload Mobile Money Statement</label>
 <input type="file">
-
 <button>Analyze Transactions</button>
-
 </div>
-
 <div>
-
 <div class="status">AI Transaction Score: 82%</div>
 <div class="status">Spending Behaviour: MODERATE</div>
 <div class="status">Transaction Trend: STABLE</div>
 <div class="status">Cash Flow Rating: POSITIVE</div>
-
+</div>
+</div>
 </div>
 
-</div>
-
-</div>
-
-<!-- NOTIFICATIONS -->
 <div class="card section hidden" id="notifications">
-
 <h2>Notification Centre</h2>
-
 <div class="notification">Loan Approved</div>
 <div class="notification">Loan Declined</div>
 <div class="notification">Payment Overdue</div>
 <div class="notification">Document Rejected</div>
 <div class="notification">KYC Successful</div>
 <div class="notification">New Loan Offer Available</div>
-
 </div>
 
-<!-- PROFILE -->
 <div class="card section hidden" id="profile">
-
 <h2>Profile & Account Settings</h2>
-
 <input placeholder="Update Phone Number">
-
 <input placeholder="Update Email Address">
-
 <input placeholder="Update Residential Address">
-
 <input type="password" placeholder="Change Password">
-
 <button>Update Profile</button>
-
 </div>
 
-<!-- SUPPORT -->
 <div class="card section hidden" id="support">
-
 <h2>Support & Help</h2>
-
 <h3>FAQ</h3>
-
 <p>Frequently asked questions about loans, repayments and account management.</p>
-
 <h3>Chat Support</h3>
-
 <textarea rows="4" placeholder="Type your message here"></textarea>
-
 <button>Send Message</button>
-
 <h3>Contact Details</h3>
-
-<p>Email: support@aismartsbank.com</p>
+<p>Email: support@smartloan.com</p>
 <p>Phone: +263 77 000 0000</p>
-
 <h3>About</h3>
-
-<p>
-This AI-powered banking application helps customers with digital banking,
-loan applications, KYC verification, AI credit scoring,
-repayment monitoring and financial analytics.
-</p>
-
+<p>This AI-powered banking application helps customers with digital banking, loan applications, KYC verification, AI credit scoring, repayment monitoring and financial analytics.</p>
 <h3>Terms & Conditions</h3>
-
-<p>
-All customers agree to responsible borrowing,
-credit verification and repayment compliance policies.
-</p>
-
+<p>All customers agree to responsible borrowing, credit verification and repayment compliance policies.</p>
 </div>
 
 </div>
@@ -434,72 +430,67 @@ credit verification and repayment compliance policies.
 </section>
 
 <script>
-
 let users = [];
 
 function openAuth(){
 document.getElementById('welcomePage').classList.add('hidden');
 document.getElementById('authPage').classList.remove('hidden');
+document.getElementById('loginForm').classList.remove('hidden');
+document.getElementById('registerForm').classList.add('hidden');
+document.getElementById('authMessage').innerHTML = '';
+}
+
+function goHome(){
+document.getElementById('authPage').classList.add('hidden');
+document.getElementById('welcomePage').classList.remove('hidden');
+}
+
+function showLogin(){
+document.getElementById('loginForm').classList.remove('hidden');
+document.getElementById('registerForm').classList.add('hidden');
+document.getElementById('authMessage').innerHTML = '';
+}
+
+function showRegister(){
+document.getElementById('loginForm').classList.add('hidden');
+document.getElementById('registerForm').classList.remove('hidden');
+document.getElementById('authMessage').innerHTML = '';
 }
 
 function registerUser(){
-
-let fullname=document.getElementById('fullname').value;
-let contact=document.getElementById('contact').value;
-let password=document.getElementById('password').value;
-
+let fullname = document.getElementById('fullname').value;
+let contact = document.getElementById('regContact').value;
+let password = document.getElementById('regPassword').value;
 if(!fullname || !contact || !password){
-
-document.getElementById('message').innerHTML='<p style="color:red;">Please complete all fields.</p>';
+document.getElementById('authMessage').innerHTML = '<p style="color:red;">Please complete all fields.</p>';
 return;
-
 }
-
-users.push({fullname,contact,password});
-
-document.getElementById('message').innerHTML='<p style="color:green;">Registration successful. Please sign in.</p>';
-
+users.push({fullname, contact, password});
+document.getElementById('authMessage').innerHTML = '<p style="color:green;">Registered! Sign in now.</p>';
+showLogin();
 }
 
 function loginUser(){
-
-let contact=document.getElementById('contact').value;
-let password=document.getElementById('password').value;
-
-let user=users.find(u=>u.contact===contact && u.password===password);
-
+let contact = document.getElementById('contact').value;
+let password = document.getElementById('password').value;
+let user = users.find(u => u.contact === contact && u.password === password);
 if(user){
-
 document.getElementById('authPage').classList.add('hidden');
 document.getElementById('dashboardPage').classList.remove('hidden');
-
 }else{
-
-document.getElementById('message').innerHTML='<p style="color:red;">Invalid login credentials.</p>';
-
+document.getElementById('authMessage').innerHTML = '<p style="color:red;">Invalid credentials.</p>';
 }
-
 }
 
 function logout(){
-
 document.getElementById('dashboardPage').classList.add('hidden');
 document.getElementById('authPage').classList.remove('hidden');
-
 }
 
 function showSection(id){
-
-let sections=document.querySelectorAll('.section');
-
-sections.forEach(section=>{
-section.classList.add('hidden');
-});
-
+document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
 document.getElementById(id).classList.remove('hidden');
-
 }
-
 </script>
 
 </body>
