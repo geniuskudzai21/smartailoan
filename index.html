@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SmartLoan - AI-Powered Banking</title>
+
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 
@@ -429,10 +430,24 @@ Already have an account? <a onclick="showLogin()">Sign In</a>
 
 </section>
 
-<script>
-let users = [];
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
-function openAuth(){
+const supabase = createClient(
+'https://ozkcpvlutmupqblfzcro.supabase.co',
+'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im96a2Nwdmx1dG11cHFibGZ6Y3JvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIzNDI2NDgsImV4cCI6MjA5NzkxODY0OH0.7aSDXDTvY3A5izw0lU_KUmiQSKtaYA0xPSyQ4kYqOyQ'
+);
+
+window.checkSession = async function(){
+const { data: { session } } = await supabase.auth.getSession();
+if(session){
+document.getElementById('welcomePage').classList.add('hidden');
+document.getElementById('authPage').classList.add('hidden');
+document.getElementById('dashboardPage').classList.remove('hidden');
+}
+}
+
+window.openAuth = function(){
 document.getElementById('welcomePage').classList.add('hidden');
 document.getElementById('authPage').classList.remove('hidden');
 document.getElementById('loginForm').classList.remove('hidden');
@@ -440,57 +455,84 @@ document.getElementById('registerForm').classList.add('hidden');
 document.getElementById('authMessage').innerHTML = '';
 }
 
-function goHome(){
+window.goHome = function(){
 document.getElementById('authPage').classList.add('hidden');
 document.getElementById('welcomePage').classList.remove('hidden');
 }
 
-function showLogin(){
+window.showLogin = function(){
 document.getElementById('loginForm').classList.remove('hidden');
 document.getElementById('registerForm').classList.add('hidden');
 document.getElementById('authMessage').innerHTML = '';
 }
 
-function showRegister(){
+window.showRegister = function(){
 document.getElementById('loginForm').classList.add('hidden');
 document.getElementById('registerForm').classList.remove('hidden');
 document.getElementById('authMessage').innerHTML = '';
 }
 
-function registerUser(){
-let fullname = document.getElementById('fullname').value;
-let contact = document.getElementById('regContact').value;
-let password = document.getElementById('regPassword').value;
+window.registerUser = async function(){
+const fullname = document.getElementById('fullname').value;
+const contact = document.getElementById('regContact').value;
+const password = document.getElementById('regPassword').value;
+
 if(!fullname || !contact || !password){
 document.getElementById('authMessage').innerHTML = '<p style="color:red;">Please complete all fields.</p>';
 return;
 }
-users.push({fullname, contact, password});
-document.getElementById('authMessage').innerHTML = '<p style="color:green;">Registered! Sign in now.</p>';
-showLogin();
+
+const { data, error } = await supabase.auth.signUp({
+email: contact,
+password,
+options: { data: { full_name: fullname } }
+});
+
+if(error){
+document.getElementById('authMessage').innerHTML = '<p style="color:red;">' + error.message + '</p>';
+return;
 }
 
-function loginUser(){
-let contact = document.getElementById('contact').value;
-let password = document.getElementById('password').value;
-let user = users.find(u => u.contact === contact && u.password === password);
-if(user){
+document.getElementById('authMessage').innerHTML = '<p style="color:green;">Check your email to confirm registration!</p>';
+}
+
+window.loginUser = async function(){
+const contact = document.getElementById('contact').value;
+const password = document.getElementById('password').value;
+
+if(!contact || !password){
+document.getElementById('authMessage').innerHTML = '<p style="color:red;">Please enter email and password.</p>';
+return;
+}
+
+const { data, error } = await supabase.auth.signInWithPassword({
+email: contact,
+password
+});
+
+if(error){
+document.getElementById('authMessage').innerHTML = '<p style="color:red;">' + error.message + '</p>';
+return;
+}
+
 document.getElementById('authPage').classList.add('hidden');
 document.getElementById('dashboardPage').classList.remove('hidden');
-}else{
-document.getElementById('authMessage').innerHTML = '<p style="color:red;">Invalid credentials.</p>';
-}
 }
 
-function logout(){
+window.logout = async function(){
+const { error } = await supabase.auth.signOut();
+if(!error){
 document.getElementById('dashboardPage').classList.add('hidden');
 document.getElementById('authPage').classList.remove('hidden');
 }
+}
 
-function showSection(id){
+window.showSection = function(id){
 document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
 document.getElementById(id).classList.remove('hidden');
 }
+
+window.checkSession();
 </script>
 
 </body>
