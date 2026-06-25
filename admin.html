@@ -730,19 +730,27 @@ function renderUsers(list){
     lucide.createIcons();
     return;
   }
-  tbody.innerHTML = list.map(u => `<tr>
+  tbody.innerHTML = list.map(u => {
+    const profileId = u.id || u.user_id;
+    return `<tr>
     <td><strong>${u.full_name||u.name||'—'}</strong></td>
     <td>${u.email||u.contact||'—'}</td>
     <td><span class="badge ${(u.kyc||'Pending') === 'Verified' ? 'badge-success' : 'badge-warning'}">${u.kyc||'Pending'}</span></td>
     <td>${u.loans||0}</td>
     <td>${u.created_at ? new Date(u.created_at).toLocaleDateString() : u.joined||'—'}</td>
-    <td><button style="padding:6px 12px;font-size:12px;min-height:auto;"><i data-lucide="eye" style="width:14px;height:14px;"></i> View</button></td>
-  </tr>`).join('');
+    <td>
+      <button style="padding:6px 8px;font-size:11px;min-height:auto;background:#f59e0b;margin-right:4px;" onclick="editUser('${profileId}')"><i data-lucide="pencil" style="width:14px;height:14px;"></i></button>
+      <button style="padding:6px 8px;font-size:11px;min-height:auto;background:#dc2626;" onclick="deleteUser('${profileId}')"><i data-lucide="trash-2" style="width:14px;height:14px;"></i></button>
+    </td>
+  </tr>`;
+  }).join('');
   lucide.createIcons();
 }
 
 function renderLoans(list){
   const tbody = document.getElementById('loanTable');
+  const userMap = {};
+  dbUsers.forEach(u => { userMap[u.user_id] = u.full_name || u.name || u.email || '—'; });
   if(!list.length){
     tbody.innerHTML = '<tr><td colspan="7" class="empty-state"><i data-lucide="file-text" style="width:32px;height:32px;color:#cbd5e1;"></i><p>No loan applications</p></td></tr>';
     lucide.createIcons();
@@ -750,12 +758,13 @@ function renderLoans(list){
   }
   tbody.innerHTML = list.map(l => {
     const cls = l.status === 'Approved' || l.status === 'Disbursed' ? 'badge-success' : l.status === 'Declined' ? 'badge-danger' : 'badge-warning';
-    const preferredDate = l.preferred_date ? new Date(l.preferred_date).toLocaleDateString() : (l.date || '—');
+    const applicantName = l.applicant || userMap[l.user_id] || '—';
+    const loanDate = l.created_at ? new Date(l.created_at).toLocaleDateString() : (l.date || '—');
     return `<tr>
-      <td><strong>${l.applicant||l.user_id?.slice(0,8)||'—'}</strong></td>
+      <td><strong>${applicantName}</strong></td>
       <td>$${Number(l.amount).toLocaleString()}</td>
       <td>${l.purpose||'—'}</td>
-      <td>${preferredDate}</td>
+      <td>${loanDate}</td>
       <td>${l.term||l.repayment_period||'—'}</td>
       <td><span class="badge ${cls}">${l.status}</span></td>
       <td>
@@ -894,12 +903,35 @@ window.filterTickets = function(){
 }
 
 // ---- ACTIONS ----
+window.editUser = async function(id){
+  if(!id) return alert('Cannot edit this user.');
+  const user = dbUsers.find(u => u.id === id || u.user_id === id);
+  if(!user) return alert('User not found.');
+  const newName = prompt('Edit user name:', user.full_name || user.name || '');
+  if(!newName || newName === (user.full_name || user.name)) return;
+  const { error } = await supabase.from('profiles').update({full_name: newName}).eq('id', user.id);
+  if(error) return alert('Error: ' + error.message);
+  user.full_name = newName;
+  renderUsers(dbUsers);
+}
+
+window.deleteUser = async function(id){
+  if(!id) return alert('Cannot delete this user.');
+  if(!confirm('Are you sure you want to delete this user?')) return;
+  const user = dbUsers.find(u => u.id === id || u.user_id === id);
+  if(!user) return alert('User not found.');
+  const { error } = await supabase.from('profiles').delete().eq('id', user.id);
+  if(error) return alert('Error: ' + error.message);
+  dbUsers = dbUsers.filter(u => u.id !== user.id);
+  renderUsers(dbUsers);
+}
+
 window.approveLoan = async function(btn, id){
   if(id) await supabase.from('loan_applications').update({status:'Approved'}).eq('id',id);
   const row = btn.closest('tr');
-  const statusCell = row.querySelector('td:nth-child(5)');
+  const statusCell = row.querySelector('td:nth-child(6)');
   statusCell.innerHTML = '<span class="badge badge-success">Approved</span>';
-  const actionCell = row.querySelector('td:nth-child(6)');
+  const actionCell = row.querySelector('td:nth-child(7)');
   actionCell.innerHTML = '<span style="color:#94a3b8;font-size:12px;"><i data-lucide="check-circle" style="width:14px;height:14px;color:#16a34a;"></i> Approved</span>';
   lucide.createIcons();
 }
@@ -907,9 +939,9 @@ window.approveLoan = async function(btn, id){
 window.declineLoan = async function(btn, id){
   if(id) await supabase.from('loan_applications').update({status:'Declined'}).eq('id',id);
   const row = btn.closest('tr');
-  const statusCell = row.querySelector('td:nth-child(5)');
+  const statusCell = row.querySelector('td:nth-child(6)');
   statusCell.innerHTML = '<span class="badge badge-danger">Declined</span>';
-  const actionCell = row.querySelector('td:nth-child(6)');
+  const actionCell = row.querySelector('td:nth-child(7)');
   actionCell.innerHTML = '<span style="color:#94a3b8;font-size:12px;"><i data-lucide="x-circle" style="width:14px;height:14px;color:#dc2626;"></i> Declined</span>';
   lucide.createIcons();
 }
