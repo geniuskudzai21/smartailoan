@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SmartLoan - Admin Dashboard</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  background:#f0f4f8;
+  color:#1e293b;
+  -webkit-tap-highlight-color:transparent;
+}
+
+.hidden{display:none !important;}
+
+button{
+  background:#1e3a8a;
+  color:white;
+  border:none;
+  padding:12px 24px;
+  border-radius:8px;
+  cursor:pointer;
+  font-weight:600;
+  font-size:15px;
+  transition:background .3s;
+  min-height:44px;
+}
+
+button:hover{background:#2563eb;}
+
+input,select,textarea{
+  width:100%;
+  padding:12px;
+  margin:10px 0;
+  border-radius:8px;
+  border:1.5px solid #e2e8f0;
+  font-size:16px;
+  outline:none;
+}
+
+input:focus,select:focus,textarea:focus{border-color:#2563eb;}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:14px;
+}
+
+th,td{
+  text-align:left;
+  padding:12px;
+  border-bottom:1px solid #e2e8f0;
+}
+
+th{color:#475569;font-weight:600;font-size:13px;text-transform:uppercase;}
+
+tr:hover{background:#f8fafc;}
+
+.badge{
+  display:inline-block;
+  padding:4px 10px;
+  border-radius:12px;
+  font-size:12px;
+  font-weight:600;
+}
+
+.badge-success{background:#dcfce7;color:#16a34a;}
+.badge-warning{background:#fef3c7;color:#d97706;}
+.badge-danger{background:#fee2e2;color:#dc2626;}
+.badge-info{background:#dbeafe;color:#2563eb;}
+
+.stat-card{
+  background:white;
+  padding:20px;
+  border-radius:12px;
+  box-shadow:0 2px 8px rgba(0,0,0,.08);
+}
+
+.stat-card .label{font-size:13px;color:#94a3b8;margin-bottom:4px;}
+.stat-card .value{font-size:28px;font-weight:800;color:#1e3a8a;}
+
+.stats-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:16px;
+  margin-bottom:24px;
+}
+
+.header{
+  background:#1e3a8a;
+  color:white;
+  padding:15px;
+  font-size:clamp(18px,3vw,24px);
+  font-weight:bold;
+  text-align:center;
+  position:relative;
+}
+
+.hamburger{
+  display:none;
+  position:absolute;
+  left:12px;
+  top:50%;
+  transform:translateY(-50%);
+  background:none;
+  border:none;
+  color:white;
+  font-size:24px;
+  cursor:pointer;
+  padding:8px 12px;
+  line-height:1;
+  min-height:auto;
+  z-index:1001;
+}
+
+.hamburger:hover{background:none;}
+
+.admin-role{
+  position:absolute;
+  right:15px;
+  top:50%;
+  transform:translateY(-50%);
+  font-size:12px;
+  background:rgba(255,255,255,.2);
+  padding:4px 10px;
+  border-radius:6px;
+  font-weight:400;
+}
+
+.sidebar-overlay{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.5);
+  z-index:998;
+}
+
+.dashboard{display:flex;height:100vh;}
+
+.sidebar{
+  width:260px;
+  background:#111827;
+  color:white;
+  padding:20px;
+  overflow-y:auto;
+  flex-shrink:0;
+}
+
+.sidebar h2{margin-bottom:20px;font-size:18px;}
+.sidebar .menu-item{
+  padding:12px;
+  margin:6px 0;
+  border-radius:8px;
+  cursor:pointer;
+  font-size:14px;
+}
+.sidebar .menu-item:hover,.sidebar .menu-item.active{background:#1e3a8a;}
+
+.main{flex:1;padding:20px;overflow-y:auto;min-width:0;}
+
+.section-title{
+  font-size:22px;
+  font-weight:700;
+  color:#1e3a8a;
+  margin-bottom:20px;
+}
+
+.card{
+  background:white;
+  padding:20px;
+  border-radius:12px;
+  margin-bottom:20px;
+  box-shadow:0 2px 8px rgba(0,0,0,.08);
+}
+
+.card h3{color:#1e3a8a;margin-bottom:12px;font-size:16px;}
+
+.toolbar{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:16px;
+  align-items:center;
+}
+
+.toolbar input,.toolbar select{width:auto;min-width:200px;margin:0;}
+.toolbar button{margin:0;}
+
+.table-wrap{overflow-x:auto;}
+
+.empty-state{
+  text-align:center;
+  padding:48px 24px;
+  color:#94a3b8;
+}
+
+.empty-state p{font-size:16px;margin-bottom:8px;}
+.empty-state .sub{font-size:13px;}
+
+.logout-bar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:20px;
+  flex-wrap:wrap;
+  gap:10px;
+}
+
+.logout-bar .user-info{font-size:14px;color:#64748b;}
+
+/* ===== AUTH OVERRIDES ===== */
+.auth-container{
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:#f0f4f8;
+  padding:20px;
+}
+
+.auth-card{
+  background:white;
+  width:100%;
+  max-width:420px;
+  padding:36px;
+  border-radius:16px;
+  box-shadow:0 10px 40px rgba(0,0,0,.12);
+}
+
+.auth-card h2{
+  color:#1e3a8a;
+  margin-bottom:4px;
+  font-size:24px;
+}
+
+.auth-card .subtitle{
+  color:#94a3b8;
+  font-size:14px;
+  margin-bottom:24px;
+}
+
+.auth-card .btn-primary{width:100%;padding:13px;margin-top:4px;min-height:44px;}
+.auth-card label{font-size:13px;font-weight:600;color:#475569;}
+
+.toggle-link{text-align:center;margin-top:14px;font-size:14px;color:#64748b;}
+.toggle-link a{color:#2563eb;cursor:pointer;font-weight:600;text-decoration:none;}
+.toggle-link a:hover{text-decoration:underline;}
+
+#adminMessage{min-height:24px;font-size:13px;text-align:center;}
+
+@media(max-width:1024px){
+  .sidebar{width:220px;}
+}
+
+@media(max-width:768px){
+  .dashboard{flex-direction:column;height:auto;min-height:100vh;}
+  .sidebar{
+    width:280px;
+    position:fixed;
+    left:-300px;
+    top:0;
+    bottom:0;
+    z-index:999;
+    transition:left .3s ease;
+    height:100vh;
+  }
+  .sidebar.open{left:0;}
+  .sidebar-overlay.active{display:block;}
+  .hamburger{display:block;}
+  .main{padding:15px;}
+  .card{padding:16px;}
+  .header{padding-left:50px;}
+  .admin-role{right:10px;font-size:10px;padding:3px 8px;}
+  .stats-grid{grid-template-columns:repeat(auto-fit,minmax(160px,1fr));}
+  .toolbar input,.toolbar select{min-width:100%;}
+}
+
+@media(max-width:480px){
+  .sidebar{width:100%;left:-100%;}
+  .sidebar.open{left:0;}
+  .main{padding:12px;}
+  .card{padding:14px;}
+  .header{font-size:16px;padding:12px 12px 12px 44px;}
+  .hamburger{left:8px;font-size:20px;padding:6px 10px;}
+  .stat-card .value{font-size:22px;}
+  .section-title{font-size:18px;}
+  .stats-grid{grid-template-columns:1fr 1fr;}
+  button{font-size:14px;padding:10px 16px;}
+  input,select,textarea{padding:10px;}
+  th,td{padding:8px;font-size:13px;}
+}
+
+@media(max-width:380px){
+  .stats-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<section id="adminPage">
+
+<!-- ADMIN LOGIN -->
+<div id="adminLogin" class="auth-container">
+<div class="auth-card">
+<h2>Admin Login</h2>
+<p class="subtitle">Enter your admin credentials</p>
+<div id="adminMessage"></div>
+<label>Admin Email</label>
+<input id="adminEmailInput" type="email" placeholder="admin@smartloan.com" value="admin@smartloan.com">
+<label>Password</label>
+<input id="adminPassInput" type="password" placeholder="Enter admin password">
+<button class="btn-primary" onclick="adminLogin()">Sign In to Admin</button>
+<div class="toggle-link"><a href="index.html">&larr; Back to User Portal</a></div>
+</div>
+</div>
+
+<!-- ADMIN DASHBOARD -->
+<div id="adminDashboard" class="hidden">
+
+<div class="header">
+<button class="hamburger" onclick="toggleSidebar()" aria-label="Toggle menu">&#9776;</button>
+SmartLoan - Admin Dashboard
+<span class="admin-role">ADMIN</span>
+</div>
+
+<div class="dashboard">
+
+<div class="sidebar">
+<h2>Admin Menu</h2>
+<div class="menu-item active" onclick="showSection('overview')">System Overview</div>
+<div class="menu-item" onclick="showSection('users')">User Management</div>
+<div class="menu-item" onclick="showSection('loans')">Loan Applications</div>
+<div class="menu-item" onclick="showSection('kyc')">KYC Verification</div>
+<div class="menu-item" onclick="showSection('credit')">Credit Reports</div>
+<div class="menu-item" onclick="showSection('transactions')">Transactions</div>
+<div class="menu-item" onclick="showSection('products')">Loan Products</div>
+<div class="menu-item" onclick="showSection('support')">Support Tickets</div>
+</div>
+<div class="sidebar-overlay" onclick="closeSidebar()"></div>
+
+<div class="main">
+
+<div class="logout-bar">
+<div class="user-info">Logged in as <span id="adminEmail">admin@smartloan.com</span></div>
+<div style="display:flex;gap:10px;flex-wrap:wrap;">
+<button onclick="goToUserDashboard()" style="background:#475569;">User Dashboard</button>
+<button onclick="logout()">Logout</button>
+</div>
+</div>
+
+<!-- OVERVIEW -->
+<div class="section" id="overview">
+<div class="section-title">System Overview</div>
+<div class="stats-grid">
+<div class="stat-card"><div class="label">Total Users</div><div class="value" id="statUsers">0</div></div>
+<div class="stat-card"><div class="label">Active Loans</div><div class="value" id="statLoans">0</div></div>
+<div class="stat-card"><div class="label">Total Disbursed</div><div class="value" id="statDisbursed">$0</div></div>
+<div class="stat-card"><div class="label">Pending Approvals</div><div class="value" id="statPending">0</div></div>
+<div class="stat-card"><div class="label">KYC Pending</div><div class="value" id="statKyc">0</div></div>
+<div class="stat-card"><div class="label">Open Tickets</div><div class="value" id="statTickets">0</div></div>
+</div>
+
+<div class="card">
+<h3>Recent Activity</h3>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Event</th><th>User</th><th>Date</th><th>Status</th></tr></thead>
+<tbody id="recentActivity">
+<tr><td colspan="4" class="empty-state"><p>No recent activity</p><div class="sub">Activity will appear as users interact with the platform</div></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<!-- USER MANAGEMENT -->
+<div class="section hidden" id="users">
+<div class="section-title">User Management</div>
+<div class="toolbar">
+<input id="userSearch" placeholder="Search by name, email or phone..." oninput="filterUsers()">
+<select id="userStatusFilter" onchange="filterUsers()"><option value="all">All Status</option><option value="active">Active</option><option value="pending">Pending KYC</option><option value="suspended">Suspended</option></select>
+<button onclick="filterUsers()" style="background:#475569;">Refresh</button>
+</div>
+<div class="card">
+<div class="table-wrap">
+<table>
+<thead><tr><th>Name</th><th>Email / Phone</th><th>KYC Status</th><th>Loans</th><th>Joined</th><th>Action</th></tr></thead>
+<tbody id="userTable">
+<tr><td colspan="6" class="empty-state"><p>No users found</p><div class="sub">User data will appear here once users register</div></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<!-- LOAN APPLICATIONS -->
+<div class="section hidden" id="loans">
+<div class="section-title">Loan Applications</div>
+<div class="toolbar">
+<select id="loanFilter" onchange="filterLoans()"><option value="all">All Status</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="declined">Declined</option><option value="disbursed">Disbursed</option></select>
+<input id="loanSearch" placeholder="Search applicant..." oninput="filterLoans()">
+</div>
+<div class="card">
+<div class="table-wrap">
+<table>
+<thead><tr><th>Applicant</th><th>Amount</th><th>Purpose</th><th>Term</th><th>Status</th><th>Action</th></tr></thead>
+<tbody id="loanTable">
+<tr><td colspan="6" class="empty-state"><p>No loan applications</p><div class="sub">Applications submitted by users will appear here</div></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<!-- KYC VERIFICATION -->
+<div class="section hidden" id="kyc">
+<div class="section-title">KYC Verification Queue</div>
+<div class="toolbar">
+<select id="kycFilter" onchange="filterKyc()"><option value="pending">Pending Review</option><option value="all">All</option><option value="verified">Verified</option><option value="rejected">Rejected</option></select>
+</div>
+<div class="card">
+<div class="table-wrap">
+<table>
+<thead><tr><th>User</th><th>Documents</th><th>Submitted</th><th>Status</th><th>Action</th></tr></thead>
+<tbody id="kycTable">
+<tr><td colspan="5" class="empty-state"><p>No KYC submissions</p><div class="sub">User document uploads will appear here for review</div></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<!-- CREDIT REPORTS -->
+<div class="section hidden" id="credit">
+<div class="section-title">Credit & Bureau Reports</div>
+<div class="toolbar">
+<input id="creditSearch" placeholder="Search by user name or ID...">
+<button onclick="searchCredit()">Search</button>
+</div>
+<div class="card">
+<div class="table-wrap">
+<table>
+<thead><tr><th>User</th><th>CRB</th><th>FCB</th><th>SRL</th><th>Risk Category</th><th>Eligibility</th></tr></thead>
+<tbody id="creditTable">
+<tr><td colspan="6" class="empty-state"><p>Search for a user to view credit report</p><div class="sub">Enter a user name or ID above and click Search</div></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<!-- TRANSACTIONS -->
+<div class="section hidden" id="transactions">
+<div class="section-title">Transaction Monitoring</div>
+<div class="toolbar">
+<select id="txnFilter" onchange="filterTransactions()"><option value="all">All Types</option><option value="disbursement">Disbursements</option><option value="repayment">Repayments</option><option value="fee">Fees</option></select>
+<input id="txnSearch" placeholder="Search by user..." oninput="filterTransactions()">
+</div>
+<div class="card">
+<div class="table-wrap">
+<table>
+<thead><tr><th>User</th><th>Type</th><th>Amount</th><th>Date</th><th>Reference</th><th>Status</th></tr></thead>
+<tbody id="txnTable">
+<tr><td colspan="6" class="empty-state"><p>No transactions recorded</p><div class="sub">Transaction history will appear once users interact with the platform</div></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<!-- LOAN PRODUCTS -->
+<div class="section hidden" id="products">
+<div class="section-title">Loan Products</div>
+<div class="toolbar">
+<button onclick="showAddProduct()">+ Add Product</button>
+</div>
+<div id="productForm" class="card hidden">
+<h3>New Loan Product</h3>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+<input id="prodName" placeholder="Product Name">
+<input id="prodMin" placeholder="Min Amount" type="number">
+<input id="prodMax" placeholder="Max Amount" type="number">
+<input id="prodRate" placeholder="Interest Rate %" type="number" step="0.1">
+<select id="prodTerm"><option>Repayment Term</option><option>3 Months</option><option>6 Months</option><option>12 Months</option><option>24 Months</option></select>
+<button onclick="saveProduct()" style="margin:0;">Save Product</button>
+</div>
+</div>
+<div class="card">
+<div class="table-wrap">
+<table>
+<thead><tr><th>Product</th><th>Min</th><th>Max</th><th>Rate</th><th>Term</th><th>Status</th><th>Action</th></tr></thead>
+<tbody id="productTable">
+<tr><td colspan="7" class="empty-state"><p>No loan products defined</p><div class="sub">Click "+ Add Product" to create your first loan product</div></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<!-- SUPPORT TICKETS -->
+<div class="section hidden" id="support">
+<div class="section-title">Support Tickets</div>
+<div class="toolbar">
+<select id="ticketFilter" onchange="filterTickets()"><option value="open">Open</option><option value="all">All</option><option value="resolved">Resolved</option></select>
+</div>
+<div class="card">
+<div class="table-wrap">
+<table>
+<thead><tr><th>User</th><th>Subject</th><th>Date</th><th>Status</th><th>Action</th></tr></thead>
+<tbody id="ticketTable">
+<tr><td colspan="5" class="empty-state"><p>No support tickets</p><div class="sub">User support inquiries will appear here</div></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+</div>
+</div>
+</div>
+</section>
+
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+const supabase = createClient(
+'https://ozkcpvlutmupqblfzcro.supabase.co',
+'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im96a2Nwdmx1dG11cHFibGZ6Y3JvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIzNDI2NDgsImV4cCI6MjA5NzkxODY0OH0.7aSDXDTvY3A5izw0lU_KUmiQSKtaYA0xPSyQ4kYqOyQ'
+);
+
+// ---- MOCK DATA ----
+const mockUsers = [
+  {name:'Jane Doe',contact:'jane@email.com',kyc:'Verified',loans:2,joined:'2026-05-01'},
+  {name:'John Smith',contact:'john@email.com',kyc:'Pending',loans:1,joined:'2026-05-15'},
+  {name:'Alice Wang',contact:'alice@email.com',kyc:'Verified',loans:0,joined:'2026-06-01'},
+  {name:'Bob Kimani',contact:'bob@email.com',kyc:'Pending',loans:0,joined:'2026-06-10'},
+];
+
+const mockLoans = [
+  {applicant:'Jane Doe',amount:5000,purpose:'Business',term:'12 Months',status:'Pending'},
+  {applicant:'John Smith',amount:2000,purpose:'Education',term:'6 Months',status:'Approved'},
+  {applicant:'Alice Wang',amount:10000,purpose:'Business',term:'24 Months',status:'Disbursed'},
+  {applicant:'Bob Kimani',amount:1500,purpose:'Emergency',term:'3 Months',status:'Pending'},
+];
+
+const mockKyc = [
+  {user:'Jane Doe',docs:'4/5 Uploaded',submitted:'2026-06-10',status:'Verified'},
+  {user:'John Smith',docs:'2/5 Uploaded',submitted:'2026-06-12',status:'Pending'},
+  {user:'Bob Kimani',docs:'5/5 Uploaded',submitted:'2026-06-14',status:'Pending'},
+];
+
+const mockCredit = [
+  {user:'Jane Doe',crb:'CLEAR',fcb:'CLEAR',srl:'CLEAR',risk:'Low',eligibility:'Approved'},
+  {user:'John Smith',crb:'CLEAR',fcb:'CLEAR',srl:'CLEAR',risk:'Medium',eligibility:'Conditionally Approved'},
+  {user:'Alice Wang',crb:'CLEAR',fcb:'CLEAR',srl:'CLEAR',risk:'Low',eligibility:'Approved'},
+];
+
+const mockTxn = [
+  {user:'Alice Wang',type:'Disbursement',amount:10000,date:'2026-06-15',ref:'TXN-001',status:'Completed'},
+  {user:'Jane Doe',type:'Repayment',amount:500,date:'2026-06-14',ref:'TXN-002',status:'Completed'},
+  {user:'John Smith',type:'Disbursement',amount:2000,date:'2026-06-10',ref:'TXN-003',status:'Completed'},
+];
+
+const mockProducts = [
+  {name:'Business Loan',min:5000,max:50000,rate:'12%',term:'12 Months',status:'Active'},
+  {name:'Education Loan',min:1000,max:20000,rate:'8%',term:'6 Months',status:'Active'},
+  {name:'Emergency Loan',min:500,max:5000,rate:'15%',term:'3 Months',status:'Active'},
+];
+
+const mockTickets = [
+  {user:'Jane Doe',subject:'Loan disbursement delay',date:'2026-06-16',status:'Open'},
+  {user:'Bob Kimani',subject:'Document upload error',date:'2026-06-15',status:'Open'},
+];
+
+// ---- AUTH ----
+const ADMIN_EMAIL = 'admin@smartloan.com';
+const ADMIN_PASS = 'Admin@123';
+
+window.checkSession = async function(){
+  const localAdmin = localStorage.getItem('adminSession');
+  if(localAdmin === 'true'){
+    document.getElementById('adminLogin').classList.add('hidden');
+    document.getElementById('adminDashboard').classList.remove('hidden');
+    document.getElementById('adminEmail').textContent = ADMIN_EMAIL;
+    loadDashboard();
+    return;
+  }
+  const { data: { session } } = await supabase.auth.getSession();
+  if(session && session.user.email === ADMIN_EMAIL){
+    localStorage.setItem('adminSession', 'true');
+    document.getElementById('adminLogin').classList.add('hidden');
+    document.getElementById('adminDashboard').classList.remove('hidden');
+    document.getElementById('adminEmail').textContent = session.user.email;
+    loadDashboard();
+  } else if(session){
+    showMessage('Your account is not authorized as admin.','red');
+  }
+}
+
+window.adminLogin = function(){
+  const email = document.getElementById('adminEmailInput').value.trim();
+  const pass = document.getElementById('adminPassInput').value;
+  if(!email || !pass){
+    showMessage('Please enter email and password.','red');
+    return;
+  }
+  if(email === ADMIN_EMAIL && pass === ADMIN_PASS){
+    localStorage.setItem('adminSession','true');
+    document.getElementById('adminLogin').classList.add('hidden');
+    document.getElementById('adminDashboard').classList.remove('hidden');
+    document.getElementById('adminEmail').textContent = email;
+    loadDashboard();
+  } else {
+    showMessage('Invalid admin credentials.','red');
+  }
+}
+
+window.logout = async function(){
+  localStorage.removeItem('adminSession');
+  await supabase.auth.signOut().catch(() => {});
+  document.getElementById('adminLogin').classList.remove('hidden');
+  document.getElementById('adminDashboard').classList.add('hidden');
+  document.getElementById('adminEmailInput').value = ADMIN_EMAIL;
+  document.getElementById('adminPassInput').value = '';
+  showMessage('Logged out successfully.','green');
+}
+
+window.goToUserDashboard = function(){
+  window.location.href = 'index.html';
+}
+
+function showMessage(msg,color){
+  document.getElementById('adminMessage').innerHTML = '<p style="color:'+color+';">'+msg+'</p>';
+}
+
+// ---- SIDEBAR ----
+window.toggleSidebar = function(){
+  document.querySelector('.sidebar').classList.toggle('open');
+  document.querySelector('.sidebar-overlay').classList.toggle('active');
+}
+
+window.closeSidebar = function(){
+  document.querySelector('.sidebar').classList.remove('open');
+  document.querySelector('.sidebar-overlay').classList.remove('active');
+}
+
+window.showSection = function(id){
+  document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
+  document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
+  document.getElementById(id).classList.remove('hidden');
+  document.querySelector(`.menu-item[onclick*="'${id}'"]`).classList.add('active');
+  closeSidebar();
+}
+
+// ---- LOAD DASHBOARD ----
+function loadDashboard(){
+  document.getElementById('statUsers').textContent = mockUsers.length;
+  document.getElementById('statLoans').textContent = mockLoans.filter(l => l.status === 'Approved' || l.status === 'Disbursed').length;
+  document.getElementById('statDisbursed').textContent = '$' + mockLoans.filter(l => l.status === 'Disbursed').reduce((s,l) => s + l.amount, 0);
+  document.getElementById('statPending').textContent = mockLoans.filter(l => l.status === 'Pending').length;
+  document.getElementById('statKyc').textContent = mockKyc.filter(k => k.status === 'Pending').length;
+  document.getElementById('statTickets').textContent = mockTickets.filter(t => t.status === 'Open').length;
+
+  renderUsers(mockUsers);
+  renderLoans(mockLoans);
+  renderKyc(mockKyc);
+  renderCredit(mockCredit);
+  renderTransactions(mockTxn);
+  renderProducts(mockProducts);
+  renderTickets(mockTickets);
+  renderActivity(mockTxn);
+}
+
+// ---- RENDER HELPERS ----
+function renderUsers(list){
+  const tbody = document.getElementById('userTable');
+  if(!list.length){
+    tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><p>No users found</p></td></tr>';
+    return;
+  }
+  tbody.innerHTML = list.map(u => `<tr>
+    <td><strong>${u.name}</strong></td>
+    <td>${u.contact}</td>
+    <td><span class="badge ${u.kyc === 'Verified' ? 'badge-success' : 'badge-warning'}">${u.kyc}</span></td>
+    <td>${u.loans}</td>
+    <td>${u.joined}</td>
+    <td><button style="padding:6px 12px;font-size:12px;min-height:auto;">View</button></td>
+  </tr>`).join('');
+}
+
+function renderLoans(list){
+  const tbody = document.getElementById('loanTable');
+  if(!list.length){
+    tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><p>No loan applications</p></td></tr>';
+    return;
+  }
+  tbody.innerHTML = list.map(l => {
+    const cls = l.status === 'Approved' || l.status === 'Disbursed' ? 'badge-success' : l.status === 'Declined' ? 'badge-danger' : 'badge-warning';
+    return `<tr>
+      <td><strong>${l.applicant}</strong></td>
+      <td>$${l.amount.toLocaleString()}</td>
+      <td>${l.purpose}</td>
+      <td>${l.term}</td>
+      <td><span class="badge ${cls}">${l.status}</span></td>
+      <td>
+        ${l.status === 'Pending' ? `<button style="padding:6px 8px;font-size:11px;min-height:auto;background:#16a34a;margin-right:4px;" onclick="approveLoan(this)">Approve</button><button style="padding:6px 8px;font-size:11px;min-height:auto;background:#dc2626;" onclick="declineLoan(this)">Decline</button>` : '<span style="color:#94a3b8;font-size:12px;">No action</span>'}
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function renderKyc(list){
+  const tbody = document.getElementById('kycTable');
+  if(!list.length){
+    tbody.innerHTML = '<tr><td colspan="5" class="empty-state"><p>No KYC submissions</p></td></tr>';
+    return;
+  }
+  tbody.innerHTML = list.map(k => {
+    const cls = k.status === 'Verified' ? 'badge-success' : k.status === 'Rejected' ? 'badge-danger' : 'badge-warning';
+    return `<tr>
+      <td><strong>${k.user}</strong></td>
+      <td>${k.docs}</td>
+      <td>${k.submitted}</td>
+      <td><span class="badge ${cls}">${k.status}</span></td>
+      <td>
+        ${k.status === 'Pending' ? `<button style="padding:6px 8px;font-size:11px;min-height:auto;background:#16a34a;margin-right:4px;" onclick="verifyKyc(this)">Verify</button><button style="padding:6px 8px;font-size:11px;min-height:auto;background:#dc2626;" onclick="rejectKyc(this)">Reject</button>` : '<span style="color:#94a3b8;font-size:12px;">Complete</span>'}
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function renderCredit(list){
+  const tbody = document.getElementById('creditTable');
+  if(!list.length){
+    tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><p>Search for a user to view credit report</p></td></tr>';
+    return;
+  }
+  tbody.innerHTML = list.map(c => {
+    const riskCls = c.risk === 'Low' ? 'badge-success' : c.risk === 'Medium' ? 'badge-warning' : 'badge-danger';
+    const eligCls = c.eligibility === 'Approved' ? 'badge-success' : 'badge-warning';
+    return `<tr>
+      <td><strong>${c.user}</strong></td>
+      <td><span class="badge badge-success">${c.crb}</span></td>
+      <td><span class="badge badge-success">${c.fcb}</span></td>
+      <td><span class="badge badge-success">${c.srl}</span></td>
+      <td><span class="badge ${riskCls}">${c.risk}</span></td>
+      <td><span class="badge ${eligCls}">${c.eligibility}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderTransactions(list){
+  const tbody = document.getElementById('txnTable');
+  if(!list.length){
+    tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><p>No transactions recorded</p></td></tr>';
+    return;
+  }
+  tbody.innerHTML = list.map(t => `<tr>
+    <td><strong>${t.user}</strong></td>
+    <td>${t.type}</td>
+    <td>$${t.amount.toLocaleString()}</td>
+    <td>${t.date}</td>
+    <td style="font-family:monospace;font-size:12px;">${t.ref}</td>
+    <td><span class="badge badge-success">${t.status}</span></td>
+  </tr>`).join('');
+}
+
+function renderProducts(list){
+  const tbody = document.getElementById('productTable');
+  if(!list.length){
+    tbody.innerHTML = '<tr><td colspan="7" class="empty-state"><p>No loan products defined</p></td></tr>';
+    return;
+  }
+  tbody.innerHTML = list.map(p => `<tr>
+    <td><strong>${p.name}</strong></td>
+    <td>$${p.min.toLocaleString()}</td>
+    <td>$${p.max.toLocaleString()}</td>
+    <td>${p.rate}</td>
+    <td>${p.term}</td>
+    <td><span class="badge badge-success">${p.status}</span></td>
+    <td><button style="padding:6px 12px;font-size:12px;min-height:auto;background:#dc2626;" onclick="deactivateProduct(this)">Deactivate</button></td>
+  </tr>`).join('');
+}
+
+function renderTickets(list){
+  const tbody = document.getElementById('ticketTable');
+  if(!list.length){
+    tbody.innerHTML = '<tr><td colspan="5" class="empty-state"><p>No support tickets</p></td></tr>';
+    return;
+  }
+  tbody.innerHTML = list.map(t => `<tr>
+    <td><strong>${t.user}</strong></td>
+    <td>${t.subject}</td>
+    <td>${t.date}</td>
+    <td><span class="badge ${t.status === 'Open' ? 'badge-warning' : 'badge-success'}">${t.status}</span></td>
+    <td>${t.status === 'Open' ? '<button style="padding:6px 12px;font-size:12px;min-height:auto;" onclick="resolveTicket(this)">Resolve</button>' : '<span style="color:#94a3b8;font-size:12px;">Resolved</span>'}</td>
+  </tr>`).join('');
+}
+
+function renderActivity(txns){
+  const tbody = document.getElementById('recentActivity');
+  if(!txns.length){
+    tbody.innerHTML = '<tr><td colspan="4" class="empty-state"><p>No recent activity</p><div class="sub">Activity will appear as users interact with the platform</div></td></tr>';
+    return;
+  }
+  const sorted = [...txns].sort((a,b) => b.date.localeCompare(a.date)).slice(0,5);
+  tbody.innerHTML = sorted.map(t => `<tr>
+    <td>${t.type}</td>
+    <td>${t.user}</td>
+    <td>${t.date}</td>
+    <td><span class="badge badge-success">${t.status}</span></td>
+  </tr>`).join('');
+}
+
+// ---- FILTERS ----
+window.filterUsers = function(){
+  const q = document.getElementById('userSearch').value.toLowerCase();
+  const status = document.getElementById('userStatusFilter').value;
+  let filtered = mockUsers;
+  if(q) filtered = filtered.filter(u => u.name.toLowerCase().includes(q) || u.contact.toLowerCase().includes(q));
+  if(status === 'pending') filtered = filtered.filter(u => u.kyc === 'Pending');
+  else if(status === 'suspended') filtered = [];
+  renderUsers(filtered);
+}
+
+window.filterLoans = function(){
+  const status = document.getElementById('loanFilter').value;
+  const q = document.getElementById('loanSearch').value.toLowerCase();
+  let filtered = mockLoans;
+  if(status !== 'all') filtered = filtered.filter(l => l.status.toLowerCase() === status);
+  if(q) filtered = filtered.filter(l => l.applicant.toLowerCase().includes(q));
+  renderLoans(filtered);
+}
+
+window.filterKyc = function(){
+  const status = document.getElementById('kycFilter').value;
+  let filtered = mockKyc;
+  if(status !== 'all') filtered = filtered.filter(k => k.status.toLowerCase() === status);
+  renderKyc(filtered);
+}
+
+window.searchCredit = function(){
+  const q = document.getElementById('creditSearch').value.toLowerCase();
+  if(!q){ renderCredit(mockCredit); return; }
+  const filtered = mockCredit.filter(c => c.user.toLowerCase().includes(q));
+  renderCredit(filtered);
+}
+
+window.filterTransactions = function(){
+  const type = document.getElementById('txnFilter').value;
+  const q = document.getElementById('txnSearch').value.toLowerCase();
+  let filtered = mockTxn;
+  if(type !== 'all') filtered = filtered.filter(t => t.type.toLowerCase() === type);
+  if(q) filtered = filtered.filter(t => t.user.toLowerCase().includes(q));
+  renderTransactions(filtered);
+}
+
+window.filterTickets = function(){
+  const status = document.getElementById('ticketFilter').value;
+  const filtered = status === 'all' ? mockTickets : mockTickets.filter(t => t.status.toLowerCase() === status);
+  renderTickets(filtered);
+}
+
+// ---- ACTIONS ----
+window.approveLoan = function(btn){
+  const row = btn.closest('tr');
+  const statusCell = row.querySelector('td:nth-child(5)');
+  statusCell.innerHTML = '<span class="badge badge-success">Approved</span>';
+  const actionCell = row.querySelector('td:nth-child(6)');
+  actionCell.innerHTML = '<span style="color:#94a3b8;font-size:12px;">Approved</span>';
+}
+
+window.declineLoan = function(btn){
+  const row = btn.closest('tr');
+  const statusCell = row.querySelector('td:nth-child(5)');
+  statusCell.innerHTML = '<span class="badge badge-danger">Declined</span>';
+  const actionCell = row.querySelector('td:nth-child(6)');
+  actionCell.innerHTML = '<span style="color:#94a3b8;font-size:12px;">Declined</span>';
+}
+
+window.verifyKyc = function(btn){
+  const row = btn.closest('tr');
+  const statusCell = row.querySelector('td:nth-child(4)');
+  statusCell.innerHTML = '<span class="badge badge-success">Verified</span>';
+  const actionCell = row.querySelector('td:nth-child(5)');
+  actionCell.innerHTML = '<span style="color:#94a3b8;font-size:12px;">Complete</span>';
+  document.getElementById('statKyc').textContent = Math.max(0, parseInt(document.getElementById('statKyc').textContent) - 1);
+}
+
+window.rejectKyc = function(btn){
+  const row = btn.closest('tr');
+  const statusCell = row.querySelector('td:nth-child(4)');
+  statusCell.innerHTML = '<span class="badge badge-danger">Rejected</span>';
+  const actionCell = row.querySelector('td:nth-child(5)');
+  actionCell.innerHTML = '<span style="color:#94a3b8;font-size:12px;">Complete</span>';
+  document.getElementById('statKyc').textContent = Math.max(0, parseInt(document.getElementById('statKyc').textContent) - 1);
+}
+
+window.resolveTicket = function(btn){
+  const row = btn.closest('tr');
+  const statusCell = row.querySelector('td:nth-child(4)');
+  statusCell.innerHTML = '<span class="badge badge-success">Resolved</span>';
+  const actionCell = row.querySelector('td:nth-child(5)');
+  actionCell.innerHTML = '<span style="color:#94a3b8;font-size:12px;">Resolved</span>';
+  document.getElementById('statTickets').textContent = Math.max(0, parseInt(document.getElementById('statTickets').textContent) - 1);
+}
+
+window.deactivateProduct = function(btn){
+  const row = btn.closest('tr');
+  const statusCell = row.querySelector('td:nth-child(6)');
+  statusCell.innerHTML = '<span class="badge badge-danger">Inactive</span>';
+  btn.textContent = 'Activate';
+  btn.style.background = '#16a34a';
+  btn.onclick = function(){ activateProduct(this); };
+}
+
+window.activateProduct = function(btn){
+  const row = btn.closest('tr');
+  const statusCell = row.querySelector('td:nth-child(6)');
+  statusCell.innerHTML = '<span class="badge badge-success">Active</span>';
+  btn.textContent = 'Deactivate';
+  btn.style.background = '#dc2626';
+  btn.onclick = function(){ deactivateProduct(this); };
+}
+
+window.showAddProduct = function(){
+  const form = document.getElementById('productForm');
+  form.classList.toggle('hidden');
+}
+
+window.saveProduct = function(){
+  const name = document.getElementById('prodName').value;
+  const min = document.getElementById('prodMin').value;
+  const max = document.getElementById('prodMax').value;
+  const rate = document.getElementById('prodRate').value;
+  const term = document.getElementById('prodTerm').value;
+  if(!name || !min || !max || !rate || term === 'Repayment Term'){
+    alert('Please complete all fields');
+    return;
+  }
+  mockProducts.push({name,min:parseInt(min),max:parseInt(max),rate:rate+'%',term,status:'Active'});
+  renderProducts(mockProducts);
+  document.getElementById('productForm').classList.add('hidden');
+  document.getElementById('prodName').value = '';
+  document.getElementById('prodMin').value = '';
+  document.getElementById('prodMax').value = '';
+  document.getElementById('prodRate').value = '';
+  document.getElementById('prodTerm').value = 'Repayment Term';
+}
+
+window.checkSession();
+</script>
+
+</body>
+</html>
