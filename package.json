@@ -1,0 +1,25 @@
+{
+  "name": "smartloan",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/geniuskudzai21/smartailoan.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/geniuskudzai21/smartailoan/issues"
+  },
+  "homepage": "https://github.com/geniuskudzai21/smartailoan#readme",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.108.2",
+    "pg": "^8.22.0"
+  }
+}

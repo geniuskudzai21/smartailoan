@@ -681,22 +681,44 @@ window.showSection = function(id){
 }
 
 // ---- LOAD DASHBOARD ----
-function loadDashboard(){
-  document.getElementById('statUsers').textContent = mockUsers.length;
-  document.getElementById('statLoans').textContent = mockLoans.filter(l => l.status === 'Approved' || l.status === 'Disbursed').length;
-  document.getElementById('statDisbursed').textContent = '$' + mockLoans.filter(l => l.status === 'Disbursed').reduce((s,l) => s + l.amount, 0);
-  document.getElementById('statPending').textContent = mockLoans.filter(l => l.status === 'Pending').length;
-  document.getElementById('statKyc').textContent = mockKyc.filter(k => k.status === 'Pending').length;
-  document.getElementById('statTickets').textContent = mockTickets.filter(t => t.status === 'Open').length;
+let dbUsers = [], dbLoans = [], dbKyc = [], dbTxn = [], dbTickets = [];
 
-  renderUsers(mockUsers);
-  renderLoans(mockLoans);
-  renderKyc(mockKyc);
+async function loadDashboard(){
+  const [usersRes, loansRes, kycRes, txnRes, ticketRes] = await Promise.all([
+    supabase.from('profiles').select('*'),
+    supabase.from('loan_applications').select('*'),
+    supabase.from('kyc_documents').select('*'),
+    supabase.from('transactions').select('*'),
+    supabase.from('support_tickets').select('*'),
+  ]);
+  dbUsers = usersRes.data || [];
+  dbLoans = loansRes.data || [];
+  dbKyc = kycRes.data || [];
+  dbTxn = txnRes.data || [];
+  dbTickets = ticketRes.data || [];
+
+  const allLoans = dbLoans.length ? dbLoans : mockLoans;
+  const allKyc = dbKyc.length ? dbKyc : mockKyc;
+  const allTxn = dbTxn.length ? dbTxn : mockTxn;
+  const allTickets = dbTickets.length ? dbTickets : mockTickets;
+  const allUsers = dbUsers.length ? dbUsers : mockUsers;
+  const allProducts = mockProducts;
+
+  document.getElementById('statUsers').textContent = allUsers.length;
+  document.getElementById('statLoans').textContent = allLoans.filter(l => l.status === 'Approved' || l.status === 'Disbursed').length;
+  document.getElementById('statDisbursed').textContent = '$' + allLoans.filter(l => l.status === 'Disbursed').reduce((s,l) => s + Number(l.amount), 0);
+  document.getElementById('statPending').textContent = allLoans.filter(l => l.status === 'Pending').length;
+  document.getElementById('statKyc').textContent = allKyc.filter(k => k.status === 'Pending').length;
+  document.getElementById('statTickets').textContent = allTickets.filter(t => t.status === 'Open').length;
+
+  renderUsers(allUsers);
+  renderLoans(allLoans);
+  renderKyc(allKyc);
   renderCredit(mockCredit);
-  renderTransactions(mockTxn);
-  renderProducts(mockProducts);
-  renderTickets(mockTickets);
-  renderActivity(mockTxn);
+  renderTransactions(allTxn);
+  renderProducts(allProducts);
+  renderTickets(allTickets);
+  renderActivity(allTxn);
 }
 
 // ---- RENDER HELPERS ----
@@ -708,11 +730,11 @@ function renderUsers(list){
     return;
   }
   tbody.innerHTML = list.map(u => `<tr>
-    <td><strong>${u.name}</strong></td>
-    <td>${u.contact}</td>
-    <td><span class="badge ${u.kyc === 'Verified' ? 'badge-success' : 'badge-warning'}">${u.kyc}</span></td>
-    <td>${u.loans}</td>
-    <td>${u.joined}</td>
+    <td><strong>${u.full_name||u.name||'—'}</strong></td>
+    <td>${u.email||u.contact||'—'}</td>
+    <td><span class="badge ${(u.kyc||'Pending') === 'Verified' ? 'badge-success' : 'badge-warning'}">${u.kyc||'Pending'}</span></td>
+    <td>${u.loans||0}</td>
+    <td>${u.created_at ? new Date(u.created_at).toLocaleDateString() : u.joined||'—'}</td>
     <td><button style="padding:6px 12px;font-size:12px;min-height:auto;"><i data-lucide="eye" style="width:14px;height:14px;"></i> View</button></td>
   </tr>`).join('');
   lucide.createIcons();
@@ -728,13 +750,13 @@ function renderLoans(list){
   tbody.innerHTML = list.map(l => {
     const cls = l.status === 'Approved' || l.status === 'Disbursed' ? 'badge-success' : l.status === 'Declined' ? 'badge-danger' : 'badge-warning';
     return `<tr>
-      <td><strong>${l.applicant}</strong></td>
-      <td>$${l.amount.toLocaleString()}</td>
-      <td>${l.purpose}</td>
-      <td>${l.term}</td>
+      <td><strong>${l.applicant||l.user_id?.slice(0,8)||'—'}</strong></td>
+      <td>$${Number(l.amount).toLocaleString()}</td>
+      <td>${l.purpose||'—'}</td>
+      <td>${l.term||l.repayment_period||'—'}</td>
       <td><span class="badge ${cls}">${l.status}</span></td>
       <td>
-        ${l.status === 'Pending' ? `<button style="padding:6px 8px;font-size:11px;min-height:auto;background:#16a34a;margin-right:4px;" onclick="approveLoan(this)"><i data-lucide="check" style="width:12px;height:12px;"></i> Approve</button><button style="padding:6px 8px;font-size:11px;min-height:auto;background:#dc2626;" onclick="declineLoan(this)"><i data-lucide="x" style="width:12px;height:12px;"></i> Decline</button>` : '<span style="color:#94a3b8;font-size:12px;">No action</span>'}
+        ${l.status === 'Pending' ? `<button style="padding:6px 8px;font-size:11px;min-height:auto;background:#16a34a;margin-right:4px;" onclick="approveLoan(this,'${l.id}')"><i data-lucide="check" style="width:12px;height:12px;"></i> Approve</button><button style="padding:6px 8px;font-size:11px;min-height:auto;background:#dc2626;" onclick="declineLoan(this,'${l.id}')"><i data-lucide="x" style="width:12px;height:12px;"></i> Decline</button>` : '<span style="color:#94a3b8;font-size:12px;">No action</span>'}
       </td>
     </tr>`;
   }).join('');
@@ -751,12 +773,12 @@ function renderKyc(list){
   tbody.innerHTML = list.map(k => {
     const cls = k.status === 'Verified' ? 'badge-success' : k.status === 'Rejected' ? 'badge-danger' : 'badge-warning';
     return `<tr>
-      <td><strong>${k.user}</strong></td>
-      <td>${k.docs}</td>
-      <td>${k.submitted}</td>
+      <td><strong>${k.user||k.user_id?.slice(0,8)||'—'}</strong></td>
+      <td>${k.docs||k.document_type||'—'}</td>
+      <td>${k.submitted||(k.created_at?new Date(k.created_at).toLocaleDateString():'—')}</td>
       <td><span class="badge ${cls}">${k.status}</span></td>
       <td>
-        ${k.status === 'Pending' ? `<button style="padding:6px 8px;font-size:11px;min-height:auto;background:#16a34a;margin-right:4px;" onclick="verifyKyc(this)"><i data-lucide="check-circle" style="width:12px;height:12px;"></i> Verify</button><button style="padding:6px 8px;font-size:11px;min-height:auto;background:#dc2626;" onclick="rejectKyc(this)"><i data-lucide="x-circle" style="width:12px;height:12px;"></i> Reject</button>` : '<span style="color:#94a3b8;font-size:12px;">Complete</span>'}
+        ${k.status === 'Pending' ? `<button style="padding:6px 8px;font-size:11px;min-height:auto;background:#16a34a;margin-right:4px;" onclick="verifyKyc(this,'${k.id}')"><i data-lucide="check-circle" style="width:12px;height:12px;"></i> Verify</button><button style="padding:6px 8px;font-size:11px;min-height:auto;background:#dc2626;" onclick="rejectKyc(this,'${k.id}')"><i data-lucide="x-circle" style="width:12px;height:12px;"></i> Reject</button>` : '<span style="color:#94a3b8;font-size:12px;">Complete</span>'}
       </td>
     </tr>`;
   }).join('');
@@ -793,11 +815,11 @@ function renderTickets(list){
     return;
   }
   tbody.innerHTML = list.map(t => `<tr>
-    <td><strong>${t.user}</strong></td>
+    <td><strong>${t.user||t.user_id?.slice(0,8)||'—'}</strong></td>
     <td>${t.subject}</td>
-    <td>${t.date}</td>
+    <td>${t.date||(t.created_at?new Date(t.created_at).toLocaleDateString():'—')}</td>
     <td><span class="badge ${t.status === 'Open' ? 'badge-warning' : 'badge-success'}">${t.status}</span></td>
-    <td>${t.status === 'Open' ? '<button style="padding:6px 12px;font-size:12px;min-height:auto;" onclick="resolveTicket(this)"><i data-lucide="check" style="width:14px;height:14px;"></i> Resolve</button>' : '<span style="color:#94a3b8;font-size:12px;">Resolved</span>'}</td>
+    <td>${t.status === 'Open' ? `<button style="padding:6px 12px;font-size:12px;min-height:auto;" onclick="resolveTicket(this,'${t.id}')"><i data-lucide="check" style="width:14px;height:14px;"></i> Resolve</button>` : '<span style="color:#94a3b8;font-size:12px;">Resolved</span>'}</td>
   </tr>`).join('');
   lucide.createIcons();
 }
@@ -822,8 +844,8 @@ function renderActivity(txns){
 window.filterUsers = function(){
   const q = document.getElementById('userSearch').value.toLowerCase();
   const status = document.getElementById('userStatusFilter').value;
-  let filtered = mockUsers;
-  if(q) filtered = filtered.filter(u => u.name.toLowerCase().includes(q) || u.contact.toLowerCase().includes(q));
+  let filtered = dbUsers.length ? dbUsers : mockUsers;
+  if(q) filtered = filtered.filter(u => (u.full_name||u.name).toLowerCase().includes(q) || (u.email||u.contact).toLowerCase().includes(q));
   if(status === 'pending') filtered = filtered.filter(u => u.kyc === 'Pending');
   else if(status === 'suspended') filtered = [];
   renderUsers(filtered);
@@ -832,15 +854,15 @@ window.filterUsers = function(){
 window.filterLoans = function(){
   const status = document.getElementById('loanFilter').value;
   const q = document.getElementById('loanSearch').value.toLowerCase();
-  let filtered = mockLoans;
+  let filtered = dbLoans.length ? dbLoans : mockLoans;
   if(status !== 'all') filtered = filtered.filter(l => l.status.toLowerCase() === status);
-  if(q) filtered = filtered.filter(l => l.applicant.toLowerCase().includes(q));
+  if(q) filtered = filtered.filter(l => l.applicant?.toLowerCase().includes(q) || l.purpose?.toLowerCase().includes(q));
   renderLoans(filtered);
 }
 
 window.filterKyc = function(){
   const status = document.getElementById('kycFilter').value;
-  let filtered = mockKyc;
+  let filtered = dbKyc.length ? dbKyc : mockKyc;
   if(status !== 'all') filtered = filtered.filter(k => k.status.toLowerCase() === status);
   renderKyc(filtered);
 }
@@ -855,20 +877,22 @@ window.searchCredit = function(){
 window.filterTransactions = function(){
   const type = document.getElementById('txnFilter').value;
   const q = document.getElementById('txnSearch').value.toLowerCase();
-  let filtered = mockTxn;
+  let filtered = dbTxn.length ? dbTxn : mockTxn;
   if(type !== 'all') filtered = filtered.filter(t => t.type.toLowerCase() === type);
-  if(q) filtered = filtered.filter(t => t.user.toLowerCase().includes(q));
+  if(q) filtered = filtered.filter(t => (t.user||'').toLowerCase().includes(q));
   renderTransactions(filtered);
 }
 
 window.filterTickets = function(){
   const status = document.getElementById('ticketFilter').value;
-  const filtered = status === 'all' ? mockTickets : mockTickets.filter(t => t.status.toLowerCase() === status);
+  let filtered = dbTickets.length ? dbTickets : mockTickets;
+  if(status !== 'all') filtered = filtered.filter(t => t.status.toLowerCase() === status);
   renderTickets(filtered);
 }
 
 // ---- ACTIONS ----
-window.approveLoan = function(btn){
+window.approveLoan = async function(btn, id){
+  if(id) await supabase.from('loan_applications').update({status:'Approved'}).eq('id',id);
   const row = btn.closest('tr');
   const statusCell = row.querySelector('td:nth-child(5)');
   statusCell.innerHTML = '<span class="badge badge-success">Approved</span>';
@@ -877,7 +901,8 @@ window.approveLoan = function(btn){
   lucide.createIcons();
 }
 
-window.declineLoan = function(btn){
+window.declineLoan = async function(btn, id){
+  if(id) await supabase.from('loan_applications').update({status:'Declined'}).eq('id',id);
   const row = btn.closest('tr');
   const statusCell = row.querySelector('td:nth-child(5)');
   statusCell.innerHTML = '<span class="badge badge-danger">Declined</span>';
@@ -886,7 +911,8 @@ window.declineLoan = function(btn){
   lucide.createIcons();
 }
 
-window.verifyKyc = function(btn){
+window.verifyKyc = async function(btn, id){
+  if(id) await supabase.from('kyc_documents').update({status:'Verified'}).eq('id',id);
   const row = btn.closest('tr');
   const statusCell = row.querySelector('td:nth-child(4)');
   statusCell.innerHTML = '<span class="badge badge-success">Verified</span>';
@@ -896,7 +922,8 @@ window.verifyKyc = function(btn){
   lucide.createIcons();
 }
 
-window.rejectKyc = function(btn){
+window.rejectKyc = async function(btn, id){
+  if(id) await supabase.from('kyc_documents').update({status:'Rejected'}).eq('id',id);
   const row = btn.closest('tr');
   const statusCell = row.querySelector('td:nth-child(4)');
   statusCell.innerHTML = '<span class="badge badge-danger">Rejected</span>';
@@ -906,7 +933,8 @@ window.rejectKyc = function(btn){
   lucide.createIcons();
 }
 
-window.resolveTicket = function(btn){
+window.resolveTicket = async function(btn, id){
+  if(id) await supabase.from('support_tickets').update({status:'Resolved'}).eq('id',id);
   const row = btn.closest('tr');
   const statusCell = row.querySelector('td:nth-child(4)');
   statusCell.innerHTML = '<span class="badge badge-success">Resolved</span>';
