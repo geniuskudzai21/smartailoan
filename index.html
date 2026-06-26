@@ -497,12 +497,7 @@ Already have an account? <a onclick="showLogin()">Sign In</a>
 
 <div class="card section hidden" id="notifications">
 <h2><i data-lucide="bell"></i> Notification Centre</h2>
-<div class="notification"><i data-lucide="check-circle" style="color:#22c55e;width:16px;height:16px;"></i> Loan Approved</div>
-<div class="notification"><i data-lucide="x-circle" style="color:#ef4444;width:16px;height:16px;"></i> Loan Declined</div>
-<div class="notification"><i data-lucide="alert-triangle" style="color:#f59e0b;width:16px;height:16px;"></i> Payment Overdue</div>
-<div class="notification"><i data-lucide="file-x" style="color:#ef4444;width:16px;height:16px;"></i> Document Rejected</div>
-<div class="notification"><i data-lucide="badge-check" style="color:#22c55e;width:16px;height:16px;"></i> KYC Successful</div>
-<div class="notification"><i data-lucide="sparkles" style="color:#3b82f6;width:16px;height:16px;"></i> New Loan Offer Available</div>
+<div id="notificationContent"><div class="empty-state"><p>Loading notifications...</p></div></div>
 </div>
 
 <div class="card section hidden" id="profile">
@@ -655,7 +650,8 @@ window.showSection = function(id){
  document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
  document.getElementById(id).classList.remove('hidden');
  closeSidebar();
- if(id === 'repayment') renderRepayment();
+  if(id === 'repayment') renderRepayment();
+  if(id === 'notifications') renderNotifications();
 }
 
 window.renderRepayment = async function(){
@@ -694,6 +690,74 @@ window.renderRepayment = async function(){
         <div class="status"><span style="color:#64748b;">Applied:</span> ${dateStr}</div>
       </div>
       ${isActive ? `<div style="margin-top:10px;padding-top:10px;border-top:1px solid #e2e8f0;font-size:13px;color:#16a34a;display:flex;align-items:center;gap:6px;"><i data-lucide="check-circle" style="width:14px;height:14px;"></i> Smart Contract: ACTIVE — Repayment tracking enabled</div>` : ''}
+    </div>`;
+  }).join('');
+  try { lucide.createIcons(); } catch(e) {}
+}
+
+window.renderNotifications = async function(){
+  const { data: { session } } = await supabase.auth.getSession();
+  if(!session) return;
+
+  const { data: loans, error } = await supabase
+    .from('loan_applications')
+    .select('*')
+    .eq('user_id', session.user.id)
+    .order('created_at', { ascending: false });
+
+  const container = document.getElementById('notificationContent');
+
+  if(error || !loans || !loans.length){
+    container.innerHTML = '<div class="empty-state"><i data-lucide="bell" style="width:32px;height:32px;color:#cbd5e1;"></i><p>No notifications yet.</p><div class="sub">Apply for a loan to receive status updates here.</div></div>';
+    try { lucide.createIcons(); } catch(e) {}
+    return;
+  }
+
+  const hasUpdates = loans.some(l => l.status !== 'Pending');
+
+  if(!hasUpdates){
+    container.innerHTML = '<div class="empty-state"><i data-lucide="bell" style="width:32px;height:32px;color:#cbd5e1;"></i><p>No notifications yet.</p><div class="sub">Your loan applications are pending review. Check back for updates.</div></div>';
+    try { lucide.createIcons(); } catch(e) {}
+    return;
+  }
+
+  container.innerHTML = loans.map(loan => {
+    const dateStr = loan.created_at ? new Date(loan.created_at).toLocaleDateString() : '';
+    let icon, iconColor, title, reason;
+
+    if(loan.status === 'Approved'){
+      icon = 'check-circle';
+      iconColor = '#22c55e';
+      title = 'Loan Approved';
+      reason = loan.ai_reason || 'Your loan application has been approved.';
+    } else if(loan.status === 'Disbursed'){
+      icon = 'landmark';
+      iconColor = '#3b82f6';
+      title = 'Loan Disbursed';
+      reason = loan.ai_reason || 'Your loan has been disbursed successfully.';
+    } else if(loan.status === 'Declined'){
+      icon = 'x-circle';
+      iconColor = '#ef4444';
+      title = 'Loan Declined';
+      reason = loan.ai_reason || 'Your loan application was not approved.';
+    } else {
+      icon = 'clock';
+      iconColor = '#f59e0b';
+      title = 'Loan Submitted';
+      reason = 'Your application is pending review.';
+    }
+
+    return `<div class="notification">
+      <i data-lucide="${icon}" style="color:${iconColor};width:16px;height:16px;flex-shrink:0;"></i>
+      <div style="flex:1;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <strong>${title}</strong>
+          <span style="font-size:11px;color:#94a3b8;">${dateStr}</span>
+        </div>
+        <div style="font-size:13px;color:#64748b;margin-top:4px;">
+          $${Number(loan.amount).toLocaleString()} — ${reason}
+        </div>
+      </div>
     </div>`;
   }).join('');
   try { lucide.createIcons(); } catch(e) {}

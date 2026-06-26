@@ -1113,7 +1113,7 @@ window.deleteUser = async function(id){
 }
 
 window.approveLoan = async function(btn, id){
-  if(id) await supabase.from('loan_applications').update({status:'Approved'}).eq('id',id);
+  if(id) await supabase.from('loan_applications').update({status:'Approved', ai_reason: 'Approved by admin after review.'}).eq('id',id);
   const row = btn.closest('tr');
   const statusCell = row.querySelector('td:nth-child(6)');
   statusCell.innerHTML = '<span class="badge badge-success">Approved</span>';
@@ -1123,7 +1123,7 @@ window.approveLoan = async function(btn, id){
 }
 
 window.declineLoan = async function(btn, id){
-  if(id) await supabase.from('loan_applications').update({status:'Declined'}).eq('id',id);
+  if(id) await supabase.from('loan_applications').update({status:'Declined', ai_reason: 'Declined by admin after review.'}).eq('id',id);
   const row = btn.closest('tr');
   const statusCell = row.querySelector('td:nth-child(6)');
   statusCell.innerHTML = '<span class="badge badge-danger">Declined</span>';
@@ -1245,7 +1245,7 @@ window.runAiScoring = async function(){
 - Repayment period (longer periods may increase risk)
 - Loan purpose (Business/Education = lower risk, Personal/Emergency = higher risk)
 
-Return a JSON array. For each loan provide: "loanId" (the loan ID), "user" (their name), "amount" (loan amount), "purpose" (loan purpose), "score" (0-100, where 70+ = low risk, 50-69 = medium, below 50 = high), "risk" ("Low"/"Medium"/"High"), "decision" ("Approved" for strong applications, "Declined" for high-risk, "Review" for borderline cases needing manual document review). Only return valid JSON, no explanation.\n\nLoans: ${JSON.stringify(loansList)}`;
+Return a JSON array. For each loan provide: "loanId" (the loan ID), "user" (their name), "amount" (loan amount), "purpose" (loan purpose), "score" (0-100, where 70+ = low risk, 50-69 = medium, below 50 = high), "risk" ("Low"/"Medium"/"High"), "decision" ("Approved" for strong applications, "Declined" for high-risk, "Review" for borderline cases needing manual document review), "reason" (a brief 1-sentence explanation of why this decision was made, mentioning income vs amount, employment, purpose, etc.). Only return valid JSON, no explanation.\n\nLoans: ${JSON.stringify(loansList)}`;
 
   try {
     const res = await fetch('http://localhost:3456/api/grok', {
@@ -1261,6 +1261,14 @@ Return a JSON array. For each loan provide: "loanId" (the loan ID), "user" (thei
     const parsed = JSON.parse(data.result);
     if (Array.isArray(parsed)) {
       creditScores = parsed.map((c, i) => ({ ...c, loanId: loansList[i] ? loansList[i].loanId : c.loanId, date: new Date().toLocaleDateString() }));
+      for (const score of creditScores) {
+        await supabase.from('loan_applications').update({
+          ai_score: score.score,
+          ai_risk: score.risk,
+          ai_decision: score.decision,
+          ai_reason: score.reason || null
+        }).eq('id', score.loanId);
+      }
     } else {
       throw new Error('Unexpected response format');
     }
@@ -1329,7 +1337,7 @@ window.closeEditModal = function(){
   editingScoreIdx = null;
 }
 
-window.saveEditedScore = function(){
+window.saveEditedScore = async function(){
   if(editingScoreIdx === null) return;
   const entry = creditScores[editingScoreIdx];
   if(!entry) return;
@@ -1340,6 +1348,13 @@ window.saveEditedScore = function(){
   entry.score = score;
   entry.risk = score >= 70 ? 'Low' : score >= 50 ? 'Medium' : 'High';
   entry.decision = decisionInput.value;
+  entry.reason = entry.reason || 'Manually reviewed by admin.';
+  await supabase.from('loan_applications').update({
+    ai_score: score,
+    ai_risk: entry.risk,
+    ai_decision: entry.decision,
+    ai_reason: entry.reason
+  }).eq('id', entry.loanId);
   closeEditModal();
   renderCreditScores();
 }

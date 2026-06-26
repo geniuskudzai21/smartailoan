@@ -34,6 +34,10 @@ CREATE TABLE IF NOT EXISTS loan_applications (
 
 ALTER TABLE loan_applications ADD COLUMN IF NOT EXISTS preferred_date DATE;
 ALTER TABLE loan_applications ADD COLUMN IF NOT EXISTS phone TEXT;
+ALTER TABLE loan_applications ADD COLUMN IF NOT EXISTS ai_score INT;
+ALTER TABLE loan_applications ADD COLUMN IF NOT EXISTS ai_risk TEXT;
+ALTER TABLE loan_applications ADD COLUMN IF NOT EXISTS ai_decision TEXT;
+ALTER TABLE loan_applications ADD COLUMN IF NOT EXISTS ai_reason TEXT;
 
 CREATE TABLE IF NOT EXISTS user_documents (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
