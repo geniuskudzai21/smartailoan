@@ -146,6 +146,8 @@ tr:hover{background:#f8fafc;}
   gap:4px;
 }
 
+@keyframes spin{to{transform:rotate(360deg)}}
+
 .sidebar-overlay{
   display:none;
   position:fixed;
@@ -697,6 +699,7 @@ async function loadDashboard(){
   renderActivity(dbTxn);
   renderDocuments(dbDocs);
   renderCharts();
+  runAiScoring();
 }
 
 // ---- RENDER HELPERS ----
@@ -980,25 +983,48 @@ window.deleteLoan = async function(id){
 
 let creditScores = [];
 
-window.runAiScoring = function(){
+window.runAiScoring = async function(){
   if(!dbUsers.length){
     const tbody = document.getElementById('creditScoreTable');
     tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><i data-lucide="brain" style="width:32px;height:32px;color:#cbd5e1;"></i><p>No users to score</p></td></tr>';
     lucide.createIcons();
     return;
   }
-  creditScores = dbUsers.map(u => {
-    const score = Math.floor(Math.random() * 400) + 300;
-    const risk = score >= 650 ? 'Low' : score >= 500 ? 'Medium' : 'High';
-    const decision = score >= 600 ? 'Approved' : 'Declined';
-    return {
-      user: u.full_name || u.name || u.email || 'Unknown',
-      score,
-      risk,
-      decision,
-      date: new Date().toLocaleDateString()
-    };
-  });
+  const tbody = document.getElementById('creditScoreTable');
+  tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;"><i data-lucide="loader-2" style="width:24px;height:24px;animation:spin 1s linear infinite;color:#2563eb;"></i><p style="margin-top:8px;color:#64748b;">AI is analyzing creditworthiness...</p></td></tr>';
+  lucide.createIcons();
+
+  const usersList = dbUsers.map(u => ({
+    name: u.full_name || u.name || u.email || 'Unknown',
+    email: u.email || '',
+    phone: u.phone || '',
+    joined: u.created_at || ''
+  }));
+
+  const prompt = `Analyze the following loan applicants and return a JSON array of credit scores. For each person provide: "user" (their name), "score" (300-850), "risk" ("Low"/"Medium"/"High"), "decision" ("Approved"/"Declined"/"Review"). Only return valid JSON, no explanation.\n\nUsers: ${JSON.stringify(usersList)}`;
+
+  try {
+    const res = await fetch('http://localhost:3456/api/grok', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        system: 'You are a credit risk assessment AI. Output only valid JSON arrays.',
+        prompt
+      })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    const parsed = JSON.parse(data.result);
+    if (Array.isArray(parsed)) {
+      creditScores = parsed.map(c => ({ ...c, date: new Date().toLocaleDateString() }));
+    } else {
+      throw new Error('Unexpected response format');
+    }
+  } catch (e) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:20px;color:#dc2626;"><p>AI scoring failed: ${e.message}</p></td></tr>`;
+    lucide.createIcons();
+    return;
+  }
   renderCreditScores();
 }
 
