@@ -475,20 +475,7 @@ Already have an account? <a onclick="showLogin()">Sign In</a>
 
 <div class="card section hidden" id="repayment">
 <h2><i data-lucide="wallet"></i> Repayment & Smart Contract Tracking</h2>
-<div class="grid">
-<div>
-<div class="status">Outstanding Balance: $1,200</div>
-<div class="status">Due Date: 15 June 2026</div>
-<div class="status">Penalty Charges: $25</div>
-<div class="status">Smart Contract Status: ACTIVE</div>
-</div>
-<div>
-<h3>Payment History</h3>
-<div class="notification">01 May 2026 - Payment Received ($150)</div>
-<div class="notification">01 April 2026 - Payment Received ($150)</div>
-<div class="notification">01 March 2026 - Payment Received ($150)</div>
-</div>
-</div>
+<div id="repaymentContent"><div class="empty-state"><p>Loading your loan information...</p></div></div>
 </div>
 
 <div class="card section hidden" id="mobile">
@@ -668,6 +655,48 @@ window.showSection = function(id){
  document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
  document.getElementById(id).classList.remove('hidden');
  closeSidebar();
+ if(id === 'repayment') renderRepayment();
+}
+
+window.renderRepayment = async function(){
+  const { data: { session } } = await supabase.auth.getSession();
+  if(!session) return;
+
+  const { data: loans, error } = await supabase
+    .from('loan_applications')
+    .select('*')
+    .eq('user_id', session.user.id)
+    .order('created_at', { ascending: false });
+
+  const container = document.getElementById('repaymentContent');
+
+  if(error || !loans || !loans.length){
+    container.innerHTML = '<div class="empty-state"><i data-lucide="wallet" style="width:32px;height:32px;color:#cbd5e1;"></i><p>No loan applications yet.</p><div class="sub">Apply for a loan to see your repayment status here.</div></div>';
+    try { lucide.createIcons(); } catch(e) {}
+    return;
+  }
+
+  container.innerHTML = loans.map(loan => {
+    const statusCls = loan.status === 'Disbursed' || loan.status === 'Approved' ? 'badge-success' : loan.status === 'Declined' ? 'badge-danger' : 'badge-warning';
+    const dateStr = loan.created_at ? new Date(loan.created_at).toLocaleDateString() : '—';
+    const incomeStr = loan.monthly_income ? '$' + Number(loan.monthly_income).toLocaleString() : '—';
+    const isActive = loan.status === 'Approved' || loan.status === 'Disbursed';
+
+    return `<div style="border:1px solid #e2e8f0;border-radius:12px;padding:16px;margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <strong style="font-size:16px;color:#1e3a8a;">Loan $${Number(loan.amount).toLocaleString()}</strong>
+        <span class="badge ${statusCls}">${loan.status}</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:14px;">
+        <div class="status"><span style="color:#64748b;">Purpose:</span> ${loan.purpose || '—'}</div>
+        <div class="status"><span style="color:#64748b;">Monthly Income:</span> ${incomeStr}</div>
+        <div class="status"><span style="color:#64748b;">Repayment Period:</span> ${loan.repayment_period || '—'}</div>
+        <div class="status"><span style="color:#64748b;">Applied:</span> ${dateStr}</div>
+      </div>
+      ${isActive ? `<div style="margin-top:10px;padding-top:10px;border-top:1px solid #e2e8f0;font-size:13px;color:#16a34a;display:flex;align-items:center;gap:6px;"><i data-lucide="check-circle" style="width:14px;height:14px;"></i> Smart Contract: ACTIVE — Repayment tracking enabled</div>` : ''}
+    </div>`;
+  }).join('');
+  try { lucide.createIcons(); } catch(e) {}
 }
 
 window.submitLoan = async function(){
