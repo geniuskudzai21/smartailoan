@@ -359,6 +359,10 @@ tr:hover{background:#f8fafc;}
 <div class="menu-item" onclick="showSection('users')"><i data-lucide="users"></i> User Management</div>
 <div class="menu-item" onclick="showSection('loans')"><i data-lucide="file-text"></i> Loan Applications</div>
 <div class="menu-item" onclick="showSection('charts')"><i data-lucide="bar-chart-3"></i> AI Charts & Analytics</div>
+<div class="menu-item" onclick="showSection('alerts')"><i data-lucide="bell-ring"></i> Alerts Centre</div>
+<div class="menu-item" onclick="showSection('risk')"><i data-lucide="shield-alert"></i> Risk Management</div>
+<div class="menu-item" onclick="showSection('notifications')"><i data-lucide="bell"></i> Notifications &amp; Communication</div>
+<div class="menu-item" onclick="showSection('contracts')"><i data-lucide="file-code"></i> Smart Contract Monitoring</div>
 
 <div class="sidebar-footer" id="adminSidebarUser"><i data-lucide="shield"></i> admin@smartloan.com</div>
 </div>
@@ -458,6 +462,110 @@ tr:hover{background:#f8fafc;}
 <div class="card"><h3>Repayment Performance</h3><div style="height:200px;"><canvas id="chartRepayment"></canvas></div></div>
 <div class="card"><h3>Risk Distribution</h3><div style="height:200px;"><canvas id="chartRisk"></canvas></div></div>
 <div class="card"><h3>Customer Categories</h3><div style="height:200px;"><canvas id="chartCustomers"></canvas></div></div>
+</div>
+</div>
+
+<!-- ALERTS CENTRE -->
+<div class="section hidden" id="alerts">
+<div class="section-title"><i data-lucide="bell-ring"></i> Alerts Centre</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+<div class="card" style="border-left:4px solid #dc2626;">
+<div style="display:flex;align-items:flex-start;gap:12px;">
+<div style="background:#fef2f2;border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i data-lucide="alert-triangle" style="width:20px;height:20px;color:#dc2626;"></i></div>
+<div>
+<h3 style="color:#dc2626;margin:0 0 4px;">High-Risk Customer Detected</h3>
+<p style="margin:0 0 6px;color:#475569;font-size:13px;">Customer #1024 flagged for unusual borrowing pattern &mdash; 3 loan applications in 24 hours across different branches.</p>
+<span style="font-size:12px;color:#94a3b8;"><i data-lucide="clock" style="width:12px;height:12px;display:inline-block;"></i> 2 mins ago</span>
+</div>
+</div>
+</div>
+<div class="card" style="border-left:4px solid #f59e0b;">
+<div style="display:flex;align-items:flex-start;gap:12px;">
+<div style="background:#fffbeb;border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i data-lucide="clock" style="width:20px;height:20px;color:#f59e0b;"></i></div>
+<div>
+<h3 style="color:#f59e0b;margin:0 0 4px;">12 Overdue Loans This Week</h3>
+<p style="margin:0 0 6px;color:#475569;font-size:13px;">12 borrowers are past their repayment date. Total overdue amount: $24,500. Immediate follow-up required.</p>
+<span style="font-size:12px;color:#94a3b8;"><i data-lucide="clock" style="width:12px;height:12px;display:inline-block;"></i> 1 hour ago</span>
+</div>
+</div>
+</div>
+<div class="card" style="border-left:4px solid #dc2626;">
+<div style="display:flex;align-items:flex-start;gap:12px;">
+<div style="background:#fef2f2;border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i data-lucide="smartphone" style="width:20px;height:20px;color:#dc2626;"></i></div>
+<div>
+<h3 style="color:#dc2626;margin:0 0 4px;">Suspicious Mobile Money Activity Flagged</h3>
+<p style="margin:0 0 6px;color:#475569;font-size:13px;">User #2041 received 8 micro-deposits ($0.01 each) from unknown sources &mdash; potential layering scheme detected.</p>
+<span style="font-size:12px;color:#94a3b8;"><i data-lucide="clock" style="width:12px;height:12px;display:inline-block;"></i> 3 hours ago</span>
+</div>
+</div>
+</div>
+<div class="card" style="border-left:4px solid #3b82f6;">
+<div style="display:flex;align-items:flex-start;gap:12px;">
+<div style="background:#eff6ff;border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i data-lucide="user-x" style="width:20px;height:20px;color:#3b82f6;"></i></div>
+<div>
+<h3 style="color:#3b82f6;margin:0 0 4px;">Failed KYC Verification Identified</h3>
+<p style="margin:0 0 6px;color:#475569;font-size:13px;">5 users submitted mismatched identity documents. Flagged for manual review and possible suspension.</p>
+<span style="font-size:12px;color:#94a3b8;"><i data-lucide="clock" style="width:12px;height:12px;display:inline-block;"></i> 5 hours ago</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- RISK MANAGEMENT -->
+<div class="section hidden" id="risk">
+<div class="section-title"><i data-lucide="shield-alert"></i> Risk Management Dashboard</div>
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:16px;">
+<div class="stat-card"><i data-lucide="users" style="color:#dc2626;"></i><div class="label">High-Risk Borrowers</div><div class="value" style="color:#dc2626;">18</div></div>
+<div class="stat-card"><i data-lucide="trending-up" style="color:#f59e0b;"></i><div class="label">Portfolio at Risk (PAR)</div><div class="value" style="color:#f59e0b;">5.2%</div></div>
+<div class="stat-card"><i data-lucide="circle-dollar-sign" style="color:#dc2626;"></i><div class="label">Non-Performing Loans (NPLs)</div><div class="value" style="color:#dc2626;">$42,000</div></div>
+<div class="stat-card"><i data-lucide="briefcase" style="color:#3b82f6;"></i><div class="label">Sector Exposure</div><div class="value" style="font-size:22px;color:#3b82f6;">Retail &amp; SME</div></div>
+<div class="stat-card"><i data-lucide="globe" style="color:#f59e0b;"></i><div class="label">Geographic Risk</div><div class="value" style="color:#f59e0b;">Medium</div></div>
+</div>
+</div>
+
+<!-- NOTIFICATIONS & COMMUNICATION -->
+<div class="section hidden" id="notifications">
+<div class="section-title"><i data-lucide="bell"></i> Notifications &amp; Communication Centre</div>
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px;">
+<div class="stat-card"><i data-lucide="check-circle" style="color:#16a34a;"></i><div class="label">Loan Approvals Sent</div><div class="value" style="color:#16a34a;">1,247</div></div>
+<div class="stat-card"><i data-lucide="x-circle" style="color:#dc2626;"></i><div class="label">Loan Rejections Sent</div><div class="value" style="color:#dc2626;">386</div></div>
+<div class="stat-card"><i data-lucide="bell-ring" style="color:#f59e0b;"></i><div class="label">Payment Reminders Triggered</div><div class="value" style="color:#f59e0b;">892</div></div>
+<div class="stat-card"><i data-lucide="smartphone" style="color:#3b82f6;"></i><div class="label">OTP Verification Messages Sent</div><div class="value" style="color:#3b82f6;">3,421</div></div>
+<div class="stat-card"><i data-lucide="alert-triangle" style="color:#f59e0b;"></i><div class="label">KYC Alerts Generated</div><div class="value" style="color:#f59e0b;">154</div></div>
+<div class="stat-card"><i data-lucide="megaphone" style="color:#8b5cf6;"></i><div class="label">Promotional Offers Distributed</div><div class="value" style="color:#8b5cf6;">2,680</div></div>
+</div>
+<div class="card">
+<h3><i data-lucide="radio"></i> Communication Channels</h3>
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:12px;">
+<div style="border:1px solid #e2e8f0;border-radius:12px;padding:20px;text-align:center;">
+<div style="background:#eff6ff;border-radius:50%;width:48px;height:48px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;"><i data-lucide="message-square" style="width:24px;height:24px;color:#3b82f6;"></i></div>
+<h4 style="margin:0 0 4px;color:#1e293b;">SMS Notifications</h4>
+<p style="margin:0;font-size:13px;color:#64748b;">Delivered: 4,832</p>
+</div>
+<div style="border:1px solid #e2e8f0;border-radius:12px;padding:20px;text-align:center;">
+<div style="background:#fef2f2;border-radius:50%;width:48px;height:48px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;"><i data-lucide="mail" style="width:24px;height:24px;color:#dc2626;"></i></div>
+<h4 style="margin:0 0 4px;color:#1e293b;">Email Notifications</h4>
+<p style="margin:0;font-size:13px;color:#64748b;">Delivered: 3,215</p>
+</div>
+<div style="border:1px solid #e2e8f0;border-radius:12px;padding:20px;text-align:center;">
+<div style="background:#f0fdf4;border-radius:50%;width:48px;height:48px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;"><i data-lucide="bell" style="width:24px;height:24px;color:#16a34a;"></i></div>
+<h4 style="margin:0 0 4px;color:#1e293b;">In-App Notifications</h4>
+<p style="margin:0;font-size:13px;color:#64748b;">Delivered: 5,104</p>
+</div>
+</div>
+</div>
+</div>
+
+<!-- SMART CONTRACT MONITORING -->
+<div class="section hidden" id="contracts">
+<div class="section-title"><i data-lucide="file-code"></i> Smart Contract Monitoring</div>
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
+<div class="stat-card"><i data-lucide="check-circle" style="color:#16a34a;"></i><div class="label">Contract Status</div><div class="value" style="font-size:22px;color:#16a34a;">ACTIVE</div></div>
+<div class="stat-card"><i data-lucide="toggle-right" style="color:#16a34a;"></i><div class="label">Trigger Conditions</div><div class="value" style="font-size:22px;color:#16a34a;">ENABLED</div></div>
+<div class="stat-card"><i data-lucide="activity" style="color:#16a34a;"></i><div class="label">Automated Repayment Logic</div><div class="value" style="font-size:22px;color:#16a34a;">ACTIVE</div></div>
+<div class="stat-card"><i data-lucide="fingerprint" style="color:#3b82f6;"></i><div class="label">Digital Signatures</div><div class="value" style="font-size:22px;color:#3b82f6;">VERIFIED</div></div>
+<div class="stat-card"><i data-lucide="eye" style="color:#f59e0b;"></i><div class="label">Default Triggers</div><div class="value" style="font-size:22px;color:#f59e0b;">MONITORING</div></div>
 </div>
 </div>
 
