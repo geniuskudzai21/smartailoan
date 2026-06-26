@@ -441,6 +441,7 @@ Already have an account? <a onclick="showLogin()">Sign In</a>
 <div class="card section" id="loan">
 <h2><i data-lucide="hand-coins"></i> Apply for a Loan</h2>
 <input id="loanAmount" placeholder="Loan Amount Requested">
+<input id="loanPhone" type="tel" placeholder="Phone Number">
 <select id="loanPurpose"><option>Loan Purpose</option><option>Business</option><option>Education</option><option>Emergency</option><option>Personal</option></select>
 <input id="loanDate" type="date" placeholder="Preferred Date">
 <input id="loanIncome" placeholder="Monthly Income">
@@ -674,19 +675,21 @@ window.submitLoan = async function(){
   if(!session) return alert('Please login first.');
 
   const amount = document.getElementById('loanAmount').value;
+  const phone = document.getElementById('loanPhone').value;
   const purpose = document.getElementById('loanPurpose').value;
   const date = document.getElementById('loanDate').value;
   const income = document.getElementById('loanIncome').value;
   const employment = document.getElementById('loanEmployment').value;
   const period = document.getElementById('loanPeriod').value;
 
-  if(!amount || purpose === 'Loan Purpose' || !income || employment === 'Employment Status' || period === 'Repayment Period'){
+  if(!amount || !phone || purpose === 'Loan Purpose' || !income || employment === 'Employment Status' || period === 'Repayment Period'){
     return alert('Please complete all required fields.');
   }
 
   const { error: loanErr } = await supabase.from('loan_applications').insert({
     user_id: session.user.id,
     amount: parseFloat(amount),
+    phone,
     purpose,
     monthly_income: parseFloat(income),
     employment_status: employment,
@@ -735,6 +738,7 @@ window.submitLoan = async function(){
   }
 
   document.getElementById('loanAmount').value = '';
+  document.getElementById('loanPhone').value = '';
   document.getElementById('loanPurpose').selectedIndex = 0;
   document.getElementById('loanDate').value = '';
   document.getElementById('loanIncome').value = '';
