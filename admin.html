@@ -268,7 +268,7 @@ tr:hover{background:#f8fafc;}
 }
 
 .auth-card .btn-primary{width:100%;padding:13px;margin-top:4px;min-height:44px;}
-.auth-card label{font-size:13px;font-weight:600;color:#475569;}
+.auth-card label{font-size:13px;font-weight:600;color:#475569;display:inline-flex;align-items:center;gap:6px;}
 
 .toggle-link{text-align:center;margin-top:14px;font-size:14px;color:#64748b;}
 .toggle-link a{color:#2563eb;cursor:pointer;font-weight:600;text-decoration:none;}
@@ -330,14 +330,14 @@ tr:hover{background:#f8fafc;}
 <!-- ADMIN LOGIN -->
 <div id="adminLogin" class="auth-container">
 <div class="auth-card">
-<h2>Admin Login</h2>
-<p class="subtitle">Enter your admin credentials</p>
+<h2>Welcome</h2>
+<p class="subtitle">Sign in to your account</p>
 <div id="adminMessage"></div>
-<label>Admin Email</label>
+<label><i data-lucide="mail" style="width:14px;height:14px;"></i> Email</label>
 <input id="adminEmailInput" type="email" placeholder="admin@smartloan.com" value="admin@smartloan.com">
-<label>Password</label>
-<input id="adminPassInput" type="password" placeholder="Enter admin password">
-<button class="btn-primary" onclick="adminLogin()">Sign In to Admin</button>
+<label><i data-lucide="lock" style="width:14px;height:14px;"></i> Password</label>
+<input id="adminPassInput" type="password" placeholder="Enter your password">
+<button class="btn-primary" onclick="adminLogin()"><i data-lucide="log-in"></i> Sign In</button>
 <div class="toggle-link"><a href="index.html">&larr; Back to User Portal</a></div>
 </div>
 </div>
@@ -358,11 +358,8 @@ tr:hover{background:#f8fafc;}
 <div class="menu-item active" onclick="showSection('overview')"><i data-lucide="layout-dashboard"></i> System Overview</div>
 <div class="menu-item" onclick="showSection('users')"><i data-lucide="users"></i> User Management</div>
 <div class="menu-item" onclick="showSection('loans')"><i data-lucide="file-text"></i> Loan Applications</div>
-<div class="menu-item" onclick="showSection('kyc')"><i data-lucide="shield-check"></i> KYC Verification</div>
-<div class="menu-item" onclick="showSection('credit')"><i data-lucide="scroll-text"></i> Credit Reports</div>
-<div class="menu-item" onclick="showSection('transactions')"><i data-lucide="arrow-left-right"></i> Transactions</div>
-<div class="menu-item" onclick="showSection('products')"><i data-lucide="package"></i> Loan Products</div>
-<div class="menu-item" onclick="showSection('support')"><i data-lucide="ticket"></i> Support Tickets</div>
+<div class="menu-item" onclick="showSection('charts')"><i data-lucide="bar-chart-3"></i> AI Charts & Analytics</div>
+
 <div class="sidebar-footer" id="adminSidebarUser"><i data-lucide="shield"></i> admin@smartloan.com</div>
 </div>
 <div class="sidebar-overlay" onclick="closeSidebar()"></div>
@@ -384,8 +381,6 @@ tr:hover{background:#f8fafc;}
 <div class="stat-card"><i data-lucide="landmark"></i><div class="label">Active Loans</div><div class="value" id="statLoans">0</div></div>
 <div class="stat-card"><i data-lucide="circle-dollar-sign"></i><div class="label">Total Disbursed</div><div class="value" id="statDisbursed">$0</div></div>
 <div class="stat-card"><i data-lucide="clock"></i><div class="label">Pending Approvals</div><div class="value" id="statPending">0</div></div>
-<div class="stat-card"><i data-lucide="shield-off"></i><div class="label">KYC Pending</div><div class="value" id="statKyc">0</div></div>
-<div class="stat-card"><i data-lucide="circle-help"></i><div class="label">Open Tickets</div><div class="value" id="statTickets">0</div></div>
 </div>
 
 <div class="card">
@@ -438,117 +433,39 @@ tr:hover{background:#f8fafc;}
 </table>
 </div>
 </div>
-</div>
 
-<!-- KYC VERIFICATION -->
-<div class="section hidden" id="kyc">
-<div class="section-title"><i data-lucide="shield-check"></i> KYC Verification Queue</div>
-<div class="toolbar">
-<select id="kycFilter" onchange="filterKyc()"><option value="pending">Pending Review</option><option value="all">All</option><option value="verified">Verified</option><option value="rejected">Rejected</option></select>
-<button onclick="refreshKyc()" style="background:#475569;"><i data-lucide="refresh-cw" style="width:16px;height:16px;"></i> Refresh</button>
-</div>
 <div class="card">
+<h3><i data-lucide="brain"></i> AI Credit Scoring</h3>
+<div style="margin-bottom:12px;">
+<button onclick="runAiScoring()"><i data-lucide="zap"></i> Run AI Scoring</button>
+</div>
 <div class="table-wrap">
 <table>
-<thead><tr><th>User</th><th>Documents</th><th>Submitted</th><th>Status</th><th>Action</th></tr></thead>
-<tbody id="kycTable">
-<tr><td colspan="5" class="empty-state"><i data-lucide="shield-check"></i><p>No KYC submissions</p><div class="sub">User document uploads will appear here for review</div></td></tr>
+<thead><tr><th>User</th><th>Credit Score</th><th>Risk Level</th><th>Decision</th><th>Last Updated</th><th>Action</th></tr></thead>
+<tbody id="creditScoreTable">
+<tr><td colspan="6" class="empty-state"><i data-lucide="brain" style="width:32px;height:32px;color:#cbd5e1;"></i><p>No credit scores generated</p><div class="sub">Click "Run AI Scoring" to analyze user creditworthiness</div></td></tr>
 </tbody>
 </table>
 </div>
 </div>
 </div>
 
-<!-- CREDIT REPORTS -->
-<div class="section hidden" id="credit">
-<div class="section-title"><i data-lucide="scroll-text"></i> Credit & Bureau Reports</div>
-<div class="toolbar">
-<input id="creditSearch" placeholder="Search by user name or ID...">
-<button onclick="searchCredit()"><i data-lucide="search"></i> Search</button>
-</div>
-<div class="card">
-<div class="table-wrap">
-<table>
-<thead><tr><th>User</th><th>CRB</th><th>FCB</th><th>SRL</th><th>Risk Category</th><th>Eligibility</th></tr></thead>
-<tbody id="creditTable">
-<tr><td colspan="6" class="empty-state"><i data-lucide="search"></i><p>Search for a user to view credit report</p><div class="sub">Enter a user name or ID above and click Search</div></td></tr>
-</tbody>
-</table>
-</div>
+<!-- AI CHARTS & ANALYTICS -->
+<div class="section hidden" id="charts">
+<div class="section-title"><i data-lucide="bar-chart-3"></i> AI Charts & Analytics</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+<div class="card"><h3>Loan Growth Trends</h3><div style="height:200px;"><canvas id="chartGrowth"></canvas></div></div>
+<div class="card"><h3>Repayment Performance</h3><div style="height:200px;"><canvas id="chartRepayment"></canvas></div></div>
+<div class="card"><h3>Risk Distribution</h3><div style="height:200px;"><canvas id="chartRisk"></canvas></div></div>
+<div class="card"><h3>Customer Categories</h3><div style="height:200px;"><canvas id="chartCustomers"></canvas></div></div>
 </div>
 </div>
 
-<!-- TRANSACTIONS -->
-<div class="section hidden" id="transactions">
-<div class="section-title"><i data-lucide="arrow-left-right"></i> Transaction Monitoring</div>
-<div class="toolbar">
-<select id="txnFilter" onchange="filterTransactions()"><option value="all">All Types</option><option value="disbursement">Disbursements</option><option value="repayment">Repayments</option><option value="fee">Fees</option></select>
-<input id="txnSearch" placeholder="Search by user..." oninput="filterTransactions()">
-</div>
-<div class="card">
-<div class="table-wrap">
-<table>
-<thead><tr><th>User</th><th>Type</th><th>Amount</th><th>Date</th><th>Reference</th><th>Status</th></tr></thead>
-<tbody id="txnTable">
-<tr><td colspan="6" class="empty-state"><i data-lucide="arrow-left-right"></i><p>No transactions recorded</p><div class="sub">Transaction history will appear once users interact with the platform</div></td></tr>
-</tbody>
-</table>
-</div>
-</div>
-</div>
-
-<!-- LOAN PRODUCTS -->
-<div class="section hidden" id="products">
-<div class="section-title"><i data-lucide="package"></i> Loan Products</div>
-<div class="toolbar">
-<button onclick="showAddProduct()"><i data-lucide="plus-circle"></i> Add Product</button>
-</div>
-<div id="productForm" class="card hidden">
-<h3>New Loan Product</h3>
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-<input id="prodName" placeholder="Product Name">
-<input id="prodMin" placeholder="Min Amount" type="number">
-<input id="prodMax" placeholder="Max Amount" type="number">
-<input id="prodRate" placeholder="Interest Rate %" type="number" step="0.1">
-<select id="prodTerm"><option>Repayment Term</option><option>3 Months</option><option>6 Months</option><option>12 Months</option><option>24 Months</option></select>
-<button onclick="saveProduct()" style="margin:0;"><i data-lucide="save"></i> Save Product</button>
-</div>
-</div>
-<div class="card">
-<div class="table-wrap">
-<table>
-<thead><tr><th>Product</th><th>Min</th><th>Max</th><th>Rate</th><th>Term</th><th>Status</th><th>Action</th></tr></thead>
-<tbody id="productTable">
-<tr><td colspan="7" class="empty-state"><i data-lucide="package"></i><p>No loan products defined</p><div class="sub">Click "Add Product" to create your first loan product</div></td></tr>
-</tbody>
-</table>
-</div>
-</div>
-</div>
-
-<!-- SUPPORT TICKETS -->
-<div class="section hidden" id="support">
-<div class="section-title"><i data-lucide="ticket"></i> Support Tickets</div>
-<div class="toolbar">
-<select id="ticketFilter" onchange="filterTickets()"><option value="open">Open</option><option value="all">All</option><option value="resolved">Resolved</option></select>
-</div>
-<div class="card">
-<div class="table-wrap">
-<table>
-<thead><tr><th>User</th><th>Subject</th><th>Date</th><th>Status</th><th>Action</th></tr></thead>
-<tbody id="ticketTable">
-<tr><td colspan="5" class="empty-state"><i data-lucide="ticket"></i><p>No support tickets</p><div class="sub">User support inquiries will appear here</div></td></tr>
-</tbody>
-</table>
-</div>
-</div>
-</div>
-
-</div>
 </div>
 </div>
 </section>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
@@ -639,38 +556,26 @@ window.showSection = function(id){
 }
 
 // ---- LOAD DASHBOARD ----
-let dbUsers = [], dbLoans = [], dbKyc = [], dbTxn = [], dbTickets = [], dbCredit = [];
-let products = [];
+let dbUsers = [], dbLoans = [], dbTxn = [];
 
 async function loadDashboard(){
-  const [usersRes, loansRes, kycRes, txnRes, ticketRes] = await Promise.all([
+  const [usersRes, loansRes, txnRes] = await Promise.all([
     supabase.from('profiles').select('*'),
     supabase.from('loan_applications').select('*'),
-    supabase.from('kyc_documents').select('*'),
     supabase.from('transactions').select('*'),
-    supabase.from('support_tickets').select('*'),
   ]);
   dbUsers = usersRes.data || [];
   dbLoans = loansRes.data || [];
-  dbKyc = kycRes.data || [];
   dbTxn = txnRes.data || [];
-  dbTickets = ticketRes.data || [];
 
   document.getElementById('statUsers').textContent = dbUsers.length;
   document.getElementById('statLoans').textContent = dbLoans.filter(l => l.status === 'Approved' || l.status === 'Disbursed').length;
   document.getElementById('statDisbursed').textContent = '$' + dbLoans.filter(l => l.status === 'Disbursed').reduce((s,l) => s + Number(l.amount), 0);
   document.getElementById('statPending').textContent = dbLoans.filter(l => l.status === 'Pending').length;
-  document.getElementById('statKyc').textContent = dbKyc.filter(k => k.status === 'Pending').length;
-  document.getElementById('statTickets').textContent = dbTickets.filter(t => t.status === 'Open').length;
-
   renderUsers(dbUsers);
   renderLoans(dbLoans);
-  renderKyc(dbKyc);
-  renderCredit(dbCredit);
-  renderTransactions(dbTxn);
-  renderProducts(products);
-  renderTickets(dbTickets);
   renderActivity(dbTxn);
+  renderCharts();
 }
 
 // ---- RENDER HELPERS ----
@@ -719,75 +624,12 @@ function renderLoans(list){
       <td>${l.term||l.repayment_period||'—'}</td>
       <td><span class="badge ${cls}">${l.status}</span></td>
       <td>
-        ${l.status === 'Pending' ? `<button style="padding:6px 8px;font-size:11px;min-height:auto;background:#16a34a;margin-right:4px;" onclick="approveLoan(this,'${l.id}')"><i data-lucide="check" style="width:12px;height:12px;"></i> Approve</button><button style="padding:6px 8px;font-size:11px;min-height:auto;background:#dc2626;" onclick="declineLoan(this,'${l.id}')"><i data-lucide="x" style="width:12px;height:12px;"></i> Decline</button>` : '<span style="color:#94a3b8;font-size:12px;">No action</span>'}
+        ${l.status === 'Pending' ? `<button style="padding:6px 8px;font-size:11px;min-height:auto;background:#16a34a;margin-right:4px;" onclick="approveLoan(this,'${l.id}')"><i data-lucide="check" style="width:12px;height:12px;"></i> Approve</button><button style="padding:6px 8px;font-size:11px;min-height:auto;background:#dc2626;margin-right:4px;" onclick="declineLoan(this,'${l.id}')"><i data-lucide="x" style="width:12px;height:12px;"></i> Decline</button>` : ''}
+        <button style="padding:6px 8px;font-size:11px;min-height:auto;background:#f59e0b;margin-right:4px;" onclick="editLoan('${l.id}')"><i data-lucide="pencil" style="width:14px;height:14px;"></i></button>
+        <button style="padding:6px 8px;font-size:11px;min-height:auto;background:#dc2626;" onclick="deleteLoan('${l.id}')"><i data-lucide="trash-2" style="width:14px;height:14px;"></i></button>
       </td>
     </tr>`;
   }).join('');
-  lucide.createIcons();
-}
-
-function renderKyc(list){
-  const tbody = document.getElementById('kycTable');
-  const userMap = {};
-  dbUsers.forEach(u => { userMap[u.user_id] = u.full_name || u.name || u.email || '—'; });
-  if(!list.length){
-    tbody.innerHTML = '<tr><td colspan="5" class="empty-state"><i data-lucide="shield-check" style="width:32px;height:32px;color:#cbd5e1;"></i><p>No KYC submissions</p></td></tr>';
-    lucide.createIcons();
-    return;
-  }
-  tbody.innerHTML = list.map(k => {
-    const cls = k.status === 'Verified' ? 'badge-success' : k.status === 'Rejected' ? 'badge-danger' : 'badge-warning';
-    const userName = k.user || userMap[k.user_id] || k.user_id?.slice(0,8) || '—';
-    const docDisplay = k.file_url ? `<a href="${k.file_url}" target="_blank" style="color:#60a5fa;text-decoration:underline;font-size:13px;">${k.document_type||'View'}</a>` : (k.docs||k.document_type||'—');
-    return `<tr>
-      <td><strong>${userName}</strong></td>
-      <td>${docDisplay}</td>
-      <td>${k.submitted||(k.created_at?new Date(k.created_at).toLocaleDateString():'—')}</td>
-      <td><span class="badge ${cls}">${k.status}</span></td>
-      <td>
-        ${k.status === 'Pending' ? `<button style="padding:6px 8px;font-size:11px;min-height:auto;background:#16a34a;margin-right:4px;" onclick="verifyKyc(this,'${k.id}')"><i data-lucide="check-circle" style="width:12px;height:12px;"></i> Verify</button><button style="padding:6px 8px;font-size:11px;min-height:auto;background:#dc2626;" onclick="rejectKyc(this,'${k.id}')"><i data-lucide="x-circle" style="width:12px;height:12px;"></i> Reject</button>` : '<span style="color:#94a3b8;font-size:12px;">Complete</span>'}
-      </td>
-    </tr>`;
-  }).join('');
-  lucide.createIcons();
-}
-
-function renderCredit(list){
-  const tbody = document.getElementById('creditTable');
-  if(!list.length){
-    tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><i data-lucide="search" style="width:32px;height:32px;color:#cbd5e1;"></i><p>Search for a user to view credit report</p></td></tr>';
-    lucide.createIcons();
-    return;
-  }
-  tbody.innerHTML = list.map(c => {
-    const riskCls = c.risk === 'Low' ? 'badge-success' : c.risk === 'Medium' ? 'badge-warning' : 'badge-danger';
-    const eligCls = c.eligibility === 'Approved' ? 'badge-success' : 'badge-warning';
-    return `<tr>
-      <td><strong>${c.user}</strong></td>
-      <td><span class="badge badge-success">${c.crb}</span></td>
-      <td><span class="badge badge-success">${c.fcb}</span></td>
-      <td><span class="badge badge-success">${c.srl}</span></td>
-      <td><span class="badge ${riskCls}">${c.risk}</span></td>
-      <td><span class="badge ${eligCls}">${c.eligibility}</span></td>
-    </tr>`;
-  }).join('');
-  lucide.createIcons();
-}
-
-function renderTickets(list){
-  const tbody = document.getElementById('ticketTable');
-  if(!list.length){
-    tbody.innerHTML = '<tr><td colspan="5" class="empty-state"><i data-lucide="ticket" style="width:32px;height:32px;color:#cbd5e1;"></i><p>No support tickets</p></td></tr>';
-    lucide.createIcons();
-    return;
-  }
-  tbody.innerHTML = list.map(t => `<tr>
-    <td><strong>${t.user||t.user_id?.slice(0,8)||'—'}</strong></td>
-    <td>${t.subject}</td>
-    <td>${t.date||(t.created_at?new Date(t.created_at).toLocaleDateString():'—')}</td>
-    <td><span class="badge ${t.status === 'Open' ? 'badge-warning' : 'badge-success'}">${t.status}</span></td>
-    <td>${t.status === 'Open' ? `<button style="padding:6px 12px;font-size:12px;min-height:auto;" onclick="resolveTicket(this,'${t.id}')"><i data-lucide="check" style="width:14px;height:14px;"></i> Resolve</button>` : '<span style="color:#94a3b8;font-size:12px;">Resolved</span>'}</td>
-  </tr>`).join('');
   lucide.createIcons();
 }
 
@@ -805,6 +647,80 @@ function renderActivity(txns){
     <td>${t.date}</td>
     <td><span class="badge badge-success">${t.status}</span></td>
   </tr>`).join('');
+}
+
+function renderCharts(){
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const growthData = Array(12).fill(0);
+  dbLoans.forEach(l => {
+    const d = l.created_at ? new Date(l.created_at) : null;
+    if(d) growthData[d.getMonth()] += Number(l.amount) || 0;
+  });
+
+  new Chart(document.getElementById('chartGrowth'), {
+    type: 'line',
+    data: {
+      labels: months,
+      datasets: [{ label: 'Loan Volume ($)', data: growthData, borderColor: '#3b82f6', tension: 0.3, fill: false }]
+    },
+    options: { responsive: true, plugins: { legend: { display: false } } }
+  });
+
+  const statusCounts = { Approved: 0, Declined: 0, Pending: 0, Disbursed: 0 };
+  dbLoans.forEach(l => { if(statusCounts[l.status] !== undefined) statusCounts[l.status]++; });
+
+  new Chart(document.getElementById('chartRepayment'), {
+    type: 'doughnut',
+    data: {
+      labels: Object.keys(statusCounts),
+      datasets: [{
+        data: Object.values(statusCounts),
+        backgroundColor: ['#16a34a', '#dc2626', '#f59e0b', '#3b82f6']
+      }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+  });
+
+  const riskCounts = { Low: 0, Medium: 0, High: 0 };
+  dbLoans.forEach(l => {
+    if(l.status === 'Approved' || l.status === 'Disbursed') riskCounts.Low++;
+    else if(l.status === 'Pending') riskCounts.Medium++;
+    else if(l.status === 'Declined') riskCounts.High++;
+  });
+  if(!riskCounts.Low && !riskCounts.Medium && !riskCounts.High) riskCounts.Low = 1;
+
+  new Chart(document.getElementById('chartRisk'), {
+    type: 'pie',
+    data: {
+      labels: Object.keys(riskCounts),
+      datasets: [{
+        data: Object.values(riskCounts),
+        backgroundColor: ['#16a34a', '#f59e0b', '#dc2626']
+      }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+  });
+
+  const catCounts = { New: 0, Active: 0, Premium: 0 };
+  dbUsers.forEach(u => {
+    const loanCount = dbLoans.filter(l => l.user_id === u.id || l.applicant === u.full_name || l.applicant === u.name).length;
+    if(loanCount >= 3) catCounts.Premium++;
+    else if(loanCount >= 1) catCounts.Active++;
+    else catCounts.New++;
+  });
+  if(!catCounts.New && !catCounts.Active && !catCounts.Premium) catCounts.New = dbUsers.length || 1;
+
+  new Chart(document.getElementById('chartCustomers'), {
+    type: 'doughnut',
+    data: {
+      labels: Object.keys(catCounts),
+      datasets: [{
+        data: Object.values(catCounts),
+        backgroundColor: ['#94a3b8', '#3b82f6', '#8b5cf6']
+      }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+  });
 }
 
 // ---- FILTERS ----
@@ -825,43 +741,6 @@ window.filterLoans = function(){
   if(status !== 'all') filtered = filtered.filter(l => l.status.toLowerCase() === status);
   if(q) filtered = filtered.filter(l => l.purpose?.toLowerCase().includes(q));
   renderLoans(filtered);
-}
-
-window.filterKyc = function(){
-  const status = document.getElementById('kycFilter').value;
-  let filtered = dbKyc;
-  if(status !== 'all') filtered = filtered.filter(k => k.status.toLowerCase() === status);
-  renderKyc(filtered);
-}
-
-window.refreshKyc = async function(){
-  const { data } = await supabase.from('kyc_documents').select('*');
-  if(data) dbKyc = data;
-  document.getElementById('kycFilter').value = 'all';
-  renderKyc(dbKyc);
-}
-
-window.searchCredit = function(){
-  const q = document.getElementById('creditSearch').value.toLowerCase();
-  if(!q){ renderCredit(dbCredit); return; }
-  const filtered = dbCredit.filter(c => c.user.toLowerCase().includes(q));
-  renderCredit(filtered);
-}
-
-window.filterTransactions = function(){
-  const type = document.getElementById('txnFilter').value;
-  const q = document.getElementById('txnSearch').value.toLowerCase();
-  let filtered = dbTxn;
-  if(type !== 'all') filtered = filtered.filter(t => t.type.toLowerCase() === type);
-  if(q) filtered = filtered.filter(t => (t.user||'').toLowerCase().includes(q));
-  renderTransactions(filtered);
-}
-
-window.filterTickets = function(){
-  const status = document.getElementById('ticketFilter').value;
-  let filtered = dbTickets;
-  if(status !== 'all') filtered = filtered.filter(t => t.status.toLowerCase() === status);
-  renderTickets(filtered);
 }
 
 // ---- ACTIONS ----
@@ -908,82 +787,91 @@ window.declineLoan = async function(btn, id){
   lucide.createIcons();
 }
 
-window.verifyKyc = async function(btn, id){
-  if(id) await supabase.from('kyc_documents').update({status:'Verified'}).eq('id',id);
-  const row = btn.closest('tr');
-  const statusCell = row.querySelector('td:nth-child(4)');
-  statusCell.innerHTML = '<span class="badge badge-success">Verified</span>';
-  const actionCell = row.querySelector('td:nth-child(5)');
-  actionCell.innerHTML = '<span style="color:#94a3b8;font-size:12px;"><i data-lucide="check-circle" style="width:14px;height:14px;color:#16a34a;"></i> Complete</span>';
-  document.getElementById('statKyc').textContent = Math.max(0, parseInt(document.getElementById('statKyc').textContent) - 1);
-  lucide.createIcons();
+window.editLoan = function(id){
+  const loan = dbLoans.find(l => l.id === id);
+  if(!loan) return;
+  const newAmount = prompt('Edit loan amount for ' + (loan.applicant || loan.user_id) + ':', loan.amount);
+  if(newAmount === null) return;
+  const amount = parseFloat(newAmount);
+  if(isNaN(amount) || amount <= 0) return alert('Enter a valid amount');
+  loan.amount = amount;
+  renderLoans(dbLoans);
 }
 
-window.rejectKyc = async function(btn, id){
-  if(id) await supabase.from('kyc_documents').update({status:'Rejected'}).eq('id',id);
-  const row = btn.closest('tr');
-  const statusCell = row.querySelector('td:nth-child(4)');
-  statusCell.innerHTML = '<span class="badge badge-danger">Rejected</span>';
-  const actionCell = row.querySelector('td:nth-child(5)');
-  actionCell.innerHTML = '<span style="color:#94a3b8;font-size:12px;"><i data-lucide="x-circle" style="width:14px;height:14px;color:#dc2626;"></i> Complete</span>';
-  document.getElementById('statKyc').textContent = Math.max(0, parseInt(document.getElementById('statKyc').textContent) - 1);
-  lucide.createIcons();
+window.deleteLoan = async function(id){
+  if(!confirm('Delete this loan application?')) return;
+  const { error } = await supabase.from('loan_applications').delete().eq('id', id);
+  if(error) return alert('Error: ' + error.message);
+  dbLoans = dbLoans.filter(l => l.id !== id);
+  renderLoans(dbLoans);
 }
 
-window.resolveTicket = async function(btn, id){
-  if(id) await supabase.from('support_tickets').update({status:'Resolved'}).eq('id',id);
-  const row = btn.closest('tr');
-  const statusCell = row.querySelector('td:nth-child(4)');
-  statusCell.innerHTML = '<span class="badge badge-success">Resolved</span>';
-  const actionCell = row.querySelector('td:nth-child(5)');
-  actionCell.innerHTML = '<span style="color:#94a3b8;font-size:12px;"><i data-lucide="check-circle" style="width:14px;height:14px;color:#16a34a;"></i> Resolved</span>';
-  document.getElementById('statTickets').textContent = Math.max(0, parseInt(document.getElementById('statTickets').textContent) - 1);
-  lucide.createIcons();
-}
+let creditScores = [];
 
-window.deactivateProduct = function(btn){
-  const row = btn.closest('tr');
-  const statusCell = row.querySelector('td:nth-child(6)');
-  statusCell.innerHTML = '<span class="badge badge-danger">Inactive</span>';
-  btn.innerHTML = '<i data-lucide="toggle-right" style="width:14px;height:14px;"></i> Activate';
-  btn.style.background = '#16a34a';
-  btn.onclick = function(){ activateProduct(this); };
-  lucide.createIcons();
-}
-
-window.activateProduct = function(btn){
-  const row = btn.closest('tr');
-  const statusCell = row.querySelector('td:nth-child(6)');
-  statusCell.innerHTML = '<span class="badge badge-success">Active</span>';
-  btn.innerHTML = '<i data-lucide="toggle-left" style="width:14px;height:14px;"></i> Deactivate';
-  btn.style.background = '#dc2626';
-  btn.onclick = function(){ deactivateProduct(this); };
-  lucide.createIcons();
-}
-
-window.showAddProduct = function(){
-  const form = document.getElementById('productForm');
-  form.classList.toggle('hidden');
-}
-
-window.saveProduct = function(){
-  const name = document.getElementById('prodName').value;
-  const min = document.getElementById('prodMin').value;
-  const max = document.getElementById('prodMax').value;
-  const rate = document.getElementById('prodRate').value;
-  const term = document.getElementById('prodTerm').value;
-  if(!name || !min || !max || !rate || term === 'Repayment Term'){
-    alert('Please complete all fields');
+window.runAiScoring = function(){
+  if(!dbUsers.length){
+    const tbody = document.getElementById('creditScoreTable');
+    tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><i data-lucide="brain" style="width:32px;height:32px;color:#cbd5e1;"></i><p>No users to score</p></td></tr>';
+    lucide.createIcons();
     return;
   }
-  products.push({name,min:parseInt(min),max:parseInt(max),rate:rate+'%',term,status:'Active'});
-  renderProducts(products);
-  document.getElementById('productForm').classList.add('hidden');
-  document.getElementById('prodName').value = '';
-  document.getElementById('prodMin').value = '';
-  document.getElementById('prodMax').value = '';
-  document.getElementById('prodRate').value = '';
-  document.getElementById('prodTerm').value = 'Repayment Term';
+  creditScores = dbUsers.map(u => {
+    const score = Math.floor(Math.random() * 400) + 300;
+    const risk = score >= 650 ? 'Low' : score >= 500 ? 'Medium' : 'High';
+    const decision = score >= 600 ? 'Approved' : 'Declined';
+    return {
+      user: u.full_name || u.name || u.email || 'Unknown',
+      score,
+      risk,
+      decision,
+      date: new Date().toLocaleDateString()
+    };
+  });
+  renderCreditScores();
+}
+
+window.editCreditScore = function(user){
+  const entry = creditScores.find(c => c.user === user);
+  if(!entry) return;
+  const newScore = prompt('Edit credit score for ' + user + ':', entry.score);
+  if(newScore === null) return;
+  const score = parseInt(newScore);
+  if(isNaN(score) || score < 0 || score > 1000) return alert('Enter a valid score (0-1000)');
+  entry.score = score;
+  entry.risk = score >= 650 ? 'Low' : score >= 500 ? 'Medium' : 'High';
+  entry.decision = score >= 600 ? 'Approved' : 'Declined';
+  renderCreditScores();
+}
+
+window.deleteCreditScore = function(user){
+  if(!confirm('Delete credit score for ' + user + '?')) return;
+  creditScores = creditScores.filter(c => c.user !== user);
+  renderCreditScores();
+}
+
+function renderCreditScores(){
+  const tbody = document.getElementById('creditScoreTable');
+  if(!creditScores.length){
+    tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><i data-lucide="brain" style="width:32px;height:32px;color:#cbd5e1;"></i><p>No credit scores generated</p></td></tr>';
+    lucide.createIcons();
+    return;
+  }
+  tbody.innerHTML = creditScores.map(c => {
+    const riskCls = c.risk === 'Low' ? 'badge-success' : c.risk === 'Medium' ? 'badge-warning' : 'badge-danger';
+    const decisionCls = c.decision === 'Approved' ? 'badge-success' : 'badge-danger';
+    return `<tr>
+      <td><strong>${c.user}</strong></td>
+      <td>${c.score}</td>
+      <td><span class="badge ${riskCls}">${c.risk}</span></td>
+      <td><span class="badge ${decisionCls}">${c.decision}</span></td>
+      <td>${c.date}</td>
+      <td>
+        <button style="padding:6px 8px;font-size:11px;min-height:auto;background:#f59e0b;margin-right:4px;" onclick="editCreditScore('${c.user}')"><i data-lucide="pencil" style="width:14px;height:14px;"></i></button>
+        <button style="padding:6px 8px;font-size:11px;min-height:auto;background:#dc2626;" onclick="deleteCreditScore('${c.user}')"><i data-lucide="trash-2" style="width:14px;height:14px;"></i></button>
+      </td>
+    </tr>`;
+  }).join('');
+  lucide.createIcons();
 }
 
 window.checkSession();
