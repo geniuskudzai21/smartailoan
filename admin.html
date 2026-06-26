@@ -892,7 +892,7 @@ window.filterUsers = function(){
   const status = document.getElementById('userStatusFilter').value;
   const docUsers = new Set((dbDocs||[]).map(d => d.user_id));
   let filtered = dbUsers;
-  if(q) filtered = filtered.filter(u => (u.full_name||u.name).toLowerCase().includes(q) || (u.email||u.contact).toLowerCase().includes(q));
+  if(q) filtered = filtered.filter(u => (u.full_name||u.name).toLowerCase().includes(q) || (u.email||u.contact).toLowerCase().includes(q) || (u.phone||'').toLowerCase().includes(q));
   if(status === 'pending') filtered = filtered.filter(u => !docUsers.has(u.user_id || u.id));
   else if(status === 'suspended') filtered = [];
   renderUsers(filtered);
@@ -901,9 +901,11 @@ window.filterUsers = function(){
 window.filterLoans = function(){
   const status = document.getElementById('loanFilter').value;
   const q = document.getElementById('loanSearch').value.toLowerCase();
+  const userMap = {};
+  dbUsers.forEach(u => { userMap[u.user_id] = u.full_name || u.name || u.email || ''; });
   let filtered = dbLoans;
   if(status !== 'all') filtered = filtered.filter(l => l.status.toLowerCase() === status);
-  if(q) filtered = filtered.filter(l => l.purpose?.toLowerCase().includes(q));
+  if(q) filtered = filtered.filter(l => (l.applicant || userMap[l.user_id] || '').toLowerCase().includes(q) || l.purpose?.toLowerCase().includes(q));
   renderLoans(filtered);
 }
 
@@ -922,12 +924,18 @@ window.editUser = async function(id){
 
 window.deleteUser = async function(id){
   if(!id) return alert('Cannot delete this user.');
-  if(!confirm('Are you sure you want to delete this user?')) return;
+  if(!confirm('Are you sure you want to delete this user and all their data?')) return;
   const user = dbUsers.find(u => u.id === id || u.user_id === id);
   if(!user) return alert('User not found.');
-  const { error } = await supabase.from('profiles').delete().eq('id', user.id);
-  if(error) return alert('Error: ' + error.message);
-  dbUsers = dbUsers.filter(u => u.id !== user.id);
+  const userId = user.user_id || user.id;
+  await Promise.all([
+    supabase.from('profiles').delete().eq('id', user.id),
+    supabase.from('loan_applications').delete().eq('user_id', userId),
+    supabase.from('user_documents').delete().eq('user_id', userId),
+  ]);
+  dbUsers = dbUsers.filter(u => (u.id !== user.id && u.user_id !== userId));
+  dbLoans = dbLoans.filter(l => l.user_id !== userId);
+  dbDocs = dbDocs.filter(d => d.user_id !== userId);
   renderUsers(dbUsers);
 }
 
