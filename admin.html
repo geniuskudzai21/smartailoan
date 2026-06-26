@@ -565,105 +565,25 @@ tr:hover{background:#f8fafc;}
 <!-- ALERTS CENTRE -->
 <div class="section hidden" id="alerts">
 <div class="section-title"><i data-lucide="bell-ring"></i> Alerts Centre</div>
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-<div class="card" style="border-left:4px solid #dc2626;">
-<div style="display:flex;align-items:flex-start;gap:12px;">
-<div style="background:#fef2f2;border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i data-lucide="alert-triangle" style="width:20px;height:20px;color:#dc2626;"></i></div>
-<div>
-<h3 style="color:#dc2626;margin:0 0 4px;">High-Risk Customer Detected</h3>
-<p style="margin:0 0 6px;color:#475569;font-size:13px;">Customer #1024 flagged for unusual borrowing pattern &mdash; 3 loan applications in 24 hours across different branches.</p>
-<span style="font-size:12px;color:#94a3b8;"><i data-lucide="clock" style="width:12px;height:12px;display:inline-block;"></i> 2 mins ago</span>
-</div>
-</div>
-</div>
-<div class="card" style="border-left:4px solid #f59e0b;">
-<div style="display:flex;align-items:flex-start;gap:12px;">
-<div style="background:#fffbeb;border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i data-lucide="clock" style="width:20px;height:20px;color:#f59e0b;"></i></div>
-<div>
-<h3 style="color:#f59e0b;margin:0 0 4px;">12 Overdue Loans This Week</h3>
-<p style="margin:0 0 6px;color:#475569;font-size:13px;">12 borrowers are past their repayment date. Total overdue amount: $24,500. Immediate follow-up required.</p>
-<span style="font-size:12px;color:#94a3b8;"><i data-lucide="clock" style="width:12px;height:12px;display:inline-block;"></i> 1 hour ago</span>
-</div>
-</div>
-</div>
-<div class="card" style="border-left:4px solid #dc2626;">
-<div style="display:flex;align-items:flex-start;gap:12px;">
-<div style="background:#fef2f2;border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i data-lucide="smartphone" style="width:20px;height:20px;color:#dc2626;"></i></div>
-<div>
-<h3 style="color:#dc2626;margin:0 0 4px;">Suspicious Mobile Money Activity Flagged</h3>
-<p style="margin:0 0 6px;color:#475569;font-size:13px;">User #2041 received 8 micro-deposits ($0.01 each) from unknown sources &mdash; potential layering scheme detected.</p>
-<span style="font-size:12px;color:#94a3b8;"><i data-lucide="clock" style="width:12px;height:12px;display:inline-block;"></i> 3 hours ago</span>
-</div>
-</div>
-</div>
-<div class="card" style="border-left:4px solid #3b82f6;">
-<div style="display:flex;align-items:flex-start;gap:12px;">
-<div style="background:#eff6ff;border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i data-lucide="user-x" style="width:20px;height:20px;color:#3b82f6;"></i></div>
-<div>
-<h3 style="color:#3b82f6;margin:0 0 4px;">Failed KYC Verification Identified</h3>
-<p style="margin:0 0 6px;color:#475569;font-size:13px;">5 users submitted mismatched identity documents. Flagged for manual review and possible suspension.</p>
-<span style="font-size:12px;color:#94a3b8;"><i data-lucide="clock" style="width:12px;height:12px;display:inline-block;"></i> 5 hours ago</span>
-</div>
-</div>
-</div>
-</div>
+<div id="alertsContent"><div class="empty-state"><i data-lucide="bell-ring" style="width:32px;height:32px;color:#cbd5e1;"></i><p>Loading alerts...</p></div></div>
 </div>
 
 <!-- RISK MANAGEMENT -->
 <div class="section hidden" id="risk">
 <div class="section-title"><i data-lucide="shield-alert"></i> Risk Management Dashboard</div>
-<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:16px;">
-<div class="stat-card"><i data-lucide="users" style="color:#dc2626;"></i><div class="label">High-Risk Borrowers</div><div class="value" style="color:#dc2626;">18</div></div>
-<div class="stat-card"><i data-lucide="trending-up" style="color:#f59e0b;"></i><div class="label">Portfolio at Risk (PAR)</div><div class="value" style="color:#f59e0b;">5.2%</div></div>
-<div class="stat-card"><i data-lucide="circle-dollar-sign" style="color:#dc2626;"></i><div class="label">Non-Performing Loans (NPLs)</div><div class="value" style="color:#dc2626;">$42,000</div></div>
-<div class="stat-card"><i data-lucide="briefcase" style="color:#3b82f6;"></i><div class="label">Sector Exposure</div><div class="value" style="font-size:22px;color:#3b82f6;">Retail &amp; SME</div></div>
-<div class="stat-card"><i data-lucide="globe" style="color:#f59e0b;"></i><div class="label">Geographic Risk</div><div class="value" style="color:#f59e0b;">Medium</div></div>
-</div>
+<div id="riskContent"><div class="empty-state"><i data-lucide="shield-alert" style="width:32px;height:32px;color:#cbd5e1;"></i><p>Loading risk data...</p></div></div>
 </div>
 
 <!-- NOTIFICATIONS & COMMUNICATION -->
 <div class="section hidden" id="notifications">
 <div class="section-title"><i data-lucide="bell"></i> Notifications &amp; Communication Centre</div>
-<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px;">
-<div class="stat-card"><i data-lucide="check-circle" style="color:#16a34a;"></i><div class="label">Loan Approvals Sent</div><div class="value" style="color:#16a34a;">1,247</div></div>
-<div class="stat-card"><i data-lucide="x-circle" style="color:#dc2626;"></i><div class="label">Loan Rejections Sent</div><div class="value" style="color:#dc2626;">386</div></div>
-<div class="stat-card"><i data-lucide="bell-ring" style="color:#f59e0b;"></i><div class="label">Payment Reminders Triggered</div><div class="value" style="color:#f59e0b;">892</div></div>
-<div class="stat-card"><i data-lucide="smartphone" style="color:#3b82f6;"></i><div class="label">OTP Verification Messages Sent</div><div class="value" style="color:#3b82f6;">3,421</div></div>
-<div class="stat-card"><i data-lucide="alert-triangle" style="color:#f59e0b;"></i><div class="label">KYC Alerts Generated</div><div class="value" style="color:#f59e0b;">154</div></div>
-<div class="stat-card"><i data-lucide="megaphone" style="color:#8b5cf6;"></i><div class="label">Promotional Offers Distributed</div><div class="value" style="color:#8b5cf6;">2,680</div></div>
-</div>
-<div class="card">
-<h3><i data-lucide="radio"></i> Communication Channels</h3>
-<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:12px;">
-<div style="border:1px solid #e2e8f0;border-radius:12px;padding:20px;text-align:center;">
-<div style="background:#eff6ff;border-radius:50%;width:48px;height:48px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;"><i data-lucide="message-square" style="width:24px;height:24px;color:#3b82f6;"></i></div>
-<h4 style="margin:0 0 4px;color:#1e293b;">SMS Notifications</h4>
-<p style="margin:0;font-size:13px;color:#64748b;">Delivered: 4,832</p>
-</div>
-<div style="border:1px solid #e2e8f0;border-radius:12px;padding:20px;text-align:center;">
-<div style="background:#fef2f2;border-radius:50%;width:48px;height:48px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;"><i data-lucide="mail" style="width:24px;height:24px;color:#dc2626;"></i></div>
-<h4 style="margin:0 0 4px;color:#1e293b;">Email Notifications</h4>
-<p style="margin:0;font-size:13px;color:#64748b;">Delivered: 3,215</p>
-</div>
-<div style="border:1px solid #e2e8f0;border-radius:12px;padding:20px;text-align:center;">
-<div style="background:#f0fdf4;border-radius:50%;width:48px;height:48px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;"><i data-lucide="bell" style="width:24px;height:24px;color:#16a34a;"></i></div>
-<h4 style="margin:0 0 4px;color:#1e293b;">In-App Notifications</h4>
-<p style="margin:0;font-size:13px;color:#64748b;">Delivered: 5,104</p>
-</div>
-</div>
-</div>
+<div id="notifContent"><div class="empty-state"><i data-lucide="bell" style="width:32px;height:32px;color:#cbd5e1;"></i><p>Loading data...</p></div></div>
 </div>
 
 <!-- SMART CONTRACT MONITORING -->
 <div class="section hidden" id="contracts">
 <div class="section-title"><i data-lucide="file-code"></i> Smart Contract Monitoring</div>
-<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
-<div class="stat-card"><i data-lucide="check-circle" style="color:#16a34a;"></i><div class="label">Contract Status</div><div class="value" style="font-size:22px;color:#16a34a;">ACTIVE</div></div>
-<div class="stat-card"><i data-lucide="toggle-right" style="color:#16a34a;"></i><div class="label">Trigger Conditions</div><div class="value" style="font-size:22px;color:#16a34a;">ENABLED</div></div>
-<div class="stat-card"><i data-lucide="activity" style="color:#16a34a;"></i><div class="label">Automated Repayment Logic</div><div class="value" style="font-size:22px;color:#16a34a;">ACTIVE</div></div>
-<div class="stat-card"><i data-lucide="fingerprint" style="color:#3b82f6;"></i><div class="label">Digital Signatures</div><div class="value" style="font-size:22px;color:#3b82f6;">VERIFIED</div></div>
-<div class="stat-card"><i data-lucide="eye" style="color:#f59e0b;"></i><div class="label">Default Triggers</div><div class="value" style="font-size:22px;color:#f59e0b;">MONITORING</div></div>
-</div>
+<div id="contractsContent"><div class="empty-state"><i data-lucide="file-code" style="width:32px;height:32px;color:#cbd5e1;"></i><p>Loading contract data...</p></div></div>
 </div>
 
 </div>
@@ -801,6 +721,10 @@ window.showSection = function(id){
   document.getElementById(id).classList.remove('hidden');
   document.querySelector(`.menu-item[onclick*="'${id}'"]`).classList.add('active');
   closeSidebar();
+  if(id === 'alerts') renderAlerts();
+  if(id === 'risk') renderRisk();
+  if(id === 'notifications') renderNotifications();
+  if(id === 'contracts') renderContracts();
 }
 
 // ---- LOAD DASHBOARD ----
@@ -1479,6 +1403,242 @@ function renderCreditScores(){
       </td>
     </tr>`;
   }).join('');
+  lucide.createIcons();
+}
+
+// ---- ALERTS ----
+function renderAlerts(){
+  const container = document.getElementById('alertsContent');
+  const alerts = [];
+
+  dbLoans.forEach(l => {
+    if(l.status === 'Pending' && l.ai_risk === 'High'){
+      const name = l.applicant || 'Unknown';
+      alerts.push({ icon:'alert-triangle', color:'#dc2626', title:'High-Risk Loan Pending', desc:`${name} — $${Number(l.amount).toLocaleString()} (${l.purpose||'—'}) requires immediate review.`, time: l.created_at });
+    }
+    if(l.status === 'Pending' && !l.ai_risk){
+      const name = l.applicant || 'Unknown';
+      alerts.push({ icon:'clock', color:'#f59e0b', title:'Loan Needs AI Scoring', desc:`${name} — $${Number(l.amount).toLocaleString()} has not been AI-scored yet.`, time: l.created_at });
+    }
+  });
+
+  dbDocs.forEach(d => {
+    if(d.status === 'Pending'){
+      alerts.push({ icon:'file-text', color:'#f59e0b', title:'Document Pending Verification', desc:`${d.document_type} from user ${d.user_id} needs review.`, time: d.uploaded_at });
+    }
+    if(d.status === 'Rejected'){
+      alerts.push({ icon:'x-circle', color:'#dc2626', title:'Document Rejected', desc:`${d.document_type} from user ${d.user_id} was rejected. `, time: d.updated_at || d.uploaded_at });
+    }
+  });
+
+  dbUsers.forEach(u => {
+    const hasDocs = dbDocs.some(d => d.user_id === (u.user_id || u.id));
+    if(!hasDocs){
+      alerts.push({ icon:'user-x', color:'#94a3b8', title:'User Missing KYC', desc:`${u.full_name||u.name||u.email||'Unknown'} has not uploaded any documents.`, time: u.created_at });
+    }
+  });
+
+  alerts.sort((a, b) => new Date(b.time||0) - new Date(a.time||0));
+
+  if(!alerts.length){
+    container.innerHTML = '<div class="empty-state"><i data-lucide="bell-ring" style="width:32px;height:32px;color:#cbd5e1;"></i><p>No alerts</p></div>';
+    lucide.createIcons();
+    return;
+  }
+  container.innerHTML = alerts.map(a => `
+    <div class="alert-item" style="display:flex;align-items:flex-start;gap:12px;padding:12px;border-bottom:1px solid #e2e8f0;">
+      <i data-lucide="${a.icon}" style="width:20px;height:20px;color:${a.color};flex-shrink:0;margin-top:2px;"></i>
+      <div style="flex:1;">
+        <strong style="font-size:14px;color:#1e293b;">${a.title}</strong>
+        <p style="margin:4px 0 0;font-size:13px;color:#64748b;">${a.desc}</p>
+      </div>
+      <span style="font-size:11px;color:#94a3b8;white-space:nowrap;">${a.time ? new Date(a.time).toLocaleDateString() : ''}</span>
+    </div>
+  `).join('');
+  lucide.createIcons();
+}
+
+// ---- RISK ----
+function renderRisk(){
+  const container = document.getElementById('riskContent');
+  const flagged = dbLoans.filter(l => l.ai_risk === 'High' || l.ai_decision === 'Review');
+  const highRiskCount = dbLoans.filter(l => l.ai_risk === 'High').length;
+  const reviewCount = dbLoans.filter(l => l.ai_decision === 'Review').length;
+  const pendingScoreCount = dbLoans.filter(l => l.status === 'Pending' && !l.ai_risk).length;
+
+  const userMap = {};
+  dbUsers.forEach(u => { userMap[u.user_id] = u.full_name || u.name || u.email || '—'; });
+
+  const summaryHtml = `
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:20px;">
+      <div class="card" style="padding:16px;border-left:4px solid #dc2626;">
+        <div style="font-size:24px;font-weight:700;color:#dc2626;">${highRiskCount}</div>
+        <div style="font-size:13px;color:#64748b;">High Risk Loans</div>
+      </div>
+      <div class="card" style="padding:16px;border-left:4px solid #f59e0b;">
+        <div style="font-size:24px;font-weight:700;color:#f59e0b;">${reviewCount}</div>
+        <div style="font-size:13px;color:#64748b;">Pending Review</div>
+      </div>
+      <div class="card" style="padding:16px;border-left:4px solid #94a3b8;">
+        <div style="font-size:24px;font-weight:700;color:#94a3b8;">${pendingScoreCount}</div>
+        <div style="font-size:13px;color:#64748b;">Awaiting AI Score</div>
+      </div>
+      <div class="card" style="padding:16px;border-left:4px solid #3b82f6;">
+        <div style="font-size:24px;font-weight:700;color:#3b82f6;">${flagged.length}</div>
+        <div style="font-size:13px;color:#64748b;">Total Flagged</div>
+      </div>
+    </div>
+  `;
+
+  if(!flagged.length){
+    container.innerHTML = summaryHtml + '<div class="empty-state"><i data-lucide="shield-alert" style="width:32px;height:32px;color:#cbd5e1;"></i><p>No flagged loans</p></div>';
+    lucide.createIcons();
+    return;
+  }
+
+  container.innerHTML = summaryHtml + `
+    <div style="overflow-x:auto;">
+    <table class="data-table">
+      <thead><tr><th>Applicant</th><th>Amount</th><th>Purpose</th><th>AI Risk</th><th>Decision</th><th>AI Score</th><th>Status</th><th>Date</th></tr></thead>
+      <tbody>${flagged.map(l => {
+        const riskCls = l.ai_risk === 'High' ? 'badge-danger' : l.ai_risk === 'Medium' ? 'badge-warning' : 'badge-success';
+        const decisionCls = l.ai_decision === 'Approved' ? 'badge-success' : l.ai_decision === 'Review' ? 'badge-warning' : 'badge-danger';
+        return `<tr>
+          <td><strong>${l.applicant || userMap[l.user_id] || '—'}</strong></td>
+          <td>$${Number(l.amount).toLocaleString()}</td>
+          <td>${l.purpose||'—'}</td>
+          <td><span class="badge ${riskCls}">${l.ai_risk||'N/A'}</span></td>
+          <td><span class="badge ${decisionCls}">${l.ai_decision||'N/A'}</span></td>
+          <td>${l.ai_score != null ? l.ai_score + '%' : '—'}</td>
+          <td><span class="badge ${l.status === 'Approved'||l.status==='Disbursed'?'badge-success':l.status==='Declined'?'badge-danger':'badge-warning'}">${l.status||'—'}</span></td>
+          <td style="font-size:12px;color:#94a3b8;">${l.created_at ? new Date(l.created_at).toLocaleDateString() : '—'}</td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table>
+    </div>
+  `;
+  lucide.createIcons();
+}
+
+// ---- NOTIFICATIONS (ADMIN) ----
+function renderNotifications(){
+  const container = document.getElementById('notifContent');
+  const notes = [];
+
+  dbLoans.forEach(l => {
+    const name = l.applicant || 'Unknown';
+    if(l.status === 'Pending'){
+      notes.push({ icon:'file-plus', color:'#3b82f6', title:'New Loan Application', desc:`${name} applied for $${Number(l.amount).toLocaleString()} (${l.purpose||'—'}).`, time: l.created_at });
+    }
+    if(l.status === 'Approved' || l.status === 'Disbursed'){
+      notes.push({ icon:'check-circle', color:'#16a34a', title:`Loan ${l.status}`, desc:`${name}'s loan of $${Number(l.amount).toLocaleString()} has been ${l.status.toLowerCase()}.`, time: l.created_at });
+    }
+    if(l.status === 'Declined'){
+      notes.push({ icon:'x-circle', color:'#dc2626', title:'Loan Declined', desc:`${name}'s loan of $${Number(l.amount).toLocaleString()} was declined.`, time: l.created_at });
+    }
+    if(l.ai_reason){
+      notes.push({ icon:'brain', color:'#8b5cf6', title:'AI Assessment Completed', desc:`${name}: ${l.ai_reason}`, time: l.created_at });
+    }
+  });
+
+  dbDocs.forEach(d => {
+    if(d.status === 'Verified'){
+      notes.push({ icon:'shield-check', color:'#16a34a', title:'Document Verified', desc:`${d.document_type} from user ${d.user_id} approved.`, time: d.updated_at || d.uploaded_at });
+    }
+    if(d.status === 'Rejected'){
+      notes.push({ icon:'shield-off', color:'#dc2626', title:'Document Rejected', desc:`${d.document_type} from user ${d.user_id} rejected.`, time: d.updated_at || d.uploaded_at });
+    }
+    if(d.status === 'Pending'){
+      notes.push({ icon:'clock', color:'#f59e0b', title:'Document Uploaded', desc:`${d.document_type} from user ${d.user_id} awaiting verification.`, time: d.uploaded_at });
+    }
+  });
+
+  notes.sort((a, b) => new Date(b.time||0) - new Date(a.time||0));
+
+  if(!notes.length){
+    container.innerHTML = '<div class="empty-state"><i data-lucide="bell" style="width:32px;height:32px;color:#cbd5e1;"></i><p>No notifications</p></div>';
+    lucide.createIcons();
+    return;
+  }
+  container.innerHTML = notes.map(n => `
+    <div class="notif-item" style="display:flex;align-items:flex-start;gap:12px;padding:12px;border-bottom:1px solid #e2e8f0;">
+      <i data-lucide="${n.icon}" style="width:20px;height:20px;color:${n.color};flex-shrink:0;margin-top:2px;"></i>
+      <div style="flex:1;">
+        <strong style="font-size:14px;color:#1e293b;">${n.title}</strong>
+        <p style="margin:4px 0 0;font-size:13px;color:#64748b;">${n.desc}</p>
+      </div>
+      <span style="font-size:11px;color:#94a3b8;white-space:nowrap;">${n.time ? new Date(n.time).toLocaleDateString() : ''}</span>
+    </div>
+  `).join('');
+  lucide.createIcons();
+}
+
+// ---- SMART CONTRACTS ----
+function renderContracts(){
+  const container = document.getElementById('contractsContent');
+  const userMap = {};
+  dbUsers.forEach(u => { userMap[u.user_id] = u.full_name || u.name || u.email || '—'; });
+
+  const total = dbLoans.length;
+  const active = dbLoans.filter(l => l.status === 'Approved' || l.status === 'Disbursed').length;
+  const completed = dbLoans.filter(l => l.status === 'Disbursed').length;
+  const disputed = dbLoans.filter(l => l.status === 'Pending' && l.ai_risk === 'High').length;
+
+  const summaryHtml = `
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:20px;">
+      <div class="card" style="padding:16px;border-left:4px solid #3b82f6;">
+        <div style="font-size:24px;font-weight:700;color:#3b82f6;">${total}</div>
+        <div style="font-size:13px;color:#64748b;">Total Contracts</div>
+      </div>
+      <div class="card" style="padding:16px;border-left:4px solid #16a34a;">
+        <div style="font-size:24px;font-weight:700;color:#16a34a;">${active}</div>
+        <div style="font-size:13px;color:#64748b;">Active</div>
+      </div>
+      <div class="card" style="padding:16px;border-left:4px solid #6366f1;">
+        <div style="font-size:24px;font-weight:700;color:#6366f1;">${completed}</div>
+        <div style="font-size:13px;color:#64748b;">Completed (Disbursed)</div>
+      </div>
+      <div class="card" style="padding:16px;border-left:4px solid #dc2626;">
+        <div style="font-size:24px;font-weight:700;color:#dc2626;">${disputed}</div>
+        <div style="font-size:13px;color:#64748b;">Flagged / Disputed</div>
+      </div>
+    </div>
+  `;
+
+  if(!dbLoans.length){
+    container.innerHTML = summaryHtml + '<div class="empty-state"><i data-lucide="file-code" style="width:32px;height:32px;color:#cbd5e1;"></i><p>No smart contracts deployed</p></div>';
+    lucide.createIcons();
+    return;
+  }
+
+  const contractStatus = (l) => {
+    if(l.status === 'Disbursed') return { label:'Completed', cls:'badge-success' };
+    if(l.status === 'Approved') return { label:'Active', cls:'badge-success' };
+    if(l.status === 'Declined') return { label:'Void', cls:'badge-danger' };
+    if(l.ai_risk === 'High') return { label:'Flagged', cls:'badge-danger' };
+    return { label:'Draft', cls:'badge-warning' };
+  };
+
+  container.innerHTML = summaryHtml + `
+    <div style="overflow-x:auto;">
+    <table class="data-table">
+      <thead><tr><th>Contract ID</th><th>Party</th><th>Amount</th><th>Terms</th><th>Status</th><th>Risk Level</th><th>Date</th></tr></thead>
+      <tbody>${dbLoans.map(l => {
+        const cs = contractStatus(l);
+        const riskCls = l.ai_risk === 'High' ? 'badge-danger' : l.ai_risk === 'Medium' ? 'badge-warning' : 'badge-success';
+        return `<tr>
+          <td style="font-family:monospace;font-size:12px;">#${String(l.id).slice(0,8)}</td>
+          <td><strong>${l.applicant || userMap[l.user_id] || '—'}</strong></td>
+          <td>$${Number(l.amount).toLocaleString()}</td>
+          <td>${l.term||l.repayment_period||'—'}</td>
+          <td><span class="badge ${cs.cls}">${cs.label}</span></td>
+          <td><span class="badge ${riskCls}">${l.ai_risk||'N/A'}</span></td>
+          <td style="font-size:12px;color:#94a3b8;">${l.created_at ? new Date(l.created_at).toLocaleDateString() : '—'}</td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table>
+    </div>
+  `;
   lucide.createIcons();
 }
 
