@@ -685,6 +685,36 @@ tr:hover{background:#f8fafc;}
 </div>
 </div>
 
+<!-- EDIT USER MODAL -->
+<div class="modal-overlay" id="editUserModal">
+<div class="modal-box">
+<div class="modal-header">
+<h2><i data-lucide="user"></i> Edit User</h2>
+<button class="modal-close" onclick="closeEditUserModal()"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
+</div>
+<div class="modal-body" id="editUserModalBody"></div>
+<div class="modal-footer">
+<button class="btn-secondary" onclick="closeEditUserModal()">Cancel</button>
+<button onclick="saveEditUser()"><i data-lucide="check"></i> Save Changes</button>
+</div>
+</div>
+</div>
+
+<!-- EDIT LOAN MODAL -->
+<div class="modal-overlay" id="editLoanModal">
+<div class="modal-box">
+<div class="modal-header">
+<h2><i data-lucide="file-text"></i> Edit Loan Application</h2>
+<button class="modal-close" onclick="closeEditLoanModal()"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
+</div>
+<div class="modal-body" id="editLoanModalBody"></div>
+<div class="modal-footer">
+<button class="btn-secondary" onclick="closeEditLoanModal()">Cancel</button>
+<button onclick="saveEditLoan()"><i data-lucide="check"></i> Save Changes</button>
+</div>
+</div>
+</div>
+
 </section>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
@@ -1010,15 +1040,58 @@ window.filterLoans = function(){
 }
 
 // ---- ACTIONS ----
-window.editUser = async function(id){
+let editingUserId = null;
+
+window.editUser = function(id){
   if(!id) return alert('Cannot edit this user.');
   const user = dbUsers.find(u => u.id === id || u.user_id === id);
   if(!user) return alert('User not found.');
-  const newName = prompt('Edit user name:', user.full_name || user.name || '');
-  if(!newName || newName === (user.full_name || user.name)) return;
-  const { error } = await supabase.from('profiles').update({full_name: newName}).eq('id', user.id);
+  editingUserId = user.id;
+
+  const kycStatus = (dbDocs||[]).some(d => d.user_id === (user.user_id || user.id)) ? 'Verified' : 'Pending';
+
+  document.getElementById('editUserModalBody').innerHTML = `
+    <h3>User Information</h3>
+    <div class="detail-row"><span class="label">Email</span><span class="value">${user.email||user.contact||'—'}</span></div>
+    <div class="detail-row"><span class="label">Joined</span><span class="value">${user.created_at ? new Date(user.created_at).toLocaleDateString() : '—'}</span></div>
+    <div class="detail-row"><span class="label">KYC Status</span><span class="value"><span class="badge ${kycStatus === 'Verified' ? 'badge-success' : 'badge-warning'}">${kycStatus}</span></span></div>
+
+    <h3>Editable Fields</h3>
+    <label style="font-size:13px;font-weight:600;color:#475569;">Full Name</label>
+    <input id="editUserName" type="text" value="${(user.full_name||user.name||'')}" placeholder="Enter full name">
+
+    <label style="font-size:13px;font-weight:600;color:#475569;margin-top:12px;display:block;">Phone</label>
+    <input id="editUserPhone" type="text" value="${user.phone||''}" placeholder="Enter phone number">
+  `;
+  document.getElementById('editUserModal').classList.add('active');
+  try { lucide.createIcons(); } catch(e) {}
+}
+
+window.closeEditUserModal = function(){
+  document.getElementById('editUserModal').classList.remove('active');
+  editingUserId = null;
+}
+
+window.saveEditUser = async function(){
+  if(!editingUserId) return;
+  const user = dbUsers.find(u => u.id === editingUserId);
+  if(!user) return;
+  const nameInput = document.getElementById('editUserName');
+  const phoneInput = document.getElementById('editUserPhone');
+  const newName = nameInput.value.trim();
+  const newPhone = phoneInput.value.trim();
+  if(!newName) return alert('Name cannot be empty.');
+  const updates = {};
+  if(newName !== (user.full_name||user.name)) updates.full_name = newName;
+  if(newPhone !== (user.phone||'')) updates.phone = newPhone;
+  if(Object.keys(updates).length === 0){
+    closeEditUserModal();
+    return;
+  }
+  const { error } = await supabase.from('profiles').update(updates).eq('id', user.id);
   if(error) return alert('Error: ' + error.message);
-  user.full_name = newName;
+  Object.assign(user, updates);
+  closeEditUserModal();
   renderUsers(dbUsers);
 }
 
@@ -1059,15 +1132,76 @@ window.declineLoan = async function(btn, id){
   lucide.createIcons();
 }
 
+let editingLoanId = null;
+
 window.editLoan = function(id){
   const loan = dbLoans.find(l => l.id === id);
   if(!loan) return;
-  const newAmount = prompt('Edit loan amount for ' + (loan.applicant || loan.user_id) + ':', loan.amount);
-  if(newAmount === null) return;
-  const amount = parseFloat(newAmount);
-  if(isNaN(amount) || amount <= 0) return alert('Enter a valid amount');
-  loan.amount = amount;
+  editingLoanId = id;
+
+  const userMap = {};
+  dbUsers.forEach(u => { userMap[u.user_id] = u.full_name || u.name || u.email || '—'; });
+  const applicantName = loan.applicant || userMap[loan.user_id] || '—';
+  const loanDate = loan.created_at ? new Date(loan.created_at).toLocaleDateString() : (loan.date || '—');
+
+  document.getElementById('editLoanModalBody').innerHTML = `
+    <h3>Loan Information</h3>
+    <div class="detail-row"><span class="label">Applicant</span><span class="value">${applicantName}</span></div>
+    <div class="detail-row"><span class="label">Purpose</span><span class="value">${loan.purpose||'—'}</span></div>
+    <div class="detail-row"><span class="label">Date</span><span class="value">${loanDate}</span></div>
+    <div class="detail-row"><span class="label">Current Status</span><span class="value"><span class="badge ${loan.status === 'Approved' || loan.status === 'Disbursed' ? 'badge-success' : loan.status === 'Declined' ? 'badge-danger' : 'badge-warning'}">${loan.status||'—'}</span></span></div>
+
+    <h3>Editable Fields</h3>
+    <label style="font-size:13px;font-weight:600;color:#475569;">Loan Amount ($)</label>
+    <input id="editLoanAmount" type="number" min="1" step="0.01" value="${loan.amount}" placeholder="Enter loan amount">
+
+    <label style="font-size:13px;font-weight:600;color:#475569;margin-top:12px;display:block;">Repayment Term</label>
+    <input id="editLoanTerm" type="text" value="${loan.term||loan.repayment_period||''}" placeholder="e.g. 12 months">
+
+    <label style="font-size:13px;font-weight:600;color:#475569;margin-top:12px;display:block;">Status</label>
+    <select id="editLoanStatus" style="margin:8px 0 4px;">
+      <option value="Pending" ${loan.status === 'Pending' ? 'selected' : ''}>Pending</option>
+      <option value="Approved" ${loan.status === 'Approved' ? 'selected' : ''}>Approved</option>
+      <option value="Declined" ${loan.status === 'Declined' ? 'selected' : ''}>Declined</option>
+      <option value="Disbursed" ${loan.status === 'Disbursed' ? 'selected' : ''}>Disbursed</option>
+    </select>
+  `;
+  document.getElementById('editLoanModal').classList.add('active');
+  try { lucide.createIcons(); } catch(e) {}
+}
+
+window.closeEditLoanModal = function(){
+  document.getElementById('editLoanModal').classList.remove('active');
+  editingLoanId = null;
+}
+
+window.saveEditLoan = async function(){
+  if(!editingLoanId) return;
+  const loan = dbLoans.find(l => l.id === editingLoanId);
+  if(!loan) return;
+  const amountInput = document.getElementById('editLoanAmount');
+  const termInput = document.getElementById('editLoanTerm');
+  const statusInput = document.getElementById('editLoanStatus');
+  const newAmount = parseFloat(amountInput.value);
+  if(isNaN(newAmount) || newAmount <= 0) return alert('Enter a valid amount');
+  const newTerm = termInput.value.trim();
+  const newStatus = statusInput.value;
+  const updates = {};
+  if(newAmount !== Number(loan.amount)) updates.amount = newAmount;
+  if(newTerm !== (loan.term||loan.repayment_period||'')) updates.term = newTerm;
+  if(newStatus !== loan.status) updates.status = newStatus;
+  if(Object.keys(updates).length === 0){
+    closeEditLoanModal();
+    return;
+  }
+  const { error } = await supabase.from('loan_applications').update(updates).eq('id', loan.id);
+  if(error) return alert('Error: ' + error.message);
+  Object.assign(loan, updates);
+  closeEditLoanModal();
   renderLoans(dbLoans);
+  document.getElementById('statLoans').textContent = dbLoans.filter(l => l.status === 'Approved' || l.status === 'Disbursed').length;
+  document.getElementById('statDisbursed').textContent = '$' + dbLoans.filter(l => l.status === 'Disbursed').reduce((s,l) => s + Number(l.amount), 0);
+  document.getElementById('statPending').textContent = dbLoans.filter(l => l.status === 'Pending').length;
 }
 
 window.deleteLoan = async function(id){
