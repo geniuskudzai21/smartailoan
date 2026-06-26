@@ -702,6 +702,9 @@ async function loadDashboard(){
 // ---- RENDER HELPERS ----
 function renderUsers(list){
   const tbody = document.getElementById('userTable');
+  const docUsers = new Set((dbDocs||[]).map(d => d.user_id));
+  const loanCountMap = {};
+  (dbLoans||[]).forEach(l => { loanCountMap[l.user_id] = (loanCountMap[l.user_id]||0) + 1; });
   if(!list.length){
     tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><i data-lucide="users" style="width:32px;height:32px;color:#cbd5e1;"></i><p>No users found</p></td></tr>';
     lucide.createIcons();
@@ -709,11 +712,15 @@ function renderUsers(list){
   }
   tbody.innerHTML = list.map(u => {
     const profileId = u.id || u.user_id;
+    const userId = u.user_id || u.id;
+    const kycStatus = docUsers.has(userId) ? 'Verified' : 'Pending';
+    const kycBadge = kycStatus === 'Verified' ? 'badge-success' : 'badge-warning';
+    const loanCount = loanCountMap[userId]||0;
     return `<tr>
     <td><strong>${u.full_name||u.name||'—'}</strong></td>
     <td>${u.email||u.contact||'—'}</td>
-    <td><span class="badge ${(u.kyc||'Pending') === 'Verified' ? 'badge-success' : 'badge-warning'}">${u.kyc||'Pending'}</span></td>
-    <td>${u.loans||0}</td>
+    <td><span class="badge ${kycBadge}">${kycStatus}</span></td>
+    <td>${loanCount}</td>
     <td>${u.created_at ? new Date(u.created_at).toLocaleDateString() : u.joined||'—'}</td>
     <td>
       <button style="padding:6px 8px;font-size:11px;min-height:auto;background:#f59e0b;margin-right:4px;" onclick="editUser('${profileId}')"><i data-lucide="pencil" style="width:14px;height:14px;"></i></button>
@@ -883,9 +890,10 @@ function renderCharts(){
 window.filterUsers = function(){
   const q = document.getElementById('userSearch').value.toLowerCase();
   const status = document.getElementById('userStatusFilter').value;
+  const docUsers = new Set((dbDocs||[]).map(d => d.user_id));
   let filtered = dbUsers;
   if(q) filtered = filtered.filter(u => (u.full_name||u.name).toLowerCase().includes(q) || (u.email||u.contact).toLowerCase().includes(q));
-  if(status === 'pending') filtered = filtered.filter(u => u.kyc === 'Pending');
+  if(status === 'pending') filtered = filtered.filter(u => !docUsers.has(u.user_id || u.id));
   else if(status === 'suspended') filtered = [];
   renderUsers(filtered);
 }
