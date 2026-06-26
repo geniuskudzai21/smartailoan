@@ -47,6 +47,9 @@ const server = http.createServer((req, res) => {
         res.end(JSON.stringify({ error: e.message }));
       }
     });
+  } else if (req.method === 'GET' && req.url === '/api/admin/config') {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ email: process.env.ADMIN_EMAIL }));
   } else {
     res.writeHead(404);
     res.end('Not found');

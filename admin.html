@@ -648,7 +648,7 @@ const supabase = createClient(
 );
 
 // ---- AUTH ----
-const ADMIN_EMAIL = 'admin@smartloan.com';
+let ADMIN_EMAIL = 'admin@smartloan.com';
 const ADMIN_PASS = 'Admin@123';
 
 window.checkSession = async function(){
@@ -1674,6 +1674,7 @@ function renderContracts(){
   lucide.createIcons();
 }
 
+fetch('/api/admin/config').then(r=>r.json()).then(c=>{if(c.email)ADMIN_EMAIL=c.email}).catch(()=>{});
 window.checkSession();
 lucide.createIcons();
 </script>
