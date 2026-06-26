@@ -960,15 +960,17 @@ function renderLoans(list){
   lucide.createIcons();
 }
 
-function renderActivity(txns){
+function renderActivity(txns, showAllFlag){
   const tbody = document.getElementById('recentActivity');
   if(!txns.length){
     tbody.innerHTML = '<tr><td colspan="4" class="empty-state"><i data-lucide="activity" style="width:32px;height:32px;color:#cbd5e1;"></i><p>No recent activity</p><div class="sub">Activity will appear as users interact with the platform</div></td></tr>';
     lucide.createIcons();
     return;
   }
-  const sorted = [...txns].sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0,8);
-  tbody.innerHTML = sorted.map(t => {
+  const sorted = [...txns].sort((a,b) => new Date(b.date) - new Date(a.date));
+  const display = showAllFlag ? sorted : sorted.slice(0, 5);
+  const hasMore = sorted.length > 5;
+  tbody.innerHTML = display.map(t => {
     const badgeCls = t.status === 'Success' ? 'badge-success' : t.status === 'Failed' ? 'badge-danger' : t.status === 'Pending' ? 'badge-warning' : 'badge-info';
     const displayDate = t.date ? new Date(t.date).toLocaleDateString() : '—';
     return `<tr>
@@ -978,6 +980,10 @@ function renderActivity(txns){
       <td><span class="badge ${badgeCls}">${t.status}</span></td>
     </tr>`;
   }).join('');
+  if(hasMore && !showAllFlag){
+    tbody.innerHTML += `<tr><td colspan="4" style="text-align:center;padding:8px;"><button style="padding:6px 16px;font-size:12px;min-height:auto;background:#475569;" onclick="renderActivity(dbTxn, true)"><i data-lucide="list" style="width:14px;height:14px;"></i> View All (${sorted.length})</button></td></tr>`;
+    lucide.createIcons();
+  }
 }
 
 window.filterDocuments = function(){
