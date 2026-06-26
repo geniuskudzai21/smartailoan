@@ -1021,7 +1021,12 @@ function renderDocuments(list){
   lucide.createIcons();
 }
 
+let chartInstances = {};
+
 function renderCharts(){
+  Object.values(chartInstances).forEach(c => { try { c.destroy(); } catch(e) {} });
+  chartInstances = {};
+
   const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   const growthData = Array(12).fill(0);
   dbLoans.forEach(l => {
@@ -1029,7 +1034,7 @@ function renderCharts(){
     if(d) growthData[d.getMonth()] += Number(l.amount) || 0;
   });
 
-  new Chart(document.getElementById('chartGrowth'), {
+  chartInstances.growth = new Chart(document.getElementById('chartGrowth'), {
     type: 'line',
     data: {
       labels: months,
@@ -1041,7 +1046,7 @@ function renderCharts(){
   const statusCounts = { Approved: 0, Declined: 0, Pending: 0, Disbursed: 0 };
   dbLoans.forEach(l => { if(statusCounts[l.status] !== undefined) statusCounts[l.status]++; });
 
-  new Chart(document.getElementById('chartRepayment'), {
+  chartInstances.repayment = new Chart(document.getElementById('chartRepayment'), {
     type: 'doughnut',
     data: {
       labels: Object.keys(statusCounts),
@@ -1053,42 +1058,42 @@ function renderCharts(){
     options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
   });
 
-  const riskCounts = { Low: 0, Medium: 0, High: 0 };
+  const riskCounts = { Low: 0, Medium: 0, High: 0, 'Not Scored': 0 };
   dbLoans.forEach(l => {
-    if(l.status === 'Approved' || l.status === 'Disbursed') riskCounts.Low++;
-    else if(l.status === 'Pending') riskCounts.Medium++;
-    else if(l.status === 'Declined') riskCounts.High++;
+    if(l.ai_risk) riskCounts[l.ai_risk] = (riskCounts[l.ai_risk] || 0) + 1;
+    else riskCounts['Not Scored']++;
   });
-  if(!riskCounts.Low && !riskCounts.Medium && !riskCounts.High) riskCounts.Low = 1;
 
-  new Chart(document.getElementById('chartRisk'), {
+  chartInstances.risk = new Chart(document.getElementById('chartRisk'), {
     type: 'pie',
     data: {
       labels: Object.keys(riskCounts),
       datasets: [{
         data: Object.values(riskCounts),
-        backgroundColor: ['#16a34a', '#f59e0b', '#dc2626']
+        backgroundColor: ['#16a34a', '#f59e0b', '#dc2626', '#94a3b8']
       }]
     },
     options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
   });
 
-  const catCounts = { New: 0, Active: 0, Premium: 0 };
+  const docUsers = new Set((dbDocs||[]).map(d => d.user_id));
+  const verifiedDocs = {};
+  (dbDocs||[]).forEach(d => { if(d.status === 'Verified') verifiedDocs[d.user_id] = true; });
+  const catCounts = { 'Has Documents': 0, 'Verified KYC': 0, 'No Docs': 0 };
   dbUsers.forEach(u => {
-    const loanCount = dbLoans.filter(l => l.user_id === u.id || l.applicant === u.full_name || l.applicant === u.name).length;
-    if(loanCount >= 3) catCounts.Premium++;
-    else if(loanCount >= 1) catCounts.Active++;
-    else catCounts.New++;
+    const uid = u.user_id || u.id;
+    if(verifiedDocs[uid]) catCounts['Verified KYC']++;
+    else if(docUsers.has(uid)) catCounts['Has Documents']++;
+    else catCounts['No Docs']++;
   });
-  if(!catCounts.New && !catCounts.Active && !catCounts.Premium) catCounts.New = dbUsers.length || 1;
 
-  new Chart(document.getElementById('chartCustomers'), {
+  chartInstances.customers = new Chart(document.getElementById('chartCustomers'), {
     type: 'doughnut',
     data: {
       labels: Object.keys(catCounts),
       datasets: [{
         data: Object.values(catCounts),
-        backgroundColor: ['#94a3b8', '#3b82f6', '#8b5cf6']
+        backgroundColor: ['#16a34a', '#3b82f6', '#94a3b8']
       }]
     },
     options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
