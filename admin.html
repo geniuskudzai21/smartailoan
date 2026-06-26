@@ -131,21 +131,6 @@ tr:hover{background:#f8fafc;}
 
 .hamburger:hover{background:none;}
 
-.admin-role{
-  position:absolute;
-  right:15px;
-  top:50%;
-  transform:translateY(-50%);
-  font-size:12px;
-  background:rgba(255,255,255,.2);
-  padding:4px 10px;
-  border-radius:6px;
-  font-weight:400;
-  display:inline-flex;
-  align-items:center;
-  gap:4px;
-}
-
 @keyframes spin{to{transform:rotate(360deg)}}
 
 .sidebar-overlay{
@@ -300,7 +285,6 @@ tr:hover{background:#f8fafc;}
   .main{padding:15px;}
   .card{padding:16px;}
   .header{padding-left:50px;}
-  .admin-role{right:10px;font-size:10px;padding:3px 8px;}
   .stats-grid{grid-template-columns:repeat(auto-fit,minmax(160px,1fr));}
   .toolbar input,.toolbar select{min-width:100%;}
 }
@@ -476,7 +460,7 @@ tr:hover{background:#f8fafc;}
 <div class="header">
 <button class="hamburger" onclick="toggleSidebar()" aria-label="Toggle menu"><i data-lucide="menu"></i></button>
 <i data-lucide="sparkles"></i> SmartLoan - Admin Dashboard
-<span class="admin-role"><i data-lucide="shield" style="width:12px;height:12px;"></i> ADMIN</span>
+
 </div>
 
 <div class="dashboard">
@@ -534,7 +518,8 @@ tr:hover{background:#f8fafc;}
 <div class="toolbar">
 <input id="userSearch" placeholder="Search by name, email or phone..." oninput="filterUsers()">
 <select id="userStatusFilter" onchange="filterUsers()"><option value="all">All Status</option><option value="active">Active</option><option value="pending">Pending KYC</option><option value="suspended">Suspended</option></select>
-<button onclick="filterUsers()" style="background:#475569;"><i data-lucide="refresh-cw" style="width:16px;height:16px;"></i> Refresh</button>
+
+
 </div>
 <div class="card">
 <div class="table-wrap">
@@ -601,7 +586,7 @@ tr:hover{background:#f8fafc;}
 <!-- AI CHARTS & ANALYTICS -->
 <div class="section hidden" id="charts">
 <div class="section-title"><i data-lucide="bar-chart-3"></i> AI Charts & Analytics</div>
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;">
 <div class="card"><h3>Loan Growth Trends</h3><div style="height:200px;"><canvas id="chartGrowth"></canvas></div></div>
 <div class="card"><h3>Repayment Performance</h3><div style="height:200px;"><canvas id="chartRepayment"></canvas></div></div>
 <div class="card"><h3>Risk Distribution</h3><div style="height:200px;"><canvas id="chartRisk"></canvas></div></div>
