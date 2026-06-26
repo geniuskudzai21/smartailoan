@@ -1008,7 +1008,7 @@ window.runAiScoring = async function(){
     status: l.status
   }));
 
-  const prompt = `Analyze the following loan applications and return a JSON array of credit scores. For each loan provide: "loanId" (the loan ID), "user" (their name), "amount" (loan amount), "purpose" (loan purpose), "score" (300-850), "risk" ("Low"/"Medium"/"High"), "decision" ("Approved"/"Declined"/"Review"). Only return valid JSON, no explanation.\n\nLoans: ${JSON.stringify(loansList)}`;
+  const prompt = `Analyze the following loan applications and return a JSON array of credit scores. For each loan provide: "loanId" (the loan ID), "user" (their name), "amount" (loan amount), "purpose" (loan purpose), "score" (0-100, percentage), "risk" ("Low"/"Medium"/"High"), "decision" ("Approved"/"Declined"/"Review"). Only return valid JSON, no explanation.\n\nLoans: ${JSON.stringify(loansList)}`;
 
   try {
     const res = await fetch('http://localhost:3456/api/grok', {
@@ -1041,10 +1041,10 @@ window.editCreditScore = function(loanId){
   const newScore = prompt('Edit credit score for ' + entry.user + ' (loan: $' + entry.amount + '):', entry.score);
   if(newScore === null) return;
   const score = parseInt(newScore);
-  if(isNaN(score) || score < 0 || score > 1000) return alert('Enter a valid score (0-1000)');
+  if(isNaN(score) || score < 0 || score > 100) return alert('Enter a valid score (0-100)');
   entry.score = score;
-  entry.risk = score >= 650 ? 'Low' : score >= 500 ? 'Medium' : 'High';
-  entry.decision = score >= 600 ? 'Approved' : 'Declined';
+  entry.risk = score >= 70 ? 'Low' : score >= 50 ? 'Medium' : 'High';
+  entry.decision = score >= 60 ? 'Approved' : 'Declined';
   renderCreditScores();
 }
 
@@ -1069,7 +1069,7 @@ function renderCreditScores(){
       <td><strong>${c.user}</strong></td>
       <td>$${Number(c.amount).toLocaleString()}</td>
       <td>${c.purpose||'—'}</td>
-      <td>${c.score}</td>
+      <td>${c.score}%</td>
       <td><span class="badge ${riskCls}">${c.risk}</span></td>
       <td><span class="badge ${decisionCls}">${c.decision}</span></td>
       <td>${c.date}</td>
