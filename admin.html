@@ -537,8 +537,9 @@ tr:hover{background:#f8fafc;}
 
 <div class="card">
 <h3><i data-lucide="file-text"></i> Uploaded Documents</h3>
-<div style="margin-bottom:12px;">
+<div style="margin-bottom:12px;display:flex;gap:8px;flex-wrap:wrap;">
 <select id="docFilter" onchange="filterDocuments()"><option value="all">All Types</option><option value="National ID">National ID</option><option value="Payslip">Payslip</option><option value="Utility Bill">Utility Bill</option><option value="Insurance Documents">Insurance Documents</option><option value="Bank Statements">Bank Statements</option></select>
+<select id="docStatusFilter" onchange="filterDocuments()"><option value="all">All Statuses</option><option value="Pending">Pending</option><option value="Verified">Verified</option><option value="Rejected">Rejected</option></select>
 </div>
 <div class="table-wrap">
 <table>
@@ -912,8 +913,11 @@ function renderActivity(txns, showAllFlag){
 
 window.filterDocuments = function(){
   const type = document.getElementById('docFilter').value;
-  if(type === 'all') renderDocuments(dbDocs);
-  else renderDocuments(dbDocs.filter(d => d.document_type === type));
+  const status = document.getElementById('docStatusFilter').value;
+  let filtered = dbDocs;
+  if(type !== 'all') filtered = filtered.filter(d => d.document_type === type);
+  if(status !== 'all') filtered = filtered.filter(d => d.status === status);
+  renderDocuments(filtered);
 }
 
 function renderDocuments(list){
@@ -930,6 +934,13 @@ function renderDocuments(list){
     const size = d.file_size ? (d.file_size / 1024).toFixed(1) + ' KB' : '—';
     const statusCls = d.status === 'Verified' ? 'badge-success' : d.status === 'Rejected' ? 'badge-danger' : 'badge-warning';
     const date = d.uploaded_at ? new Date(d.uploaded_at).toLocaleDateString() : '—';
+    const viewBtn = `<a href="${d.file_url}" target="_blank" style="padding:6px 8px;font-size:11px;background:#3b82f6;color:white;border-radius:6px;text-decoration:none;display:inline-flex;align-items:center;gap:4px;"><i data-lucide="eye" style="width:14px;height:14px;"></i> View</a>`;
+    let actionHtml = viewBtn;
+    if(d.status === 'Pending'){
+      actionHtml += `
+        <button style="padding:6px 8px;font-size:11px;min-height:auto;background:#16a34a;margin-left:4px;" onclick="verifyDocument('${d.id}')"><i data-lucide="check" style="width:14px;height:14px;"></i> Verify</button>
+        <button style="padding:6px 8px;font-size:11px;min-height:auto;background:#dc2626;margin-left:4px;" onclick="rejectDocument('${d.id}')"><i data-lucide="x" style="width:14px;height:14px;"></i> Reject</button>`;
+    }
     return `<tr>
       <td><strong>${name}</strong></td>
       <td>${d.document_type}</td>
@@ -937,9 +948,7 @@ function renderDocuments(list){
       <td>${size}</td>
       <td><span class="badge ${statusCls}">${d.status}</span></td>
       <td>${date}</td>
-      <td>
-        <a href="${d.file_url}" target="_blank" style="padding:6px 8px;font-size:11px;background:#3b82f6;color:white;border-radius:6px;text-decoration:none;display:inline-flex;align-items:center;gap:4px;"><i data-lucide="eye" style="width:14px;height:14px;"></i> View</a>
-      </td>
+      <td style="white-space:nowrap;">${actionHtml}</td>
     </tr>`;
   }).join('');
   lucide.createIcons();
@@ -1218,6 +1227,29 @@ window.deleteLoan = async function(id){
   if(error) return alert('Error: ' + error.message);
   dbLoans = dbLoans.filter(l => l.id !== id);
   renderLoans(dbLoans);
+}
+
+// ---- DOCUMENT VERIFICATION ----
+window.verifyDocument = async function(docId){
+  if(!docId) return;
+  const doc = dbDocs.find(d => d.id === docId);
+  if(!doc) return;
+  const { error } = await supabase.from('user_documents').update({status:'Verified', updated_at: new Date().toISOString()}).eq('id', docId);
+  if(error) return alert('Error: ' + error.message);
+  doc.status = 'Verified';
+  doc.updated_at = new Date().toISOString();
+  renderDocuments(dbDocs);
+}
+
+window.rejectDocument = async function(docId){
+  if(!docId) return;
+  const doc = dbDocs.find(d => d.id === docId);
+  if(!doc) return;
+  const { error } = await supabase.from('user_documents').update({status:'Rejected', updated_at: new Date().toISOString()}).eq('id', docId);
+  if(error) return alert('Error: ' + error.message);
+  doc.status = 'Rejected';
+  doc.updated_at = new Date().toISOString();
+  renderDocuments(dbDocs);
 }
 
 let creditScores = [];
