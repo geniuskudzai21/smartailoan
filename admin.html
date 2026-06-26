@@ -324,6 +324,52 @@ tr:hover{background:#f8fafc;}
   .stats-grid{grid-template-columns:1fr;}
 }
 
+@media(max-width:768px){
+  table.data-table thead,
+  .table-wrap thead{display:none;}
+  table.data-table tr,
+  .table-wrap tr{
+    display:block;
+    margin-bottom:16px;
+    border:1px solid #e2e8f0;
+    border-radius:8px;
+    padding:12px;
+    background:white;
+  }
+  table.data-table td,
+  .table-wrap td{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:8px 0;
+    border-bottom:1px solid #f1f5f9;
+    border-top:none;
+    gap:8px;
+  }
+  table.data-table td:last-child,
+  .table-wrap td:last-child{border-bottom:none;}
+  table.data-table td::before,
+  .table-wrap td::before{
+    content:attr(data-label);
+    font-weight:600;
+    color:#475569;
+    font-size:11px;
+    text-transform:uppercase;
+    white-space:nowrap;
+  }
+  table.data-table td:empty::before,
+  .table-wrap td:empty::before,
+  td.empty-state::before,
+  tr.no-card td::before{display:none;}
+  td.empty-state{display:block;text-align:center;width:100%;}
+  tr.no-card td{display:table-cell;border-bottom:1px solid #e2e8f0;padding:12px;text-align:center;}
+  table.data-table tr:hover,
+  .table-wrap tr:hover{background:white;}
+  .table-wrap{overflow:visible;}
+  table.data-table,
+  .table-wrap table{border-collapse:separate;border-spacing:0;}
+}
+
 .modal-overlay{
   display:none;
   position:fixed;
@@ -841,12 +887,12 @@ function renderUsers(list){
     const kycBadge = kycStatus === 'Verified' ? 'badge-success' : 'badge-warning';
     const loanCount = loanCountMap[userId]||0;
     return `<tr>
-    <td><strong>${u.full_name||u.name||'—'}</strong></td>
-    <td>${u.email||u.contact||'—'}</td>
-    <td><span class="badge ${kycBadge}">${kycStatus}</span></td>
-    <td>${loanCount}</td>
-    <td>${u.created_at ? new Date(u.created_at).toLocaleDateString() : u.joined||'—'}</td>
-    <td>
+    <td data-label="Name"><strong>${u.full_name||u.name||'—'}</strong></td>
+    <td data-label="Email / Phone">${u.email||u.contact||'—'}</td>
+    <td data-label="KYC Status"><span class="badge ${kycBadge}">${kycStatus}</span></td>
+    <td data-label="Loans">${loanCount}</td>
+    <td data-label="Joined">${u.created_at ? new Date(u.created_at).toLocaleDateString() : u.joined||'—'}</td>
+    <td data-label="Action">
       <button style="padding:6px 8px;font-size:11px;min-height:auto;background:#f59e0b;margin-right:4px;" onclick="editUser('${profileId}')"><i data-lucide="pencil" style="width:14px;height:14px;"></i></button>
       <button style="padding:6px 8px;font-size:11px;min-height:auto;background:#dc2626;" onclick="deleteUser('${profileId}')"><i data-lucide="trash-2" style="width:14px;height:14px;"></i></button>
     </td>
@@ -869,13 +915,13 @@ function renderLoans(list){
     const applicantName = l.applicant || userMap[l.user_id] || '—';
     const loanDate = l.created_at ? new Date(l.created_at).toLocaleDateString() : (l.date || '—');
     return `<tr>
-      <td><strong>${applicantName}</strong></td>
-      <td>$${Number(l.amount).toLocaleString()}</td>
-      <td>${l.purpose||'—'}</td>
-      <td>${loanDate}</td>
-      <td>${l.term||l.repayment_period||'—'}</td>
-      <td><span class="badge ${cls}">${l.status}</span></td>
-      <td>
+      <td data-label="Applicant"><strong>${applicantName}</strong></td>
+      <td data-label="Amount">$${Number(l.amount).toLocaleString()}</td>
+      <td data-label="Purpose">${l.purpose||'—'}</td>
+      <td data-label="Date">${loanDate}</td>
+      <td data-label="Term">${l.term||l.repayment_period||'—'}</td>
+      <td data-label="Status"><span class="badge ${cls}">${l.status}</span></td>
+      <td data-label="Action">
         ${l.status === 'Pending' ? `<button style="padding:6px 8px;font-size:11px;min-height:auto;background:#16a34a;margin-right:4px;" onclick="approveLoan(this,'${l.id}')"><i data-lucide="check" style="width:12px;height:12px;"></i> Approve</button><button style="padding:6px 8px;font-size:11px;min-height:auto;background:#dc2626;margin-right:4px;" onclick="declineLoan(this,'${l.id}')"><i data-lucide="x" style="width:12px;height:12px;"></i> Decline</button>` : ''}
         <button style="padding:6px 8px;font-size:11px;min-height:auto;background:#f59e0b;margin-right:4px;" onclick="editLoan('${l.id}')"><i data-lucide="pencil" style="width:14px;height:14px;"></i></button>
         <button style="padding:6px 8px;font-size:11px;min-height:auto;background:#dc2626;" onclick="deleteLoan('${l.id}')"><i data-lucide="trash-2" style="width:14px;height:14px;"></i></button>
@@ -899,14 +945,14 @@ function renderActivity(txns, showAllFlag){
     const badgeCls = t.status === 'Success' ? 'badge-success' : t.status === 'Failed' ? 'badge-danger' : t.status === 'Pending' ? 'badge-warning' : 'badge-info';
     const displayDate = t.date ? new Date(t.date).toLocaleDateString() : '—';
     return `<tr>
-      <td>${t.type}</td>
-      <td>${t.user}</td>
-      <td>${displayDate}</td>
-      <td><span class="badge ${badgeCls}">${t.status}</span></td>
+      <td data-label="Event">${t.type}</td>
+      <td data-label="User">${t.user}</td>
+      <td data-label="Date">${displayDate}</td>
+      <td data-label="Status"><span class="badge ${badgeCls}">${t.status}</span></td>
     </tr>`;
   }).join('');
   if(hasMore && !showAllFlag){
-    tbody.innerHTML += `<tr><td colspan="4" style="text-align:center;padding:8px;"><button style="padding:6px 16px;font-size:12px;min-height:auto;background:#475569;" onclick="renderActivity(dbTxn, true)"><i data-lucide="list" style="width:14px;height:14px;"></i> View All (${sorted.length})</button></td></tr>`;
+    tbody.innerHTML += `<tr class="no-card"><td colspan="4" style="text-align:center;padding:8px;"><button style="padding:6px 16px;font-size:12px;min-height:auto;background:#475569;" onclick="renderActivity(dbTxn, true)"><i data-lucide="list" style="width:14px;height:14px;"></i> View All (${sorted.length})</button></td></tr>`;
     lucide.createIcons();
   }
 }
@@ -942,13 +988,13 @@ function renderDocuments(list){
         <button style="padding:6px 8px;font-size:11px;min-height:auto;background:#dc2626;margin-left:4px;" onclick="rejectDocument('${d.id}')"><i data-lucide="x" style="width:14px;height:14px;"></i> Reject</button>`;
     }
     return `<tr>
-      <td><strong>${name}</strong></td>
-      <td>${d.document_type}</td>
-      <td>${d.file_name || '—'}</td>
-      <td>${size}</td>
-      <td><span class="badge ${statusCls}">${d.status}</span></td>
-      <td>${date}</td>
-      <td style="white-space:nowrap;">${actionHtml}</td>
+      <td data-label="User"><strong>${name}</strong></td>
+      <td data-label="Document Type">${d.document_type}</td>
+      <td data-label="File Name">${d.file_name || '—'}</td>
+      <td data-label="Size">${size}</td>
+      <td data-label="Status"><span class="badge ${statusCls}">${d.status}</span></td>
+      <td data-label="Uploaded">${date}</td>
+      <td data-label="Action" style="white-space:nowrap;">${actionHtml}</td>
     </tr>`;
   }).join('');
   lucide.createIcons();
@@ -1262,7 +1308,7 @@ window.runAiScoring = async function(){
     return;
   }
   const tbody = document.getElementById('creditScoreTable');
-  tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:20px;"><i data-lucide="loader-2" style="width:24px;height:24px;animation:spin 1s linear infinite;color:#2563eb;"></i><p style="margin-top:8px;color:#64748b;">AI is analyzing creditworthiness...</p></td></tr>';
+  tbody.innerHTML = '<tr class="no-card"><td colspan="8" style="text-align:center;padding:20px;"><i data-lucide="loader-2" style="width:24px;height:24px;animation:spin 1s linear infinite;color:#2563eb;"></i><p style="margin-top:8px;color:#64748b;">AI is analyzing creditworthiness...</p></td></tr>';
   lucide.createIcons();
 
   const userMap = {};
@@ -1313,7 +1359,7 @@ Return a JSON array. For each loan provide: "loanId" (the loan ID), "user" (thei
       throw new Error('Unexpected response format');
     }
   } catch (e) {
-    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:20px;color:#dc2626;"><p>AI scoring failed: ${e.message}</p></td></tr>`;
+    tbody.innerHTML = `<tr class="no-card"><td colspan="8" style="text-align:center;padding:20px;color:#dc2626;"><p>AI scoring failed: ${e.message}</p></td></tr>`;
     lucide.createIcons();
     return;
   }
@@ -1421,14 +1467,14 @@ function renderCreditScores(){
     const riskCls = c.risk === 'Low' ? 'badge-success' : c.risk === 'Medium' ? 'badge-warning' : 'badge-danger';
     const decisionCls = c.decision === 'Approved' ? 'badge-success' : c.decision === 'Review' ? 'badge-warning' : 'badge-danger';
     return `<tr>
-      <td><strong>${c.user}</strong></td>
-      <td>$${Number(c.amount).toLocaleString()}</td>
-      <td>${c.purpose||'—'}</td>
-      <td>${c.score}%</td>
-      <td><span class="badge ${riskCls}">${c.risk}</span></td>
-      <td><span class="badge ${decisionCls}">${c.decision}</span></td>
-      <td>${c.date}</td>
-      <td>
+      <td data-label="User"><strong>${c.user}</strong></td>
+      <td data-label="Loan Amount">$${Number(c.amount).toLocaleString()}</td>
+      <td data-label="Purpose">${c.purpose||'—'}</td>
+      <td data-label="Credit Score">${c.score}%</td>
+      <td data-label="Risk Level"><span class="badge ${riskCls}">${c.risk}</span></td>
+      <td data-label="Decision"><span class="badge ${decisionCls}">${c.decision}</span></td>
+      <td data-label="Last Updated">${c.date}</td>
+      <td data-label="Action">
         ${c.decision === 'Review' ? `<button style="padding:6px 8px;font-size:11px;min-height:auto;background:#3b82f6;margin-right:4px;" onclick="viewReviewDocs(${idx})"><i data-lucide="file-text" style="width:14px;height:14px;"></i> Docs</button>` : ''}
         <button style="padding:6px 8px;font-size:11px;min-height:auto;background:#f59e0b;margin-right:4px;" onclick="editCreditScore(${idx})"><i data-lucide="pencil" style="width:14px;height:14px;"></i></button>
         <button style="padding:6px 8px;font-size:11px;min-height:auto;background:#dc2626;" onclick="deleteCreditScore(${idx})"><i data-lucide="trash-2" style="width:14px;height:14px;"></i></button>
@@ -1536,14 +1582,14 @@ function renderRisk(){
         const riskCls = l.ai_risk === 'High' ? 'badge-danger' : l.ai_risk === 'Medium' ? 'badge-warning' : 'badge-success';
         const decisionCls = l.ai_decision === 'Approved' ? 'badge-success' : l.ai_decision === 'Review' ? 'badge-warning' : 'badge-danger';
         return `<tr>
-          <td><strong>${l.applicant || userMap[l.user_id] || '—'}</strong></td>
-          <td>$${Number(l.amount).toLocaleString()}</td>
-          <td>${l.purpose||'—'}</td>
-          <td><span class="badge ${riskCls}">${l.ai_risk||'N/A'}</span></td>
-          <td><span class="badge ${decisionCls}">${l.ai_decision||'N/A'}</span></td>
-          <td>${l.ai_score != null ? l.ai_score + '%' : '—'}</td>
-          <td><span class="badge ${l.status === 'Approved'||l.status==='Disbursed'?'badge-success':l.status==='Declined'?'badge-danger':'badge-warning'}">${l.status||'—'}</span></td>
-          <td style="font-size:12px;color:#94a3b8;">${l.created_at ? new Date(l.created_at).toLocaleDateString() : '—'}</td>
+          <td data-label="Applicant"><strong>${l.applicant || userMap[l.user_id] || '—'}</strong></td>
+          <td data-label="Amount">$${Number(l.amount).toLocaleString()}</td>
+          <td data-label="Purpose">${l.purpose||'—'}</td>
+          <td data-label="AI Risk"><span class="badge ${riskCls}">${l.ai_risk||'N/A'}</span></td>
+          <td data-label="Decision"><span class="badge ${decisionCls}">${l.ai_decision||'N/A'}</span></td>
+          <td data-label="AI Score">${l.ai_score != null ? l.ai_score + '%' : '—'}</td>
+          <td data-label="Status"><span class="badge ${l.status === 'Approved'||l.status==='Disbursed'?'badge-success':l.status==='Declined'?'badge-danger':'badge-warning'}">${l.status||'—'}</span></td>
+          <td data-label="Date" style="font-size:12px;color:#94a3b8;">${l.created_at ? new Date(l.created_at).toLocaleDateString() : '—'}</td>
         </tr>`;
       }).join('')}</tbody>
     </table>
@@ -1659,13 +1705,13 @@ function renderContracts(){
         const cs = contractStatus(l);
         const riskCls = l.ai_risk === 'High' ? 'badge-danger' : l.ai_risk === 'Medium' ? 'badge-warning' : 'badge-success';
         return `<tr>
-          <td style="font-family:monospace;font-size:12px;">#${String(l.id).slice(0,8)}</td>
-          <td><strong>${l.applicant || userMap[l.user_id] || '—'}</strong></td>
-          <td>$${Number(l.amount).toLocaleString()}</td>
-          <td>${l.term||l.repayment_period||'—'}</td>
-          <td><span class="badge ${cs.cls}">${cs.label}</span></td>
-          <td><span class="badge ${riskCls}">${l.ai_risk||'N/A'}</span></td>
-          <td style="font-size:12px;color:#94a3b8;">${l.created_at ? new Date(l.created_at).toLocaleDateString() : '—'}</td>
+          <td data-label="Contract ID" style="font-family:monospace;font-size:12px;">#${String(l.id).slice(0,8)}</td>
+          <td data-label="Party"><strong>${l.applicant || userMap[l.user_id] || '—'}</strong></td>
+          <td data-label="Amount">$${Number(l.amount).toLocaleString()}</td>
+          <td data-label="Terms">${l.term||l.repayment_period||'—'}</td>
+          <td data-label="Status"><span class="badge ${cs.cls}">${cs.label}</span></td>
+          <td data-label="Risk Level"><span class="badge ${riskCls}">${l.ai_risk||'N/A'}</span></td>
+          <td data-label="Date" style="font-size:12px;color:#94a3b8;">${l.created_at ? new Date(l.created_at).toLocaleDateString() : '—'}</td>
         </tr>`;
       }).join('')}</tbody>
     </table>
