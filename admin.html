@@ -447,9 +447,9 @@ tr:hover{background:#f8fafc;}
 </div>
 <div class="table-wrap">
 <table>
-<thead><tr><th>User</th><th>Credit Score</th><th>Risk Level</th><th>Decision</th><th>Last Updated</th><th>Action</th></tr></thead>
+<thead><tr><th>User</th><th>Loan Amount</th><th>Purpose</th><th>Credit Score</th><th>Risk Level</th><th>Decision</th><th>Last Updated</th><th>Action</th></tr></thead>
 <tbody id="creditScoreTable">
-<tr><td colspan="6" class="empty-state"><i data-lucide="brain" style="width:32px;height:32px;color:#cbd5e1;"></i><p>No credit scores generated</p><div class="sub">Click "Run AI Scoring" to analyze user creditworthiness</div></td></tr>
+<tr><td colspan="8" class="empty-state"><i data-lucide="brain" style="width:32px;height:32px;color:#cbd5e1;"></i><p>No credit scores generated</p><div class="sub">Click "Run AI Scoring" to analyze user creditworthiness</div></td></tr>
 </tbody>
 </table>
 </div>
@@ -984,24 +984,31 @@ window.deleteLoan = async function(id){
 let creditScores = [];
 
 window.runAiScoring = async function(){
-  if(!dbUsers.length){
+  if(!dbLoans.length){
     const tbody = document.getElementById('creditScoreTable');
-    tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><i data-lucide="brain" style="width:32px;height:32px;color:#cbd5e1;"></i><p>No users to score</p></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8" class="empty-state"><i data-lucide="brain" style="width:32px;height:32px;color:#cbd5e1;"></i><p>No loans to score</p></td></tr>';
     lucide.createIcons();
     return;
   }
   const tbody = document.getElementById('creditScoreTable');
-  tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;"><i data-lucide="loader-2" style="width:24px;height:24px;animation:spin 1s linear infinite;color:#2563eb;"></i><p style="margin-top:8px;color:#64748b;">AI is analyzing creditworthiness...</p></td></tr>';
+  tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:20px;"><i data-lucide="loader-2" style="width:24px;height:24px;animation:spin 1s linear infinite;color:#2563eb;"></i><p style="margin-top:8px;color:#64748b;">AI is analyzing creditworthiness...</p></td></tr>';
   lucide.createIcons();
 
-  const usersList = dbUsers.map(u => ({
-    name: u.full_name || u.name || u.email || 'Unknown',
-    email: u.email || '',
-    phone: u.phone || '',
-    joined: u.created_at || ''
+  const userMap = {};
+  dbUsers.forEach(u => { userMap[u.user_id] = u.full_name || u.name || u.email || 'Unknown'; });
+
+  const loansList = dbLoans.map(l => ({
+    loanId: l.id,
+    user: userMap[l.user_id] || 'Unknown',
+    amount: l.amount,
+    purpose: l.purpose,
+    income: l.monthly_income,
+    employment: l.employment_status,
+    period: l.repayment_period,
+    status: l.status
   }));
 
-  const prompt = `Analyze the following loan applicants and return a JSON array of credit scores. For each person provide: "user" (their name), "score" (300-850), "risk" ("Low"/"Medium"/"High"), "decision" ("Approved"/"Declined"/"Review"). Only return valid JSON, no explanation.\n\nUsers: ${JSON.stringify(usersList)}`;
+  const prompt = `Analyze the following loan applications and return a JSON array of credit scores. For each loan provide: "loanId" (the loan ID), "user" (their name), "amount" (loan amount), "purpose" (loan purpose), "score" (300-850), "risk" ("Low"/"Medium"/"High"), "decision" ("Approved"/"Declined"/"Review"). Only return valid JSON, no explanation.\n\nLoans: ${JSON.stringify(loansList)}`;
 
   try {
     const res = await fetch('http://localhost:3456/api/grok', {
@@ -1021,17 +1028,17 @@ window.runAiScoring = async function(){
       throw new Error('Unexpected response format');
     }
   } catch (e) {
-    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:20px;color:#dc2626;"><p>AI scoring failed: ${e.message}</p></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:20px;color:#dc2626;"><p>AI scoring failed: ${e.message}</p></td></tr>`;
     lucide.createIcons();
     return;
   }
   renderCreditScores();
 }
 
-window.editCreditScore = function(user){
-  const entry = creditScores.find(c => c.user === user);
+window.editCreditScore = function(loanId){
+  const entry = creditScores.find(c => c.loanId === loanId);
   if(!entry) return;
-  const newScore = prompt('Edit credit score for ' + user + ':', entry.score);
+  const newScore = prompt('Edit credit score for ' + entry.user + ' (loan: $' + entry.amount + '):', entry.score);
   if(newScore === null) return;
   const score = parseInt(newScore);
   if(isNaN(score) || score < 0 || score > 1000) return alert('Enter a valid score (0-1000)');
@@ -1041,31 +1048,34 @@ window.editCreditScore = function(user){
   renderCreditScores();
 }
 
-window.deleteCreditScore = function(user){
-  if(!confirm('Delete credit score for ' + user + '?')) return;
-  creditScores = creditScores.filter(c => c.user !== user);
+window.deleteCreditScore = function(loanId){
+  const entry = creditScores.find(c => c.loanId === loanId);
+  if(!entry || !confirm('Delete credit score for ' + entry.user + ' (loan: $' + entry.amount + ')?')) return;
+  creditScores = creditScores.filter(c => c.loanId !== loanId);
   renderCreditScores();
 }
 
 function renderCreditScores(){
   const tbody = document.getElementById('creditScoreTable');
   if(!creditScores.length){
-    tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><i data-lucide="brain" style="width:32px;height:32px;color:#cbd5e1;"></i><p>No credit scores generated</p></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8" class="empty-state"><i data-lucide="brain" style="width:32px;height:32px;color:#cbd5e1;"></i><p>No credit scores generated</p></td></tr>';
     lucide.createIcons();
     return;
   }
   tbody.innerHTML = creditScores.map(c => {
     const riskCls = c.risk === 'Low' ? 'badge-success' : c.risk === 'Medium' ? 'badge-warning' : 'badge-danger';
-    const decisionCls = c.decision === 'Approved' ? 'badge-success' : 'badge-danger';
+    const decisionCls = c.decision === 'Approved' ? 'badge-success' : c.decision === 'Review' ? 'badge-warning' : 'badge-danger';
     return `<tr>
       <td><strong>${c.user}</strong></td>
+      <td>$${Number(c.amount).toLocaleString()}</td>
+      <td>${c.purpose||'—'}</td>
       <td>${c.score}</td>
       <td><span class="badge ${riskCls}">${c.risk}</span></td>
       <td><span class="badge ${decisionCls}">${c.decision}</span></td>
       <td>${c.date}</td>
       <td>
-        <button style="padding:6px 8px;font-size:11px;min-height:auto;background:#f59e0b;margin-right:4px;" onclick="editCreditScore('${c.user}')"><i data-lucide="pencil" style="width:14px;height:14px;"></i></button>
-        <button style="padding:6px 8px;font-size:11px;min-height:auto;background:#dc2626;" onclick="deleteCreditScore('${c.user}')"><i data-lucide="trash-2" style="width:14px;height:14px;"></i></button>
+        <button style="padding:6px 8px;font-size:11px;min-height:auto;background:#f59e0b;margin-right:4px;" onclick="editCreditScore('${c.loanId}')"><i data-lucide="pencil" style="width:14px;height:14px;"></i></button>
+        <button style="padding:6px 8px;font-size:11px;min-height:auto;background:#dc2626;" onclick="deleteCreditScore('${c.loanId}')"><i data-lucide="trash-2" style="width:14px;height:14px;"></i></button>
       </td>
     </tr>`;
   }).join('');
