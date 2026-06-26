@@ -707,7 +707,7 @@ window.submitLoan = async function(){
 
   const hasFiles = kycFields.some(f => document.getElementById(f.id)?.files?.[0]);
   if(hasFiles){
-    await supabase.storage.createBucket('kyc-documents', { public: true }).catch(() => {});
+    await supabase.storage.createBucket('user-documents', { public: true }).catch(() => {});
   }
 
   for(const field of kycFields){
@@ -716,18 +716,20 @@ window.submitLoan = async function(){
     if(!file) continue;
 
     const filePath = `${session.user.id}/${field.type}_${Date.now()}`;
-    const { error: uploadErr } = await supabase.storage.from('kyc-documents').upload(filePath, file);
+    const { error: uploadErr } = await supabase.storage.from('user-documents').upload(filePath, file);
     if(uploadErr){
       uploadErrors.push(field.type);
       continue;
     }
 
-    const { data: { publicUrl } } = supabase.storage.from('kyc-documents').getPublicUrl(filePath);
+    const { data: { publicUrl } } = supabase.storage.from('user-documents').getPublicUrl(filePath);
 
-    await supabase.from('kyc_documents').insert({
+    await supabase.from('user_documents').insert({
       user_id: session.user.id,
       document_type: field.type,
       file_url: publicUrl,
+      file_name: file.name,
+      file_size: file.size,
       status: 'Pending'
     });
   }
@@ -744,7 +746,7 @@ window.submitLoan = async function(){
 
   let msg = 'Loan application submitted successfully!';
   if(uploadErrors.length){
-    msg += '\n\nCould not upload: ' + uploadErrors.join(', ') + '.\nMake sure the KYC storage bucket exists in your Supabase project.';
+    msg += '\n\nCould not upload: ' + uploadErrors.join(', ') + '.\nMake sure the storage bucket exists in your Supabase project.';
   }
   alert(msg);
 }

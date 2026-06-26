@@ -452,6 +452,21 @@ tr:hover{background:#f8fafc;}
 </table>
 </div>
 </div>
+
+<div class="card">
+<h3><i data-lucide="file-text"></i> Uploaded Documents</h3>
+<div style="margin-bottom:12px;">
+<select id="docFilter" onchange="filterDocuments()"><option value="all">All Types</option><option value="National ID">National ID</option><option value="Payslip">Payslip</option><option value="Utility Bill">Utility Bill</option><option value="Insurance Documents">Insurance Documents</option><option value="Bank Statements">Bank Statements</option></select>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>User</th><th>Document Type</th><th>File Name</th><th>Size</th><th>Status</th><th>Uploaded</th><th>Action</th></tr></thead>
+<tbody id="docTable">
+<tr><td colspan="7" class="empty-state"><i data-lucide="file-text" style="width:32px;height:32px;color:#cbd5e1;"></i><p>No documents uploaded</p><div class="sub">User-uploaded documents will appear here</div></td></tr>
+</tbody>
+</table>
+</div>
+</div>
 </div>
 
 <!-- AI CHARTS & ANALYTICS -->
@@ -633,11 +648,7 @@ window.adminLogin = async function(){
 window.logout = async function(){
   localStorage.removeItem('adminSession');
   await supabase.auth.signOut().catch(() => {});
-  document.getElementById('adminLogin').classList.remove('hidden');
-  document.getElementById('adminDashboard').classList.add('hidden');
-  document.getElementById('adminEmailInput').value = ADMIN_EMAIL;
-  document.getElementById('adminPassInput').value = '';
-  showMessage('Logged out successfully.','green');
+  window.location.href = 'index.html';
 }
 
 function showMessage(msg,color){
@@ -664,17 +675,18 @@ window.showSection = function(id){
 }
 
 // ---- LOAD DASHBOARD ----
-let dbUsers = [], dbLoans = [], dbTxn = [];
+let dbUsers = [], dbLoans = [], dbTxn = [], dbDocs = [];
 
 async function loadDashboard(){
-  const [usersRes, loansRes, txnRes] = await Promise.all([
+  const [usersRes, loansRes, docsRes] = await Promise.all([
     supabase.from('profiles').select('*'),
     supabase.from('loan_applications').select('*'),
-    supabase.from('transactions').select('*'),
+    supabase.from('user_documents').select('*'),
   ]);
   dbUsers = usersRes.data || [];
   dbLoans = loansRes.data || [];
-  dbTxn = txnRes.data || [];
+  dbDocs = docsRes.data || [];
+  dbTxn = [];
 
   document.getElementById('statUsers').textContent = dbUsers.length;
   document.getElementById('statLoans').textContent = dbLoans.filter(l => l.status === 'Approved' || l.status === 'Disbursed').length;
@@ -683,6 +695,7 @@ async function loadDashboard(){
   renderUsers(dbUsers);
   renderLoans(dbLoans);
   renderActivity(dbTxn);
+  renderDocuments(dbDocs);
   renderCharts();
 }
 
@@ -755,6 +768,41 @@ function renderActivity(txns){
     <td>${t.date}</td>
     <td><span class="badge badge-success">${t.status}</span></td>
   </tr>`).join('');
+}
+
+window.filterDocuments = function(){
+  const type = document.getElementById('docFilter').value;
+  if(type === 'all') renderDocuments(dbDocs);
+  else renderDocuments(dbDocs.filter(d => d.document_type === type));
+}
+
+function renderDocuments(list){
+  const tbody = document.getElementById('docTable');
+  if(!list.length){
+    tbody.innerHTML = '<tr><td colspan="7" class="empty-state"><i data-lucide="file-text" style="width:32px;height:32px;color:#cbd5e1;"></i><p>No documents uploaded</p></td></tr>';
+    lucide.createIcons();
+    return;
+  }
+  const userMap = {};
+  dbUsers.forEach(u => { userMap[u.id] = u.full_name || u.name || u.email; userMap[u.user_id] = u.full_name || u.name || u.email; });
+  tbody.innerHTML = list.map(d => {
+    const name = userMap[d.user_id] || d.user_id?.slice(0, 8) || '—';
+    const size = d.file_size ? (d.file_size / 1024).toFixed(1) + ' KB' : '—';
+    const statusCls = d.status === 'Verified' ? 'badge-success' : d.status === 'Rejected' ? 'badge-danger' : 'badge-warning';
+    const date = d.uploaded_at ? new Date(d.uploaded_at).toLocaleDateString() : '—';
+    return `<tr>
+      <td><strong>${name}</strong></td>
+      <td>${d.document_type}</td>
+      <td>${d.file_name || '—'}</td>
+      <td>${size}</td>
+      <td><span class="badge ${statusCls}">${d.status}</span></td>
+      <td>${date}</td>
+      <td>
+        <a href="${d.file_url}" target="_blank" style="padding:6px 8px;font-size:11px;background:#3b82f6;color:white;border-radius:6px;text-decoration:none;display:inline-flex;align-items:center;gap:4px;"><i data-lucide="eye" style="width:14px;height:14px;"></i> View</a>
+      </td>
+    </tr>`;
+  }).join('');
+  lucide.createIcons();
 }
 
 function renderCharts(){
