@@ -806,6 +806,75 @@ window.showSection = function(id){
 // ---- LOAD DASHBOARD ----
 let dbUsers = [], dbLoans = [], dbTxn = [], dbDocs = [];
 
+function buildActivity(){
+  const activities = [];
+  const userMap = {};
+  dbUsers.forEach(u => { userMap[u.user_id] = u.full_name || u.name || u.email || 'Unknown'; userMap[u.id] = u.full_name || u.name || u.email || 'Unknown'; });
+
+  dbLoans.forEach(l => {
+    const name = userMap[l.user_id] || l.applicant || 'Unknown';
+    activities.push({
+      type: 'Loan Applied',
+      user: name,
+      date: l.created_at || new Date().toISOString(),
+      status: 'Info'
+    });
+    if(l.status === 'Approved' || l.status === 'Disbursed'){
+      activities.push({
+        type: 'Loan ' + l.status,
+        user: name,
+        date: l.created_at || new Date().toISOString(),
+        status: 'Success'
+      });
+    }
+    if(l.status === 'Declined'){
+      activities.push({
+        type: 'Loan Declined',
+        user: name,
+        date: l.created_at || new Date().toISOString(),
+        status: 'Failed'
+      });
+    }
+  });
+
+  dbDocs.forEach(d => {
+    const name = userMap[d.user_id] || 'Unknown';
+    activities.push({
+      type: 'Document Uploaded: ' + d.document_type,
+      user: name,
+      date: d.uploaded_at || new Date().toISOString(),
+      status: 'Pending'
+    });
+    if(d.status === 'Verified'){
+      activities.push({
+        type: 'Document Verified: ' + d.document_type,
+        user: name,
+        date: d.updated_at || d.uploaded_at || new Date().toISOString(),
+        status: 'Success'
+      });
+    }
+    if(d.status === 'Rejected'){
+      activities.push({
+        type: 'Document Rejected: ' + d.document_type,
+        user: name,
+        date: d.updated_at || d.uploaded_at || new Date().toISOString(),
+        status: 'Failed'
+      });
+    }
+  });
+
+  dbUsers.forEach(u => {
+    activities.push({
+      type: 'User Registered',
+      user: u.full_name || u.name || u.email || 'Unknown',
+      date: u.created_at || new Date().toISOString(),
+      status: 'Success'
+    });
+  });
+
+  return activities;
+}
+
 async function loadDashboard(){
   const [usersRes, loansRes, docsRes] = await Promise.all([
     supabase.from('profiles').select('*'),
@@ -815,7 +884,7 @@ async function loadDashboard(){
   dbUsers = usersRes.data || [];
   dbLoans = loansRes.data || [];
   dbDocs = docsRes.data || [];
-  dbTxn = [];
+  dbTxn = buildActivity();
 
   document.getElementById('statUsers').textContent = dbUsers.length;
   document.getElementById('statLoans').textContent = dbLoans.filter(l => l.status === 'Approved' || l.status === 'Disbursed').length;
@@ -898,13 +967,17 @@ function renderActivity(txns){
     lucide.createIcons();
     return;
   }
-  const sorted = [...txns].sort((a,b) => b.date.localeCompare(a.date)).slice(0,5);
-  tbody.innerHTML = sorted.map(t => `<tr>
-    <td>${t.type}</td>
-    <td>${t.user}</td>
-    <td>${t.date}</td>
-    <td><span class="badge badge-success">${t.status}</span></td>
-  </tr>`).join('');
+  const sorted = [...txns].sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0,8);
+  tbody.innerHTML = sorted.map(t => {
+    const badgeCls = t.status === 'Success' ? 'badge-success' : t.status === 'Failed' ? 'badge-danger' : t.status === 'Pending' ? 'badge-warning' : 'badge-info';
+    const displayDate = t.date ? new Date(t.date).toLocaleDateString() : '—';
+    return `<tr>
+      <td>${t.type}</td>
+      <td>${t.user}</td>
+      <td>${displayDate}</td>
+      <td><span class="badge ${badgeCls}">${t.status}</span></td>
+    </tr>`;
+  }).join('');
 }
 
 window.filterDocuments = function(){
