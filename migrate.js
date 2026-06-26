@@ -32,6 +32,10 @@ CREATE TABLE IF NOT EXISTS loan_applications (
   created_at TIMESTAMPTZ DEFAULT now()
 );
 
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS residential_address TEXT;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS notify_email BOOLEAN DEFAULT true;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS notify_sms BOOLEAN DEFAULT true;
+
 ALTER TABLE loan_applications ADD COLUMN IF NOT EXISTS preferred_date DATE;
 ALTER TABLE loan_applications ADD COLUMN IF NOT EXISTS phone TEXT;
 ALTER TABLE loan_applications ADD COLUMN IF NOT EXISTS ai_score INT;
