@@ -1239,7 +1239,13 @@ window.runAiScoring = async function(){
     status: l.status
   }));
 
-  const prompt = `Analyze the following loan applications and return a JSON array of credit scores. For each loan provide: "loanId" (the loan ID), "user" (their name), "amount" (loan amount), "purpose" (loan purpose), "score" (0-100, percentage), "risk" ("Low"/"Medium"/"High"), "decision" ("Approved"/"Declined"/"Review"). Only return valid JSON, no explanation.\n\nLoans: ${JSON.stringify(loansList)}`;
+  const prompt = `You are a credit analyst. Evaluate each loan application based on:
+- Loan-to-income ratio (high ratio = riskier)
+- Employment stability (Employed/Self-employed > Vendor/Unemployed)
+- Repayment period (longer periods may increase risk)
+- Loan purpose (Business/Education = lower risk, Personal/Emergency = higher risk)
+
+Return a JSON array. For each loan provide: "loanId" (the loan ID), "user" (their name), "amount" (loan amount), "purpose" (loan purpose), "score" (0-100, where 70+ = low risk, 50-69 = medium, below 50 = high), "risk" ("Low"/"Medium"/"High"), "decision" ("Approved" for strong applications, "Declined" for high-risk, "Review" for borderline cases needing manual document review). Only return valid JSON, no explanation.\n\nLoans: ${JSON.stringify(loansList)}`;
 
   try {
     const res = await fetch('http://localhost:3456/api/grok', {
@@ -1275,6 +1281,15 @@ window.editCreditScore = function(idx){
 
   const loan = dbLoans.find(l => l.id === entry.loanId);
   const user = loan ? dbUsers.find(u => u.user_id === loan.user_id) : null;
+  const userId = loan ? loan.user_id : null;
+  const userDocs = userId ? (dbDocs||[]).filter(d => d.user_id === userId) : [];
+
+  const docsHtml = userDocs.length ? userDocs.map(d =>
+    `<div class="detail-row">
+      <span class="label">${d.document_type}</span>
+      <span class="value"><a href="${d.file_url}" target="_blank" style="color:#2563eb;text-decoration:none;display:inline-flex;align-items:center;gap:4px;"><i data-lucide="eye" style="width:14px;height:14px;"></i> View</a></span>
+    </div>`
+  ).join('') : '<div style="font-size:13px;color:#94a3b8;padding:8px 0;">No documents uploaded.</div>';
 
   document.getElementById('editModalBody').innerHTML = `
     <h3>User Details</h3>
@@ -1291,9 +1306,19 @@ window.editCreditScore = function(idx){
     <div class="detail-row"><span class="label">Repayment Period</span><span class="value">${loan ? (loan.repayment_period||'—') : '—'}</span></div>
     <div class="detail-row"><span class="label">Status</span><span class="value">${loan ? (loan.status||'—') : '—'}</span></div>
 
-    <h3>Credit Score</h3>
+    <h3>Uploaded Documents</h3>
+    ${docsHtml}
+
+    <h3>Credit Score & Decision</h3>
     <label style="font-size:13px;font-weight:600;color:#475569;">Score (0-100)</label>
     <input id="editScoreInput" type="number" min="0" max="100" value="${entry.score}">
+
+    <label style="font-size:13px;font-weight:600;color:#475569;margin-top:12px;display:block;">Decision</label>
+    <select id="editDecisionInput" style="margin:8px 0 4px;">
+      <option value="Review" ${entry.decision === 'Review' ? 'selected' : ''}>Review — Check Documents</option>
+      <option value="Approved" ${entry.decision === 'Approved' ? 'selected' : ''}>Approved</option>
+      <option value="Declined" ${entry.decision === 'Declined' ? 'selected' : ''}>Declined</option>
+    </select>
   `;
   document.getElementById('editScoreModal').classList.add('active');
   try { lucide.createIcons(); } catch(e) {}
@@ -1311,9 +1336,10 @@ window.saveEditedScore = function(){
   const input = document.getElementById('editScoreInput');
   const score = parseInt(input.value);
   if(isNaN(score) || score < 0 || score > 100) return alert('Enter a valid score (0-100)');
+  const decisionInput = document.getElementById('editDecisionInput');
   entry.score = score;
   entry.risk = score >= 70 ? 'Low' : score >= 50 ? 'Medium' : 'High';
-  entry.decision = score >= 60 ? 'Approved' : 'Declined';
+  entry.decision = decisionInput.value;
   closeEditModal();
   renderCreditScores();
 }
@@ -1323,6 +1349,10 @@ window.deleteCreditScore = function(idx){
   if(!entry || !confirm('Delete credit score for ' + entry.user + ' (loan: $' + entry.amount + ')?')) return;
   creditScores.splice(idx, 1);
   renderCreditScores();
+}
+
+window.viewReviewDocs = function(idx){
+  editCreditScore(idx);
 }
 
 function renderCreditScores(){
@@ -1344,6 +1374,7 @@ function renderCreditScores(){
       <td><span class="badge ${decisionCls}">${c.decision}</span></td>
       <td>${c.date}</td>
       <td>
+        ${c.decision === 'Review' ? `<button style="padding:6px 8px;font-size:11px;min-height:auto;background:#3b82f6;margin-right:4px;" onclick="viewReviewDocs(${idx})"><i data-lucide="file-text" style="width:14px;height:14px;"></i> Docs</button>` : ''}
         <button style="padding:6px 8px;font-size:11px;min-height:auto;background:#f59e0b;margin-right:4px;" onclick="editCreditScore(${idx})"><i data-lucide="pencil" style="width:14px;height:14px;"></i></button>
         <button style="padding:6px 8px;font-size:11px;min-height:auto;background:#dc2626;" onclick="deleteCreditScore(${idx})"><i data-lucide="trash-2" style="width:14px;height:14px;"></i></button>
       </td>
