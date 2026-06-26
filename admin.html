@@ -323,6 +323,86 @@ tr:hover{background:#f8fafc;}
 @media(max-width:380px){
   .stats-grid{grid-template-columns:1fr;}
 }
+
+.modal-overlay{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.5);
+  z-index:2000;
+  justify-content:center;
+  align-items:center;
+}
+.modal-overlay.active{display:flex;}
+.modal-box{
+  background:white;
+  border-radius:16px;
+  width:90%;
+  max-width:520px;
+  max-height:90vh;
+  overflow-y:auto;
+  box-shadow:0 20px 60px rgba(0,0,0,.3);
+  animation:modalIn .2s ease;
+}
+@keyframes modalIn{from{transform:scale(.95);opacity:0;}to{transform:scale(1);opacity:1;}}
+.modal-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:20px 24px;
+  border-bottom:1px solid #e2e8f0;
+}
+.modal-header h2{margin:0;font-size:18px;color:#1e3a8a;display:flex;align-items:center;gap:8px;}
+.modal-close{
+  background:none;
+  border:none;
+  cursor:pointer;
+  padding:4px;
+  color:#94a3b8;
+  min-height:auto;
+}
+.modal-close:hover{color:#1e293b;background:none;}
+.modal-body{padding:24px;}
+.modal-body .detail-row{
+  display:flex;
+  justify-content:space-between;
+  padding:8px 0;
+  border-bottom:1px solid #f1f5f9;
+  font-size:14px;
+}
+.modal-body .detail-row .label{color:#64748b;font-weight:500;}
+.modal-body .detail-row .value{color:#1e293b;font-weight:600;}
+.modal-body h3{
+  font-size:14px;
+  color:#1e3a8a;
+  margin:16px 0 8px;
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.modal-body input{
+  width:100%;
+  padding:12px;
+  margin:8px 0 4px;
+  border-radius:8px;
+  border:1.5px solid #e2e8f0;
+  font-size:16px;
+  outline:none;
+}
+.modal-body input:focus{border-color:#2563eb;}
+.modal-footer{
+  display:flex;
+  gap:12px;
+  justify-content:flex-end;
+  padding:16px 24px;
+  border-top:1px solid #e2e8f0;
+}
+.modal-footer button{margin:0;min-height:40px;}
+.btn-secondary{
+  background:#e2e8f0;
+  color:#475569;
+}
+.btn-secondary:hover{background:#cbd5e1;}
 </style>
 </head>
 <body>
@@ -588,6 +668,23 @@ tr:hover{background:#f8fafc;}
 
 </div>
 </div>
+
+<!-- EDIT CREDIT SCORE MODAL -->
+<div class="modal-overlay" id="editScoreModal">
+<div class="modal-box">
+<div class="modal-header">
+<h2><i data-lucide="edit"></i> Edit Credit Score</h2>
+<button class="modal-close" onclick="closeEditModal()"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
+</div>
+<div class="modal-body" id="editModalBody">
+</div>
+<div class="modal-footer">
+<button class="btn-secondary" onclick="closeEditModal()">Cancel</button>
+<button onclick="saveEditedScore()"><i data-lucide="check"></i> Save Changes</button>
+</div>
+</div>
+</div>
+
 </section>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
@@ -1023,7 +1120,7 @@ window.runAiScoring = async function(){
     if (data.error) throw new Error(data.error);
     const parsed = JSON.parse(data.result);
     if (Array.isArray(parsed)) {
-      creditScores = parsed.map(c => ({ ...c, date: new Date().toLocaleDateString() }));
+      creditScores = parsed.map((c, i) => ({ ...c, loanId: loansList[i] ? loansList[i].loanId : c.loanId, date: new Date().toLocaleDateString() }));
     } else {
       throw new Error('Unexpected response format');
     }
@@ -1035,23 +1132,62 @@ window.runAiScoring = async function(){
   renderCreditScores();
 }
 
-window.editCreditScore = function(loanId){
-  const entry = creditScores.find(c => c.loanId === loanId);
+let editingScoreIdx = null;
+
+window.editCreditScore = function(idx){
+  const entry = creditScores[idx];
   if(!entry) return;
-  const newScore = prompt('Edit credit score for ' + entry.user + ' (loan: $' + entry.amount + '):', entry.score);
-  if(newScore === null) return;
-  const score = parseInt(newScore);
+  editingScoreIdx = idx;
+
+  const loan = dbLoans.find(l => l.id === entry.loanId);
+  const user = loan ? dbUsers.find(u => u.user_id === loan.user_id) : null;
+
+  document.getElementById('editModalBody').innerHTML = `
+    <h3>User Details</h3>
+    <div class="detail-row"><span class="label">Name</span><span class="value">${user ? (user.full_name||user.name||'—') : entry.user}</span></div>
+    <div class="detail-row"><span class="label">Email</span><span class="value">${user ? (user.email||'—') : '—'}</span></div>
+    <div class="detail-row"><span class="label">Phone</span><span class="value">${user ? (user.phone||'—') : '—'}</span></div>
+    <div class="detail-row"><span class="label">Joined</span><span class="value">${user && user.created_at ? new Date(user.created_at).toLocaleDateString() : '—'}</span></div>
+
+    <h3>Loan Details</h3>
+    <div class="detail-row"><span class="label">Loan Amount</span><span class="value">$${Number(entry.amount).toLocaleString()}</span></div>
+    <div class="detail-row"><span class="label">Purpose</span><span class="value">${entry.purpose||'—'}</span></div>
+    <div class="detail-row"><span class="label">Monthly Income</span><span class="value">${loan && loan.monthly_income ? '$'+Number(loan.monthly_income).toLocaleString() : '—'}</span></div>
+    <div class="detail-row"><span class="label">Employment</span><span class="value">${loan ? (loan.employment_status||'—') : '—'}</span></div>
+    <div class="detail-row"><span class="label">Repayment Period</span><span class="value">${loan ? (loan.repayment_period||'—') : '—'}</span></div>
+    <div class="detail-row"><span class="label">Status</span><span class="value">${loan ? (loan.status||'—') : '—'}</span></div>
+
+    <h3>Credit Score</h3>
+    <label style="font-size:13px;font-weight:600;color:#475569;">Score (0-100)</label>
+    <input id="editScoreInput" type="number" min="0" max="100" value="${entry.score}">
+  `;
+  document.getElementById('editScoreModal').classList.add('active');
+  try { lucide.createIcons(); } catch(e) {}
+}
+
+window.closeEditModal = function(){
+  document.getElementById('editScoreModal').classList.remove('active');
+  editingScoreIdx = null;
+}
+
+window.saveEditedScore = function(){
+  if(editingScoreIdx === null) return;
+  const entry = creditScores[editingScoreIdx];
+  if(!entry) return;
+  const input = document.getElementById('editScoreInput');
+  const score = parseInt(input.value);
   if(isNaN(score) || score < 0 || score > 100) return alert('Enter a valid score (0-100)');
   entry.score = score;
   entry.risk = score >= 70 ? 'Low' : score >= 50 ? 'Medium' : 'High';
   entry.decision = score >= 60 ? 'Approved' : 'Declined';
+  closeEditModal();
   renderCreditScores();
 }
 
-window.deleteCreditScore = function(loanId){
-  const entry = creditScores.find(c => c.loanId === loanId);
+window.deleteCreditScore = function(idx){
+  const entry = creditScores[idx];
   if(!entry || !confirm('Delete credit score for ' + entry.user + ' (loan: $' + entry.amount + ')?')) return;
-  creditScores = creditScores.filter(c => c.loanId !== loanId);
+  creditScores.splice(idx, 1);
   renderCreditScores();
 }
 
@@ -1062,7 +1198,7 @@ function renderCreditScores(){
     lucide.createIcons();
     return;
   }
-  tbody.innerHTML = creditScores.map(c => {
+  tbody.innerHTML = creditScores.map((c, idx) => {
     const riskCls = c.risk === 'Low' ? 'badge-success' : c.risk === 'Medium' ? 'badge-warning' : 'badge-danger';
     const decisionCls = c.decision === 'Approved' ? 'badge-success' : c.decision === 'Review' ? 'badge-warning' : 'badge-danger';
     return `<tr>
@@ -1074,8 +1210,8 @@ function renderCreditScores(){
       <td><span class="badge ${decisionCls}">${c.decision}</span></td>
       <td>${c.date}</td>
       <td>
-        <button style="padding:6px 8px;font-size:11px;min-height:auto;background:#f59e0b;margin-right:4px;" onclick="editCreditScore('${c.loanId}')"><i data-lucide="pencil" style="width:14px;height:14px;"></i></button>
-        <button style="padding:6px 8px;font-size:11px;min-height:auto;background:#dc2626;" onclick="deleteCreditScore('${c.loanId}')"><i data-lucide="trash-2" style="width:14px;height:14px;"></i></button>
+        <button style="padding:6px 8px;font-size:11px;min-height:auto;background:#f59e0b;margin-right:4px;" onclick="editCreditScore(${idx})"><i data-lucide="pencil" style="width:14px;height:14px;"></i></button>
+        <button style="padding:6px 8px;font-size:11px;min-height:auto;background:#dc2626;" onclick="deleteCreditScore(${idx})"><i data-lucide="trash-2" style="width:14px;height:14px;"></i></button>
       </td>
     </tr>`;
   }).join('');
