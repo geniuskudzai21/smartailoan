@@ -3,18 +3,9 @@ const fs = require('fs');
 const path = require('path');
 
 const PORT = 3456;
-const GROK_API_KEY = (() => {
-  try {
-    const envPath = path.join(__dirname, '.env');
-    const lines = fs.readFileSync(envPath, 'utf-8').split('\n');
-    for (const line of lines) {
-      const trimmed = line.trim();
-      if (trimmed.startsWith('GROK_API=')) return trimmed.slice(9);
-      if (trimmed.startsWith('GROK_API_KEY=')) return trimmed.slice(13);
-    }
-  } catch {}
-  return process.env.GROK_API || process.env.GROK_API_KEY || '';
-})();
+require('dotenv').config();
+
+const GROK_API_KEY = process.env.GROK_API_KEY || process.env.GROK_API || '';
 
 const MODEL = 'llama-3.3-70b-versatile';
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
