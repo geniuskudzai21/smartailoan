@@ -303,6 +303,30 @@ input:focus,select:focus,textarea:focus{border-color:#2563eb;}
   .file-grid{grid-template-columns:1fr;}
 }
 
+/* ===== SUPPORT SECTION ===== */
+.support-wrap{max-width:900px;}
+.support-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;}
+.support-card{background:#f8fafc;border-radius:12px;padding:20px;border:1px solid #e2e8f0;margin-bottom:20px;}
+.support-card h3{font-size:15px;font-weight:700;color:#1e3a8a;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.support-faq details{background:white;border-radius:8px;border:1px solid #e2e8f0;margin-bottom:8px;overflow:hidden;}
+.support-faq summary{padding:14px 16px;cursor:pointer;font-weight:600;font-size:14px;color:#1e293b;display:flex;align-items:center;gap:8px;list-style:none;}
+.support-faq summary::-webkit-details-marker{display:none;}
+.support-faq summary::after{content:'+';margin-left:auto;font-size:18px;color:#94a3b8;transition:transform .2s;}
+.support-faq details[open] summary::after{content:'−';}
+.support-faq details[open] summary{border-bottom:1px solid #e2e8f0;}
+.support-faq .faq-answer{padding:0 16px 14px;font-size:14px;color:#64748b;line-height:1.6;}
+.support-chat textarea{background:white;border:1.5px solid #e2e8f0;border-radius:8px;padding:12px;font-size:14px;width:100%;resize:vertical;min-height:100px;outline:none;margin:0 0 12px;font-family:inherit;box-sizing:border-box;}
+.support-chat textarea:focus{border-color:#2563eb;}
+.contact-list{display:flex;flex-direction:column;gap:10px;}
+.contact-item{display:flex;align-items:center;gap:12px;padding:12px;background:white;border-radius:8px;border:1px solid #e2e8f0;font-size:14px;color:#475569;}
+.contact-item i{color:#2563eb;flex-shrink:0;}
+.contact-item strong{color:#1e293b;}
+.support-info p{font-size:14px;color:#475569;line-height:1.7;margin-bottom:8px;}
+
+@media(max-width:768px){
+  .support-grid{grid-template-columns:1fr;}
+}
+
 /* ===== RESPONSIVE ===== */
 @media(max-width:1024px){
   .sidebar{width:240px;}
@@ -595,19 +619,56 @@ Already have an account? <a onclick="showLogin()">Sign In</a>
 </div>
 
 <div class="card section hidden" id="support">
-<h2><i data-lucide="life-buoy"></i> Support & Help</h2>
-<h3>FAQ</h3>
-<p>Frequently asked questions about loans, repayments and account management.</p>
-<h3>Chat Support</h3>
-<textarea rows="4" placeholder="Type your message here"></textarea>
-<button>Send Message</button>
-<h3>Contact Details</h3>
-<p>Email: support@smartloan.com</p>
-<p>Phone: +263 77 000 0000</p>
-<h3>About</h3>
+<div class="support-wrap">
+
+<div class="support-card support-faq">
+<h3><i data-lucide="help-circle" style="width:16px;height:16px;"></i> Frequently Asked Questions</h3>
+<details>
+<summary><i data-lucide="chevron-right" style="width:14px;height:14px;"></i> How do I apply for a loan?</summary>
+<div class="faq-answer">Navigate to "Apply for a Loan" from the sidebar, fill in your details, upload the required KYC documents, and submit. Your application will be reviewed and you'll receive a notification once processed.</div>
+</details>
+<details>
+<summary><i data-lucide="chevron-right" style="width:14px;height:14px;"></i> What documents are required?</summary>
+<div class="faq-answer">You need to upload a National ID, Payslip, Utility Bill, Insurance Documents, and Bank Statements. All documents must be clear and valid.</div>
+</details>
+<details>
+<summary><i data-lucide="chevron-right" style="width:14px;height:14px;"></i> How long does approval take?</summary>
+<div class="faq-answer">Most applications are processed within 24&ndash;48 hours. You will receive a notification once your application status is updated.</div>
+</details>
+<details>
+<summary><i data-lucide="chevron-right" style="width:14px;height:14px;"></i> How do I track my repayment schedule?</summary>
+<div class="faq-answer">Go to "Loan Repayment Status" in the sidebar to view all your active loans, repayment periods, and smart contract tracking details.</div>
+</details>
+</div>
+
+<div class="support-grid">
+<div class="support-card support-chat">
+<h3><i data-lucide="message-circle" style="width:16px;height:16px;"></i> Chat Support</h3>
+<textarea rows="4" placeholder="Type your message here..."></textarea>
+<button style="width:100%;justify-content:center;"><i data-lucide="send"></i> Send Message</button>
+</div>
+
+<div class="support-card">
+<h3><i data-lucide="phone" style="width:16px;height:16px;"></i> Contact Details</h3>
+<div class="contact-list">
+<div class="contact-item"><i data-lucide="mail" style="width:16px;height:16px;"></i> <strong>Email:</strong> support@smartloan.com</div>
+<div class="contact-item"><i data-lucide="phone" style="width:16px;height:16px;"></i> <strong>Phone:</strong> +263 77 000 0000</div>
+<div class="contact-item"><i data-lucide="clock" style="width:16px;height:16px;"></i> <strong>Hours:</strong> Mon&ndash;Fri, 8:00 AM &ndash; 6:00 PM</div>
+</div>
+</div>
+</div>
+
+<div class="support-card support-info">
+<h3><i data-lucide="info" style="width:16px;height:16px;"></i> About SmartLoan</h3>
 <p>This AI-powered banking application helps customers with digital banking, loan applications, KYC verification, AI credit scoring, repayment monitoring and financial analytics.</p>
-<h3>Terms & Conditions</h3>
-<p>All customers agree to responsible borrowing, credit verification and repayment compliance policies.</p>
+</div>
+
+<div class="support-card support-info">
+<h3><i data-lucide="file-text" style="width:16px;height:16px;"></i> Terms &amp; Conditions</h3>
+<p>All customers agree to responsible borrowing, credit verification and repayment compliance policies. By using SmartLoan, you consent to our data processing practices as outlined in our privacy policy.</p>
+</div>
+
+</div>
 </div>
 
 </div>
