@@ -280,6 +280,29 @@ input:focus,select:focus,textarea:focus{border-color:#2563eb;}
 
 .logout{text-align:right;margin-bottom:20px;}
 
+/* ===== LOAN FORM ===== */
+.loan-form{max-width:900px;}
+.loan-section{background:#f8fafc;border-radius:12px;padding:20px;margin-bottom:20px;border:1px solid #e2e8f0;}
+.loan-section-title{font-size:15px;font-weight:700;color:#1e3a8a;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.form-group{display:flex;flex-direction:column;}
+.form-group label{font-size:13px;font-weight:600;color:#475569;display:flex;align-items:center;gap:6px;margin-bottom:4px;}
+.form-group input,.form-group select{margin:0;}
+.file-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:8px;}
+.file-upload-zone{border:2px dashed #cbd5e1;border-radius:10px;padding:20px 16px;text-align:center;cursor:pointer;transition:all .2s;background:white;display:flex;flex-direction:column;align-items:center;gap:6px;}
+.file-upload-zone:hover{border-color:#2563eb;background:#eff6ff;}
+.file-upload-zone.has-file{border-color:#22c55e;background:#f0fdf4;}
+.file-upload-zone input[type=file]{display:none;}
+.file-upload-zone .upload-text{font-size:13px;color:#64748b;font-weight:500;}
+.file-upload-zone .upload-name{font-size:11px;color:#16a34a;font-weight:600;word-break:break-all;max-width:100%;}
+.btn-submit{background:linear-gradient(135deg,#1e3a8a,#2563eb);padding:14px 40px;font-size:16px;width:auto;justify-content:center;border-radius:10px;margin:8px auto 0;min-height:48px;}
+.btn-submit:hover{background:linear-gradient(135deg,#1e3a8a,#3b82f6);}
+
+@media(max-width:768px){
+  .form-row{grid-template-columns:1fr;}
+  .file-grid{grid-template-columns:1fr;}
+}
+
 /* ===== RESPONSIVE ===== */
 @media(max-width:1024px){
   .sidebar{width:240px;}
@@ -439,21 +462,87 @@ Already have an account? <a onclick="showLogin()">Sign In</a>
 </div>
 
 <div class="card section" id="loan">
-<h2><i data-lucide="hand-coins"></i> Apply for a Loan</h2>
-<input id="loanAmount" placeholder="Loan Amount Requested">
-<input id="loanPhone" type="tel" placeholder="Phone Number">
-<select id="loanPurpose"><option>Loan Purpose</option><option>Business</option><option>Education</option><option>Emergency</option><option>Personal</option></select>
-<input id="loanDate" type="date" placeholder="Preferred Date">
-<input id="loanIncome" placeholder="Monthly Income">
-<select id="loanEmployment"><option>Employment Status</option><option>Employed</option><option>Self Employed</option><option>Vendor</option><option>Unemployed</option></select>
-<select id="loanPeriod"><option>Repayment Period</option><option>3 Months</option><option>6 Months</option><option>12 Months</option><option>24 Months</option></select>
-<h3 style="margin-top:16px;"><i data-lucide="file-text" style="width:16px;height:16px;"></i> Upload KYC & Documents</h3>
-<label>National ID</label><input id="kycNationalId" type="file">
-<label>Payslip</label><input id="kycPayslip" type="file">
-<label>Utility Bill</label><input id="kycUtility" type="file">
-<label>Insurance Documents</label><input id="kycInsurance" type="file">
-<label>Bank Statements</label><input id="kycBank" type="file">
-<button onclick="submitLoan()"><i data-lucide="send"></i> Submit Loan Application</button>
+<div class="loan-form">
+
+<div class="loan-section">
+<div class="loan-section-title"><i data-lucide="clipboard-list" style="width:18px;height:18px;"></i> Loan Details</div>
+<div class="form-row">
+<div class="form-group">
+<label><i data-lucide="dollar-sign" style="width:14px;height:14px;"></i> Loan Amount</label>
+<input id="loanAmount" placeholder="e.g. 5000">
+</div>
+<div class="form-group">
+<label><i data-lucide="phone" style="width:14px;height:14px;"></i> Phone Number</label>
+<input id="loanPhone" type="tel" placeholder="e.g. +1 555 000 0000">
+</div>
+<div class="form-group">
+<label><i data-lucide="target" style="width:14px;height:14px;"></i> Loan Purpose</label>
+<select id="loanPurpose"><option value="">Select purpose</option><option>Business</option><option>Education</option><option>Emergency</option><option>Personal</option></select>
+</div>
+<div class="form-group">
+<label><i data-lucide="calendar" style="width:14px;height:14px;"></i> Preferred Date</label>
+<input id="loanDate" type="date">
+</div>
+</div>
+</div>
+
+<div class="loan-section">
+<div class="loan-section-title"><i data-lucide="briefcase" style="width:18px;height:18px;"></i> Financial Information</div>
+<div class="form-row">
+<div class="form-group">
+<label><i data-lucide="trending-up" style="width:14px;height:14px;"></i> Monthly Income</label>
+<input id="loanIncome" placeholder="e.g. 2000">
+</div>
+<div class="form-group">
+<label><i data-lucide="building" style="width:14px;height:14px;"></i> Employment Status</label>
+<select id="loanEmployment"><option value="">Select status</option><option>Employed</option><option>Self Employed</option><option>Vendor</option><option>Unemployed</option></select>
+</div>
+<div class="form-group">
+<label><i data-lucide="clock" style="width:14px;height:14px;"></i> Repayment Period</label>
+<select id="loanPeriod"><option value="">Select period</option><option>3 Months</option><option>6 Months</option><option>12 Months</option><option>24 Months</option></select>
+</div>
+</div>
+</div>
+
+<div class="loan-section">
+<div class="loan-section-title"><i data-lucide="file-text" style="width:18px;height:18px;"></i> KYC & Document Upload</div>
+<div class="file-grid">
+<div class="file-upload-zone" onclick="document.getElementById('kycNationalId').click()">
+<i data-lucide="id-card" style="width:24px;height:24px;color:#94a3b8;"></i>
+<div class="upload-text">National ID</div>
+<div class="upload-name" id="kycNationalIdName"></div>
+<input id="kycNationalId" type="file" onchange="document.getElementById('kycNationalIdName').textContent=this.files[0]?.name||'';this.closest('.file-upload-zone').classList.toggle('has-file',!!this.files[0])">
+</div>
+<div class="file-upload-zone" onclick="document.getElementById('kycPayslip').click()">
+<i data-lucide="receipt" style="width:24px;height:24px;color:#94a3b8;"></i>
+<div class="upload-text">Payslip</div>
+<div class="upload-name" id="kycPayslipName"></div>
+<input id="kycPayslip" type="file" onchange="document.getElementById('kycPayslipName').textContent=this.files[0]?.name||'';this.closest('.file-upload-zone').classList.toggle('has-file',!!this.files[0])">
+</div>
+<div class="file-upload-zone" onclick="document.getElementById('kycUtility').click()">
+<i data-lucide="file" style="width:24px;height:24px;color:#94a3b8;"></i>
+<div class="upload-text">Utility Bill</div>
+<div class="upload-name" id="kycUtilityName"></div>
+<input id="kycUtility" type="file" onchange="document.getElementById('kycUtilityName').textContent=this.files[0]?.name||'';this.closest('.file-upload-zone').classList.toggle('has-file',!!this.files[0])">
+</div>
+<div class="file-upload-zone" onclick="document.getElementById('kycInsurance').click()">
+<i data-lucide="shield" style="width:24px;height:24px;color:#94a3b8;"></i>
+<div class="upload-text">Insurance</div>
+<div class="upload-name" id="kycInsuranceName"></div>
+<input id="kycInsurance" type="file" onchange="document.getElementById('kycInsuranceName').textContent=this.files[0]?.name||'';this.closest('.file-upload-zone').classList.toggle('has-file',!!this.files[0])">
+</div>
+<div class="file-upload-zone" onclick="document.getElementById('kycBank').click()" style="grid-column:1/-1;">
+<i data-lucide="landmark" style="width:24px;height:24px;color:#94a3b8;"></i>
+<div class="upload-text">Bank Statements</div>
+<div class="upload-name" id="kycBankName"></div>
+<input id="kycBank" type="file" onchange="document.getElementById('kycBankName').textContent=this.files[0]?.name||'';this.closest('.file-upload-zone').classList.toggle('has-file',!!this.files[0])">
+</div>
+</div>
+</div>
+
+<button class="btn-submit" onclick="submitLoan()"><i data-lucide="send"></i> Submit Loan Application</button>
+
+</div>
 </div>
 
 <div class="card section hidden" id="verification">
@@ -879,7 +968,7 @@ window.submitLoan = async function(){
   const employment = document.getElementById('loanEmployment').value;
   const period = document.getElementById('loanPeriod').value;
 
-  if(!amount || !phone || purpose === 'Loan Purpose' || !income || employment === 'Employment Status' || period === 'Repayment Period'){
+  if(!amount || !phone || !purpose || !income || !employment || !period){
     return alert('Please complete all required fields.');
   }
 
