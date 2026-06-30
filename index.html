@@ -244,7 +244,9 @@ input:focus,select:focus,textarea:focus{border-color:#2563eb;}
 .sidebar div:not(.sidebar-footer){padding:12px;margin:10px 0;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:10px;}
 .sidebar div:not(.sidebar-footer):hover{background:#1e3a8a;}
 .sidebar div:not(.sidebar-footer):nth-last-child(2){margin-bottom:0;}
-.sidebar-footer{margin-top:auto;margin-bottom:0;padding:12px 0 0;border-top:1px solid #1e3a8a;font-size:13px;color:#93c5fd;display:flex;align-items:center;gap:8px;}
+.sidebar-footer{margin-top:auto;margin-bottom:0;padding:12px 0 0;border-top:1px solid #1e3a8a;font-size:13px;color:#93c5fd;display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.sidebar-footer .logout-btn{background:none;border:none;color:#f87171;cursor:pointer;font-size:13px;padding:4px 8px;min-height:auto;display:inline-flex;align-items:center;gap:4px;font-weight:500;}
+.sidebar-footer .logout-btn:hover{background:rgba(248,113,113,.1);border-radius:4px;color:#ef4444;}
 .main{flex:1;padding:20px;overflow-y:auto;min-width:0;}
 
 .card{
@@ -277,8 +279,6 @@ input:focus,select:focus,textarea:focus{border-color:#2563eb;}
 }
 
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
-
-.logout{text-align:right;margin-bottom:20px;}
 
 /* ===== LOAN FORM ===== */
 .loan-form{max-width:900px;}
@@ -475,15 +475,11 @@ Already have an account? <a onclick="showLogin()">Sign In</a>
 <div onclick="showSection('notifications')"><i data-lucide="bell"></i> Notification Centre</div>
 <div onclick="showSection('profile')"><i data-lucide="settings"></i> Profile & Account Settings</div>
 <div onclick="showSection('support')"><i data-lucide="life-buoy"></i> Support & Help</div>
-<div class="sidebar-footer" id="sidebarUser"><i data-lucide="user"></i> Not logged in</div>
+<div class="sidebar-footer"><span id="sidebarUser"><i data-lucide="user" style="width:14px;height:14px;"></i> Not logged in</span><button class="logout-btn" onclick="logout()"><i data-lucide="log-out" style="width:14px;height:14px;"></i> Logout</button></div>
 </div>
 <div class="sidebar-overlay" onclick="closeSidebar()"></div>
 
 <div class="main">
-
-<div class="logout">
-<button onclick="logout()"><i data-lucide="log-out"></i> Logout</button>
-</div>
 
 <div class="card section" id="loan">
 <div class="loan-form">
