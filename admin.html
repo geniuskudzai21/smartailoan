@@ -100,8 +100,8 @@ tr:hover{background:#f8fafc;}
 .header{
   background:#1e3a8a;
   color:white;
-  padding:15px;
-  font-size:clamp(18px,3vw,24px);
+  padding:20px 15px;
+  font-size:clamp(16px,2.5vw,22px);
   font-weight:bold;
   text-align:center;
   position:sticky;
@@ -109,9 +109,39 @@ tr:hover{background:#f8fafc;}
   z-index:100;
   display:flex;
   align-items:center;
-  justify-content:center;
+  justify-content:space-between;
   gap:8px;
 }
+
+.header-title{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.header-right{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.header-right .user-info{
+  font-size:13px;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  color:rgba(255,255,255,0.85);
+}
+
+.header-right button{
+  background:rgba(255,255,255,0.15);
+  padding:6px 14px;
+  min-height:34px;
+  font-size:13px;
+  border-radius:6px;
+}
+
+.header-right button:hover{background:rgba(255,255,255,0.3);}
 
 .hamburger{
   display:none;
@@ -211,17 +241,6 @@ tr:hover{background:#f8fafc;}
 .empty-state > i{display:block;margin:0 auto 12px;width:32px;height:32px;color:#cbd5e1;}
 .empty-state p{font-size:16px;margin-bottom:8px;}
 .empty-state .sub{font-size:13px;}
-
-.logout-bar{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:20px;
-  flex-wrap:wrap;
-  gap:10px;
-}
-
-.logout-bar .user-info{font-size:14px;color:#64748b;display:flex;align-items:center;gap:6px;}
 
 /* ===== AUTH OVERRIDES ===== */
 .auth-container{
@@ -459,8 +478,10 @@ tr:hover{background:#f8fafc;}
 
 <div class="header">
 <button class="hamburger" onclick="toggleSidebar()" aria-label="Toggle menu"><i data-lucide="menu"></i></button>
-<i data-lucide="sparkles"></i> SmartLoan - Admin Dashboard
-
+<div class="header-title"><i data-lucide="sparkles"></i> SmartLoan - Admin Dashboard</div>
+<div class="header-right">
+<button onclick="logout()"><i data-lucide="log-out" style="width:16px;height:16px;"></i>Sign Out</button>
+</div>
 </div>
 
 <div class="dashboard">
@@ -481,13 +502,6 @@ tr:hover{background:#f8fafc;}
 <div class="sidebar-overlay" onclick="closeSidebar()"></div>
 
 <div class="main">
-
-<div class="logout-bar">
-<div class="user-info"><i data-lucide="user" style="width:16px;height:16px;"></i> Logged in as <span id="adminEmail">admin@smartloan.com</span></div>
-<div style="display:flex;gap:10px;flex-wrap:wrap;">
-<button onclick="logout()"><i data-lucide="log-out"></i> Logout</button>
-</div>
-</div>
 
 <!-- OVERVIEW -->
 <div class="section" id="overview">
