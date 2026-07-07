@@ -170,6 +170,8 @@ input:focus,select:focus,textarea:focus{border-color:#2563eb;}
 .auth-card label{font-size:13px;font-weight:600;color:#475569;display:inline-flex;align-items:center;gap:6px;}
 
 .toggle-link{text-align:center;margin-top:14px;font-size:14px;color:#64748b;}
+.cursor{animation:blink .8s step-end infinite;font-weight:100;color:rgba(255,255,255,.8);}
+@keyframes blink{50%{opacity:0}}
 .toggle-link a{color:#2563eb;cursor:pointer;font-weight:600;}
 .toggle-link a:hover{text-decoration:underline;}
 

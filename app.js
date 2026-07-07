@@ -19,6 +19,27 @@ async function initApp() {
   document.getElementById('app').innerHTML = welcomeHtml + authHtml + dashboardHtml;
   lucide.createIcons();
   checkSession();
+  setTimeout(typeWriter, 500);
+}
+
+function typeWriter() {
+  const el = document.getElementById('typing-text');
+  if(!el) return;
+  const text = el.getAttribute('data-text');
+  if(!text) return;
+  el.textContent = '';
+  let i = 0;
+  function type() {
+    if(i < text.length){
+      el.textContent += text.charAt(i);
+      i++;
+      const delay = text.charAt(i-1) === '.' || text.charAt(i-1) === ',' || text.charAt(i-1) === '—' ? 120 : 30;
+      setTimeout(type, delay);
+    } else {
+      el.innerHTML += '<span class="cursor">|</span>';
+    }
+  }
+  type();
 }
 
 window.checkSession = async function(){
