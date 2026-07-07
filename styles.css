@@ -398,8 +398,8 @@ body.light-theme .btn-cta:hover{background:#2563eb;}
 .auth-card{
   background:var(--auth-card-bg);
   width:100%;
-  max-width:420px;
-  padding:36px;
+  max-width:380px;
+  padding:28px;
   border-radius:16px;
   box-shadow:0 0 40px var(--primary-glow),0 10px 40px rgba(0,0,0,.5);
   border:1px solid var(--auth-card-border);
