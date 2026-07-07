@@ -108,7 +108,34 @@ window.registerUser = async function(){
     }).catch(() => {});
   }
 
-  document.getElementById('authMessage').innerHTML = '<p style="color:green;">Registration Sucessful!</p>';
+  showToast('Account created successfully! Please sign in.', 'success');
+  document.getElementById('authMessage').innerHTML = '<p style="color:green;">Registration Successful! Redirecting...</p>';
+  setTimeout(() => showLogin(), 2000);
+}
+
+function showToast(message, type){
+  const existing = document.querySelector('.toast');
+  if(existing) existing.remove();
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.innerHTML = message;
+  Object.assign(toast.style, {
+    position: 'fixed', top: '20px', right: '20px', zIndex: '9999',
+    padding: '14px 20px', borderRadius: '10px', fontSize: '14px', fontWeight: '500',
+    color: '#fff', boxShadow: '0 4px 20px rgba(0,0,0,.2)', maxWidth: '400px',
+    background: type === 'success' ? '#16a34a' : type === 'error' ? '#dc2626' : '#2563eb',
+    opacity: '0', transform: 'translateY(-10px)', transition: 'all .3s'
+  });
+  document.body.appendChild(toast);
+  requestAnimationFrame(() => {
+    toast.style.opacity = '1';
+    toast.style.transform = 'translateY(0)';
+  });
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateY(-10px)';
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
 }
 
 window.loginUser = async function(){
@@ -651,9 +678,11 @@ window.submitLoan = async function(){
 
   let msg = 'Loan application submitted successfully!';
   if(uploadErrors.length){
-    msg += '\n\nCould not upload: ' + uploadErrors.join(', ') + '.\nMake sure the storage bucket exists in your Supabase project.';
+    msg = 'Submitted but some documents failed to upload: ' + uploadErrors.join(', ');
+    showToast(msg, 'error');
+  } else {
+    showToast('Loan application submitted successfully!', 'success');
   }
-  alert(msg);
 }
 
 initApp();

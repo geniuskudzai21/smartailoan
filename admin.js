@@ -602,7 +602,8 @@ window.saveEditLoan = async function(){
 
 window.deleteLoan = async function(id){
   if(!confirm('Delete this loan application?')) return;
-  await supabase.from('transactions').delete().eq('loan_id', id).catch(() => {});
+  const { error: txnErr } = await supabase.from('transactions').delete().eq('loan_id', id);
+  if(txnErr) return alert('Error deleting related payments: ' + txnErr.message);
   const { error } = await supabase.from('loan_applications').delete().eq('id', id);
   if(error) return alert('Error: ' + error.message);
   dbLoans = dbLoans.filter(l => l.id !== id);
@@ -696,9 +697,36 @@ Return a JSON array. For each loan provide: "loanId" (the loan ID), "user" (thei
   } catch (e) {
     tbody.innerHTML = `<tr class="no-card"><td colspan="8" style="text-align:center;padding:20px;color:#dc2626;"><p>AI scoring failed: ${e.message}</p></td></tr>`;
     lucide.createIcons();
+    showToast('AI scoring failed: ' + e.message, 'error');
     return;
   }
   renderCreditScores();
+  showToast('AI credit scoring completed for ' + creditScores.length + ' loan(s)', 'success');
+}
+
+function showToast(message, type){
+  const existing = document.querySelector('.toast');
+  if(existing) existing.remove();
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.innerHTML = message;
+  Object.assign(toast.style, {
+    position: 'fixed', top: '20px', right: '20px', zIndex: '9999',
+    padding: '14px 20px', borderRadius: '10px', fontSize: '14px', fontWeight: '500',
+    color: '#fff', boxShadow: '0 4px 20px rgba(0,0,0,.2)', maxWidth: '400px',
+    background: type === 'success' ? '#16a34a' : '#dc2626',
+    opacity: '0', transform: 'translateY(-10px)', transition: 'all .3s'
+  });
+  document.body.appendChild(toast);
+  requestAnimationFrame(() => {
+    toast.style.opacity = '1';
+    toast.style.transform = 'translateY(0)';
+  });
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateY(-10px)';
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
 }
 
 let editingScoreIdx = null;
