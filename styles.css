@@ -401,7 +401,7 @@ body.light-theme .btn-cta:hover{background:#2563eb;}
   max-width:380px;
   padding:28px;
   border-radius:16px;
-  box-shadow:0 0 40px var(--primary-glow),0 10px 40px rgba(0,0,0,.5);
+  box-shadow:0 0 15px var(--primary-glow),0 4px 20px rgba(0,0,0,.4);
   border:1px solid var(--auth-card-border);
 }
 body.light-theme .auth-card{box-shadow:0 10px 40px rgba(0,0,0,.12);}
