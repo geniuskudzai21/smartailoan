@@ -537,7 +537,7 @@ body.light-theme .auth-card{box-shadow:0 10px 40px rgba(0,0,0,.12);}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
 
 /* ===== LOAN FORM ===== */
-.loan-form{max-width:900px;}
+.loan-form{max-width:1100px;}
 .loan-section{background:var(--loan-section-bg);border-radius:12px;padding:20px;margin-bottom:20px;border:1px solid var(--loan-section-border);}
 .loan-section-title{font-size:15px;font-weight:700;color:var(--section-title);margin-bottom:16px;display:flex;align-items:center;gap:8px;}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
