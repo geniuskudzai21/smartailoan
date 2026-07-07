@@ -19,7 +19,7 @@ async function initAdmin() {
 }
 
 // ---- AUTH ----
-const ADMIN_EMAIL = 'admin@smartloan.com';
+let ADMIN_EMAIL = 'admin@smartloan.com';
 
 window.checkSession = async function(){
   const { data: { session } } = await supabase.auth.getSession();
@@ -172,6 +172,7 @@ async function loadDashboard(){
   dbDocs = docsRes.data || [];
   dbPayments = paymentsRes.data || [];
   dbTickets = ticketsRes.data || [];
+  if(ticketsRes.error) console.error('Tickets error:', ticketsRes.error);
   dbTxn = buildActivity();
 
   document.getElementById('statUsers').textContent = dbUsers.length;
@@ -235,7 +236,7 @@ function renderLoans(list){
     const applicantName = l.applicant || userMap[l.user_id] || '—';
     const loanDate = l.created_at ? new Date(l.created_at).toLocaleDateString() : (l.date || '—');
     return `<tr>
-      <td data-label="Applicant"><strong>${applicantName}</strong></td>
+      <td data-label="Applicant"><strong style="cursor:pointer;color:#2563eb;text-decoration:underline;" onclick="viewLoanAssessment('${l.id}')">${applicantName}</strong></td>
       <td data-label="Amount">$${Number(l.amount).toLocaleString()}</td>
       <td data-label="Purpose">${l.purpose||'—'}</td>
       <td data-label="Date">${loanDate}</td>
@@ -511,7 +512,6 @@ window.approveLoan = async function(btn, id){
   renderLoans(dbLoans);
   document.getElementById('statLoans').textContent = dbLoans.filter(l => l.status === 'Approved' || l.status === 'Disbursed').length;
   document.getElementById('statDisbursed').textContent = '$' + dbLoans.filter(l => l.status === 'Disbursed').reduce((s,l) => s + Number(l.amount), 0);
-  document.getElementById('statPending').textContent = dbLoans.filter(l => l.status === 'Pending').length;
 }
 
 window.declineLoan = async function(btn, id){
@@ -524,7 +524,6 @@ window.declineLoan = async function(btn, id){
   renderLoans(dbLoans);
   document.getElementById('statLoans').textContent = dbLoans.filter(l => l.status === 'Approved' || l.status === 'Disbursed').length;
   document.getElementById('statDisbursed').textContent = '$' + dbLoans.filter(l => l.status === 'Disbursed').reduce((s,l) => s + Number(l.amount), 0);
-  document.getElementById('statPending').textContent = dbLoans.filter(l => l.status === 'Pending').length;
 }
 
 let editingLoanId = null;
@@ -613,6 +612,44 @@ window.deleteLoan = async function(id){
   renderLoans(dbLoans);
 }
 
+window.viewLoanAssessment = function(loanId){
+  const loan = dbLoans.find(l => l.id === loanId);
+  if(!loan) return;
+  const userMap = {};
+  dbUsers.forEach(u => { userMap[u.user_id] = u.full_name || u.name || u.email || 'Unknown'; });
+  const name = loan.applicant || userMap[loan.user_id] || 'Unknown';
+  const riskCls = loan.ai_risk === 'Low' ? 'badge-success' : loan.ai_risk === 'Medium' ? 'badge-warning' : 'badge-danger';
+  if(document.getElementById('assessmentModal')) document.getElementById('assessmentModal').remove();
+  const modal = document.createElement('div');
+  modal.id = 'assessmentModal';
+  modal.innerHTML = `
+    <div class="modal-overlay active" onclick="this.parentElement.remove()">
+      <div class="modal-box" onclick="event.stopPropagation()" style="max-width:500px;">
+        <div class="modal-header">
+          <h2><i data-lucide="file-text"></i> Loan Details — ${name}</h2>
+          <button class="modal-close" onclick="this.closest('.modal-overlay').parentElement.remove()"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
+        </div>
+        <div class="modal-body">
+          <div class="detail-row"><span class="label">Loan Amount</span><span class="value">$${Number(loan.amount).toLocaleString()}</span></div>
+          <div class="detail-row"><span class="label">Purpose</span><span class="value">${loan.purpose||'—'}</span></div>
+          <div class="detail-row"><span class="label">Status</span><span class="value"><span class="badge ${loan.status === 'Approved' || loan.status === 'Disbursed' ? 'badge-success' : loan.status === 'Declined' ? 'badge-danger' : 'badge-warning'}">${loan.status||'—'}</span></span></div>
+          ${loan.ai_score != null ? `<div class="detail-row"><span class="label">Credit Score</span><span class="value">${loan.ai_score}%</span></div>` : ''}
+          ${loan.ai_risk ? `<div class="detail-row"><span class="label">Risk Level</span><span class="value"><span class="badge ${riskCls}">${loan.ai_risk}</span></span></div>` : ''}
+          ${loan.ai_decision ? `<div class="detail-row"><span class="label">AI Decision</span><span class="value"><span class="badge ${loan.ai_decision === 'Approved' ? 'badge-success' : loan.ai_decision === 'Review' ? 'badge-warning' : 'badge-danger'}">${loan.ai_decision}</span></span></div>` : ''}
+          <div style="margin-top:16px;padding:16px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;">
+            <div style="font-size:12px;font-weight:600;color:#64748b;margin-bottom:6px;">${loan.ai_reason ? 'AI Reason' : 'Notes'}</div>
+            <div style="font-size:14px;color:#1e293b;line-height:1.6;">${loan.ai_reason || 'No AI assessment available for this loan.'}</div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-secondary" onclick="this.closest('.modal-overlay').parentElement.remove()">Close</button>
+        </div>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+  try { lucide.createIcons(); } catch(e) {}
+}
+
 // ---- DOCUMENT VERIFICATION ----
 window.verifyDocument = async function(docId){
   if(!docId) return;
@@ -639,9 +676,10 @@ window.rejectDocument = async function(docId){
 let creditScores = [];
 
 window.runAiScoring = async function(){
-  if(!dbLoans.length){
+  const pendingLoans = dbLoans.filter(l => l.status === 'Pending');
+  if(!pendingLoans.length){
     const tbody = document.getElementById('creditScoreTable');
-    tbody.innerHTML = '<tr><td colspan="8" class="empty-state"><i data-lucide="brain" style="width:32px;height:32px;color:#cbd5e1;"></i><p>No loans to score</p></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8" class="empty-state"><i data-lucide="brain" style="width:32px;height:32px;color:#cbd5e1;"></i><p>No pending loans to score</p></td></tr>';
     lucide.createIcons();
     return;
   }
@@ -652,7 +690,7 @@ window.runAiScoring = async function(){
   const userMap = {};
   dbUsers.forEach(u => { userMap[u.user_id] = u.full_name || u.name || u.email || 'Unknown'; });
 
-  const loansList = dbLoans.map(l => ({
+  const loansList = pendingLoans.map(l => ({
     loanId: l.id,
     user: userMap[l.user_id] || 'Unknown',
     amount: l.amount,
@@ -692,6 +730,13 @@ Return a JSON array. For each loan provide: "loanId" (the loan ID), "user" (thei
           ai_decision: score.decision,
           ai_reason: score.reason || null
         }).eq('id', score.loanId);
+        const loan = dbLoans.find(l => l.id === score.loanId);
+        if(loan){
+          loan.ai_score = score.score;
+          loan.ai_risk = score.risk;
+          loan.ai_decision = score.decision;
+          loan.ai_reason = score.reason || null;
+        }
       }
     } else {
       throw new Error('Unexpected response format');
@@ -1021,7 +1066,8 @@ window.replyToTicket = async function(ticketId){
 // ---- MESSAGES ----
 async function renderMessages(){
   const container = document.getElementById('messagesContent');
-  const { data: tickets } = await supabase.from('support_tickets').select('*').order('created_at', { ascending: false });
+  const { data: tickets, error } = await supabase.from('support_tickets').select('*').order('created_at', { ascending: false });
+  if(error) console.error('Messages fetch error:', error);
   dbTickets = tickets || [];
 
   if(!dbTickets.length){

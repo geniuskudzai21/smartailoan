@@ -51,6 +51,7 @@ window.checkSession = async function(){
     document.getElementById('dashboardPage').classList.remove('hidden');
     document.getElementById('sidebarUser').textContent = session.user.user_metadata?.full_name || session.user.email;
     loadSupportHistory();
+  }
 }
 
 window.openAuth = function(){
@@ -535,19 +536,6 @@ window.renderProfile = async function(){
       <span id="passMsg" style="margin-left:12px;font-size:13px;"></span>
     </div>
 
-    <div style="border:1px solid #e2e8f0;border-radius:12px;padding:20px;">
-      <h3 style="margin:0 0 16px;color:#1e3a8a;font-size:16px;display:flex;align-items:center;gap:8px;"><i data-lucide="bell" style="width:18px;height:18px;"></i> Notification Preferences</h3>
-      <div style="display:flex;flex-direction:column;gap:12px;">
-        <label style="display:flex;align-items:center;gap:12px;cursor:pointer;font-size:14px;font-weight:500;">
-          <input type="checkbox" id="notifyEmail" ${profile.notify_email !== false ? 'checked' : ''} style="width:18px;height:18px;margin:0;"> Email Notifications (loan updates, offers)
-        </label>
-        <label style="display:flex;align-items:center;gap:12px;cursor:pointer;font-size:14px;font-weight:500;">
-          <input type="checkbox" id="notifySms" ${profile.notify_sms !== false ? 'checked' : ''} style="width:18px;height:18px;margin:0;"> SMS Notifications (payment reminders, alerts)
-        </label>
-      </div>
-      <button onclick="saveNotificationPrefs()" style="margin-top:16px;"><i data-lucide="save"></i> Save Preferences</button>
-      <span id="prefMsg" style="margin-left:12px;font-size:13px;"></span>
-    </div>
   `;
   try { lucide.createIcons(); } catch(e) {}
 }
@@ -743,5 +731,4 @@ window.loadSupportHistory = async function(){
     </div>`;
   }).join('');
 }
-
 initApp();
