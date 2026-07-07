@@ -254,8 +254,8 @@ tr:nth-child(even){background:var(--table-even);}
 
 .sidebar h2{margin-bottom:20px;font-size:18px;text-shadow:var(--admin-sidebar-heading-shadow);}
 .sidebar .menu-item{
-  padding:12px;
-  margin:6px 0;
+  padding:10px 12px;
+  margin:3px 0;
   border-radius:8px;
   cursor:pointer;
   font-size:14px;
