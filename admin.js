@@ -483,11 +483,16 @@ window.deleteUser = async function(id){
 
 window.approveLoan = async function(btn, id){
   if(id) {
-    const { error } = await supabase.from('loan_applications').update({status:'Approved'}).eq('id',id);
+    const loan = dbLoans.find(l => l.id === id);
+    const updates = { status: 'Approved' };
+    if (loan && !loan.remaining_balance) updates.remaining_balance = Number(loan.amount);
+    const { error } = await supabase.from('loan_applications').update(updates).eq('id',id);
     if(error) return alert('Approve failed: ' + error.message);
+    if(loan) {
+      loan.status = 'Approved';
+      if (!loan.remaining_balance) loan.remaining_balance = Number(loan.amount);
+    }
   }
-  const loan = dbLoans.find(l => l.id === id);
-  if(loan) loan.status = 'Approved';
   renderLoans(dbLoans);
   document.getElementById('statLoans').textContent = dbLoans.filter(l => l.status === 'Approved' || l.status === 'Disbursed').length;
   document.getElementById('statDisbursed').textContent = '$' + dbLoans.filter(l => l.status === 'Disbursed').reduce((s,l) => s + Number(l.amount), 0);
@@ -565,6 +570,9 @@ window.saveEditLoan = async function(){
   if(newAmount !== Number(loan.amount)) updates.amount = newAmount;
   if(newTerm !== (loan.term||loan.repayment_period||'')) updates.term = newTerm;
   if(newStatus !== loan.status) updates.status = newStatus;
+  if((newStatus === 'Approved' || newStatus === 'Disbursed') && !loan.remaining_balance) {
+    updates.remaining_balance = newAmount;
+  }
   if(Object.keys(updates).length === 0){
     closeEditLoanModal();
     return;

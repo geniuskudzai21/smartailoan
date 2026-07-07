@@ -44,6 +44,9 @@ ALTER TABLE loan_applications ADD COLUMN IF NOT EXISTS ai_score INT;
 ALTER TABLE loan_applications ADD COLUMN IF NOT EXISTS ai_risk TEXT;
 ALTER TABLE loan_applications ADD COLUMN IF NOT EXISTS ai_decision TEXT;
 ALTER TABLE loan_applications ADD COLUMN IF NOT EXISTS ai_reason TEXT;
+ALTER TABLE loan_applications ADD COLUMN IF NOT EXISTS remaining_balance DECIMAL(12,2);
+
+ALTER TABLE transactions ADD COLUMN IF NOT EXISTS loan_id UUID REFERENCES loan_applications(id);
 
 CREATE TABLE IF NOT EXISTS user_documents (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

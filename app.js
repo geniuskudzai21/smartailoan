@@ -202,41 +202,193 @@ window.renderRepayment = async function(){
   const { data: { session } } = await supabase.auth.getSession();
   if(!session) return;
 
-  const { data: loans, error } = await supabase
-    .from('loan_applications')
-    .select('*')
-    .eq('user_id', session.user.id)
-    .order('created_at', { ascending: false });
+  const [loansRes, paymentsRes] = await Promise.all([
+    supabase.from('loan_applications').select('*').eq('user_id', session.user.id).order('created_at', { ascending: false }),
+    supabase.from('transactions').select('*').eq('user_id', session.user.id).eq('type', 'loan_repayment').order('created_at', { ascending: false })
+  ]);
 
+  const loans = loansRes.data || [];
+  const payments = paymentsRes.data || [];
   const container = document.getElementById('repaymentContent');
 
-  if(error || !loans || !loans.length){
+  if(!loans.length){
     container.innerHTML = '<div class="empty-state"><i data-lucide="wallet" style="width:32px;height:32px;color:#cbd5e1;"></i><p>No loan applications yet.</p><div class="sub">Apply for a loan to see your repayment status here.</div></div>';
     try { lucide.createIcons(); } catch(e) {}
     return;
   }
 
-  container.innerHTML = loans.map(loan => {
-    const statusCls = loan.status === 'Disbursed' || loan.status === 'Approved' ? 'badge-success' : loan.status === 'Declined' ? 'badge-danger' : 'badge-warning';
-    const dateStr = loan.created_at ? new Date(loan.created_at).toLocaleDateString() : '—';
-    const incomeStr = loan.monthly_income ? '$' + Number(loan.monthly_income).toLocaleString() : '—';
-    const isActive = loan.status === 'Approved' || loan.status === 'Disbursed';
+  const activeLoans = loans.filter(l => l.status === 'Approved' || l.status === 'Disbursed');
+  const otherLoans = loans.filter(l => l.status !== 'Approved' && l.status !== 'Disbursed');
 
-    return `<div style="border:1px solid #e2e8f0;border-radius:12px;padding:16px;margin-bottom:12px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-        <strong style="font-size:16px;color:#1e3a8a;">Loan $${Number(loan.amount).toLocaleString()}</strong>
-        <span class="badge ${statusCls}">${loan.status}</span>
+  let html = '';
+
+  if(activeLoans.length){
+    const totalRemaining = activeLoans.reduce((s, l) => s + Number(l.remaining_balance || l.amount), 0);
+    const totalAmount = activeLoans.reduce((s, l) => s + Number(l.amount), 0);
+
+    html += `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:16px;">
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:12px;">
+        <div style="font-size:11px;color:#166534;">Outstanding Balance</div>
+        <div style="font-size:20px;font-weight:700;color:#16a34a;">$${totalRemaining.toLocaleString()}</div>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:14px;">
-        <div class="status"><span style="color:#64748b;">Purpose:</span> ${loan.purpose || '—'}</div>
-        <div class="status"><span style="color:#64748b;">Monthly Income:</span> ${incomeStr}</div>
-        <div class="status"><span style="color:#64748b;">Repayment Period:</span> ${loan.repayment_period || '—'}</div>
-        <div class="status"><span style="color:#64748b;">Applied:</span> ${dateStr}</div>
+      <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:12px;">
+        <div style="font-size:11px;color:#1e40af;">Total Borrowed</div>
+        <div style="font-size:20px;font-weight:700;color:#2563eb;">$${totalAmount.toLocaleString()}</div>
       </div>
-      ${isActive ? `<div style="margin-top:10px;padding-top:10px;border-top:1px solid #e2e8f0;font-size:13px;color:#16a34a;display:flex;align-items:center;gap:6px;"><i data-lucide="check-circle" style="width:14px;height:14px;"></i> Smart Contract: ACTIVE — Repayment tracking enabled</div>` : ''}
     </div>`;
-  }).join('');
+
+    activeLoans.forEach(loan => {
+      const remaining = Number(loan.remaining_balance || loan.amount);
+      const total = Number(loan.amount);
+      const paid = total - remaining;
+      const pct = total > 0 ? Math.round((paid / total) * 100) : 0;
+      const months = parseInt(loan.repayment_period) || 1;
+      const monthlyEst = total / months;
+      const dateStr = loan.created_at ? new Date(loan.created_at).toLocaleDateString() : '—';
+
+      html += `<div style="border:1px solid #e2e8f0;border-radius:12px;padding:16px;margin-bottom:12px;" id="loan-card-${loan.id}">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <strong style="font-size:16px;color:#1e3a8a;">Loan $${total.toLocaleString()}</strong>
+          <span class="badge badge-success">${loan.status}</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:14px;">
+          <div><span style="color:#64748b;">Remaining:</span> <strong>$${remaining.toLocaleString()}</strong></div>
+          <div><span style="color:#64748b;">Monthly Est:</span> <strong>$${monthlyEst.toFixed(2)}</strong></div>
+          <div><span style="color:#64748b;">Period:</span> ${loan.repayment_period || '—'}</div>
+          <div><span style="color:#64748b;">Applied:</span> ${dateStr}</div>
+        </div>
+        <div style="margin:12px 0 4px;">
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:#64748b;margin-bottom:4px;">
+            <span>Repayment Progress</span>
+            <span>${pct}%</span>
+          </div>
+          <div style="background:#e2e8f0;border-radius:99px;height:8px;overflow:hidden;">
+            <div style="background:${pct >= 100 ? '#16a34a' : '#3b82f6'};width:${pct}%;height:100%;border-radius:99px;transition:width .3s;"></div>
+          </div>
+        </div>
+        <div style="margin-top:10px;padding-top:10px;border-top:1px solid #e2e8f0;">
+          <button onclick="makePayment('${loan.id}')" style="padding:8px 16px;font-size:13px;background:#16a34a;color:white;border:none;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;">
+            <i data-lucide="wallet" style="width:14px;height:14px;"></i> Make Payment
+          </button>
+          <div id="payment-form-${loan.id}" class="hidden" style="margin-top:12px;padding:12px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;">
+            <label style="font-size:13px;font-weight:600;color:#475569;">Payment Amount ($)</label>
+            <div style="display:flex;gap:8px;margin-top:6px;">
+              <input id="payment-amount-${loan.id}" type="number" min="1" step="0.01" max="${remaining}" value="${Math.min(monthlyEst, remaining).toFixed(2)}" style="flex:1;">
+              <button onclick="submitPayment('${loan.id}')" style="padding:8px 16px;font-size:13px;background:#2563eb;color:white;border:none;border-radius:8px;cursor:pointer;">Pay</button>
+              <button onclick="document.getElementById('payment-form-${loan.id}').classList.add('hidden')" style="padding:8px 12px;font-size:13px;background:#94a3b8;color:white;border:none;border-radius:8px;cursor:pointer;">Cancel</button>
+            </div>
+            <div id="payment-msg-${loan.id}" style="margin-top:6px;font-size:12px;"></div>
+          </div>
+        </div>
+      </div>`;
+    });
+  }
+
+  if(otherLoans.length){
+    html += `<h3 style="margin:16px 0 12px;font-size:15px;color:#1e293b;display:flex;align-items:center;gap:8px;"><i data-lucide="clock" style="width:16px;height:16px;color:#f59e0b;"></i> Other Applications</h3>`;
+    otherLoans.forEach(loan => {
+      const statusCls = loan.status === 'Declined' ? 'badge-danger' : 'badge-warning';
+      const dateStr = loan.created_at ? new Date(loan.created_at).toLocaleDateString() : '—';
+      html += `<div style="border:1px solid #e2e8f0;border-radius:12px;padding:16px;margin-bottom:12px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <strong style="font-size:16px;color:#1e3a8a;">Loan $${Number(loan.amount).toLocaleString()}</strong>
+          <span class="badge ${statusCls}">${loan.status}</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:14px;">
+          <div><span style="color:#64748b;">Purpose:</span> ${loan.purpose || '—'}</div>
+          <div><span style="color:#64748b;">Period:</span> ${loan.repayment_period || '—'}</div>
+          <div><span style="color:#64748b;">Applied:</span> ${dateStr}</div>
+        </div>
+      </div>`;
+    });
+  }
+
+  if(payments.length){
+    html += `<h3 style="margin:16px 0 12px;font-size:15px;color:#1e293b;display:flex;align-items:center;gap:8px;"><i data-lucide="refresh-cw" style="width:16px;height:16px;color:#64748b;"></i> Payment History</h3>`;
+    html += `<div style="border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;">`;
+    payments.forEach(p => {
+      const dateStr = p.created_at ? new Date(p.created_at).toLocaleDateString() + ' ' + new Date(p.created_at).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) : '—';
+      html += `<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid #e2e8f0;font-size:14px;">
+        <div>
+          <strong style="color:#16a34a;">-$${Number(p.amount).toLocaleString()}</strong>
+          <span style="color:#64748b;margin-left:8px;font-size:12px;">${p.reference || 'Loan Repayment'}</span>
+        </div>
+        <span style="font-size:12px;color:#94a3b8;">${dateStr}</span>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  container.innerHTML = html;
   try { lucide.createIcons(); } catch(e) {}
+}
+
+window.makePayment = function(loanId){
+  const form = document.getElementById('payment-form-' + loanId);
+  if(form) form.classList.toggle('hidden');
+}
+
+window.submitPayment = async function(loanId){
+  const { data: { session } } = await supabase.auth.getSession();
+  if(!session) return;
+
+  const amountInput = document.getElementById('payment-amount-' + loanId);
+  const msgEl = document.getElementById('payment-msg-' + loanId);
+  const amount = parseFloat(amountInput.value);
+
+  if(!amount || amount <= 0){
+    msgEl.innerHTML = '<span style="color:#dc2626;">Please enter a valid amount.</span>';
+    return;
+  }
+
+  const { data: loan, error: loanErr } = await supabase
+    .from('loan_applications')
+    .select('*')
+    .eq('id', loanId)
+    .single();
+
+  if(loanErr || !loan){
+    msgEl.innerHTML = '<span style="color:#dc2626;">Loan not found.</span>';
+    return;
+  }
+
+  const remaining = Number(loan.remaining_balance || loan.amount);
+  if(amount > remaining){
+    msgEl.innerHTML = '<span style="color:#dc2626;">Amount exceeds remaining balance of $' + remaining.toLocaleString() + '.</span>';
+    return;
+  }
+
+  const newRemaining = remaining - amount;
+
+  const { error: txnErr } = await supabase.from('transactions').insert({
+    user_id: session.user.id,
+    loan_id: loanId,
+    type: 'loan_repayment',
+    amount: amount,
+    reference: 'Repayment - Loan #' + loanId.slice(0,8),
+    status: 'Completed'
+  });
+
+  if(txnErr){
+    msgEl.innerHTML = '<span style="color:#dc2626;">Error recording payment: ' + txnErr.message + '</span>';
+    return;
+  }
+
+  const { error: updateErr } = await supabase
+    .from('loan_applications')
+    .update({ remaining_balance: newRemaining })
+    .eq('id', loanId);
+
+  if(updateErr){
+    msgEl.innerHTML = '<span style="color:#dc2626;">Error updating balance: ' + updateErr.message + '</span>';
+    return;
+  }
+
+  msgEl.innerHTML = '<span style="color:#16a34a;">Payment successful! $' + amount.toLocaleString() + ' paid. Remaining: $' + newRemaining.toLocaleString() + '</span>';
+  amountInput.value = '';
+  document.getElementById('payment-form-' + loanId).classList.add('hidden');
+
+  setTimeout(() => renderRepayment(), 1500);
 }
 
 window.renderNotifications = async function(){
