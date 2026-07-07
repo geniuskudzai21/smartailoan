@@ -685,4 +685,35 @@ window.submitLoan = async function(){
   }
 }
 
+window.sendSupportMessage = async function(){
+  const { data: { session } } = await supabase.auth.getSession();
+  if(!session) return showToast('Please login first.', 'error');
+
+  const input = document.getElementById('supportMessage');
+  const status = document.getElementById('supportMsgStatus');
+  const message = input.value.trim();
+
+  if(!message) {
+    status.innerHTML = '<span style="color:#dc2626;">Please enter a message.</span>';
+    return;
+  }
+
+  const { error } = await supabase.from('support_tickets').insert({
+    user_id: session.user.id,
+    subject: 'Support Request',
+    message: message,
+    status: 'Open'
+  });
+
+  if(error) {
+    status.innerHTML = '<span style="color:#dc2626;">Error: ' + error.message + '</span>';
+    return;
+  }
+
+  input.value = '';
+  status.innerHTML = '<span style="color:#16a34a;">Message sent! Admin will respond shortly.</span>';
+  showToast('Message sent to admin successfully!', 'success');
+  setTimeout(() => status.innerHTML = '', 4000);
+}
+
 initApp();

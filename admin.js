@@ -79,13 +79,12 @@ window.showSection = function(id){
   document.querySelector(`.menu-item[onclick*="'${id}'"]`).classList.add('active');
   closeSidebar();
   if(id === 'alerts') renderAlerts();
-  if(id === 'notifications') renderNotifications();
   if(id === 'contracts') renderContracts();
   if(id === 'payments') renderPayments();
 }
 
 // ---- LOAD DASHBOARD ----
-let dbUsers = [], dbLoans = [], dbTxn = [], dbDocs = [], dbPayments = [];
+let dbUsers = [], dbLoans = [], dbTxn = [], dbDocs = [], dbPayments = [], dbTickets = [];
 
 function buildActivity(){
   const activities = [];
@@ -157,11 +156,12 @@ function buildActivity(){
 }
 
 async function loadDashboard(){
-  const [usersRes, loansRes, docsRes, paymentsRes] = await Promise.all([
+  const [usersRes, loansRes, docsRes, paymentsRes, ticketsRes] = await Promise.all([
     supabase.from('profiles').select('*'),
     supabase.from('loan_applications').select('*'),
     supabase.from('user_documents').select('*'),
     supabase.from('transactions').select('*').eq('type', 'loan_repayment').order('created_at', { ascending: false }),
+    supabase.from('support_tickets').select('*').order('created_at', { ascending: false }),
   ]);
   if(usersRes.error) console.error('Profiles error:', usersRes.error);
   if(loansRes.error) console.error('Loans error:', loansRes.error);
@@ -170,6 +170,7 @@ async function loadDashboard(){
   dbLoans = loansRes.data || [];
   dbDocs = docsRes.data || [];
   dbPayments = paymentsRes.data || [];
+  dbTickets = ticketsRes.data || [];
   dbTxn = buildActivity();
 
   document.getElementById('statUsers').textContent = dbUsers.length;
@@ -185,7 +186,6 @@ async function loadDashboard(){
   renderActivity(dbTxn);
   renderDocuments(dbDocs);
   renderCharts();
-  runAiScoring();
 }
 
 // ---- RENDER HELPERS ----
@@ -477,7 +477,8 @@ window.deleteUser = async function(id){
   const user = dbUsers.find(u => u.id === id || u.user_id === id);
   if(!user) return alert('User not found.');
   const userId = user.user_id || user.id;
-  const results = await Promise.all([
+  const results =   await Promise.all([
+    supabase.from('support_tickets').delete().eq('user_id', userId),
     supabase.from('transactions').delete().eq('user_id', userId),
     supabase.from('profiles').delete().eq('id', user.id),
     supabase.from('loan_applications').delete().eq('user_id', userId),
@@ -776,6 +777,12 @@ window.editCreditScore = function(idx){
       <option value="Approved" ${entry.decision === 'Approved' ? 'selected' : ''}>Approved</option>
       <option value="Declined" ${entry.decision === 'Declined' ? 'selected' : ''}>Declined</option>
     </select>
+
+    ${entry.reason ? `
+    <div style="margin-top:16px;padding:14px;background:${entry.decision === 'Approved' ? '#f0fdf4' : entry.decision === 'Declined' ? '#fef2f2' : '#fffbeb'};border-radius:8px;border:1px solid ${entry.decision === 'Approved' ? '#bbf7d0' : entry.decision === 'Declined' ? '#fecaca' : '#fde68a'};">
+      <div style="font-size:12px;font-weight:600;color:#475569;margin-bottom:4px;">AI Assessment</div>
+      <div style="font-size:13px;color:#1e293b;line-height:1.5;">${entry.reason}</div>
+    </div>` : ''}
   `;
   document.getElementById('editScoreModal').classList.add('active');
   try { lucide.createIcons(); } catch(e) {}
@@ -830,7 +837,7 @@ function renderCreditScores(){
     const riskCls = c.risk === 'Low' ? 'badge-success' : c.risk === 'Medium' ? 'badge-warning' : 'badge-danger';
     const decisionCls = c.decision === 'Approved' ? 'badge-success' : c.decision === 'Review' ? 'badge-warning' : 'badge-danger';
     return `<tr>
-      <td data-label="User"><strong>${c.user}</strong></td>
+      <td data-label="User"><strong style="cursor:pointer;color:#2563eb;text-decoration:underline;" onclick="editCreditScore(${idx})">${c.user}</strong></td>
       <td data-label="Loan Amount">$${Number(c.amount).toLocaleString()}</td>
       <td data-label="Purpose">${c.purpose||'—'}</td>
       <td data-label="Credit Score">${c.score}%</td>
@@ -850,7 +857,19 @@ function renderCreditScores(){
 // ---- ALERTS ----
 function renderAlerts(){
   const container = document.getElementById('alertsContent');
+  const userMap = {};
+  dbUsers.forEach(u => { userMap[u.user_id] = u.full_name || u.name || u.email || 'Unknown'; });
   const alerts = [];
+
+  // Support tickets from users
+  const openTickets = (dbTickets || []).filter(t => t.status === 'Open');
+  if(openTickets.length){
+    alerts.push({ type:'divider', title:'<div style="margin:0 0 8px;font-size:14px;font-weight:700;color:#1e293b;display:flex;align-items:center;gap:8px;"><i data-lucide="message-circle" style="width:16px;height:16px;"></i> User Messages (' + openTickets.length + ')</div>' });
+    openTickets.forEach(t => {
+      const name = userMap[t.user_id] || t.user_id?.slice(0, 8) || 'Unknown';
+      alerts.push({ icon:'message-circle', color:'#3b82f6', title: name, desc: t.message || t.subject || '—', time: t.created_at });
+    });
+  }
 
   dbLoans.forEach(l => {
     if(l.status === 'Pending' && l.ai_risk === 'High'){
@@ -882,11 +901,36 @@ function renderAlerts(){
   alerts.sort((a, b) => new Date(b.time||0) - new Date(a.time||0));
 
   if(!alerts.length){
-    container.innerHTML = '<div class="empty-state"><i data-lucide="bell-ring" style="width:32px;height:32px;color:#cbd5e1;"></i><p>No alerts</p></div>';
+    container.innerHTML = '<div class="empty-state"><i data-lucide="bell-ring" style="width:32px;height:32px;color:#cbd5e1;"></i><p>No alerts or messages</p></div>';
     lucide.createIcons();
     return;
   }
-  container.innerHTML = alerts.map(a => `
+
+  let html = '';
+
+  // User messages section
+  const messages = (dbTickets || []).filter(t => t.status === 'Open');
+  if(messages.length){
+    html += '<h3 style="margin:0 0 12px;font-size:15px;color:#1e293b;display:flex;align-items:center;gap:8px;"><i data-lucide="message-circle" style="width:16px;height:16px;color:#3b82f6;"></i> User Messages</h3>';
+    messages.forEach(t => {
+      const name = userMap[t.user_id] || t.user_id?.slice(0, 8) || 'Unknown';
+      const dateStr = t.created_at ? new Date(t.created_at).toLocaleDateString() + ' ' + new Date(t.created_at).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) : '';
+      html += `<div style="display:flex;align-items:flex-start;gap:12px;padding:12px;border:1px solid #bfdbfe;border-radius:10px;margin-bottom:8px;background:#eff6ff;">
+        <i data-lucide="message-circle" style="width:20px;height:20px;color:#3b82f6;flex-shrink:0;margin-top:2px;"></i>
+        <div style="flex:1;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <strong style="font-size:14px;color:#1e40af;">${name}</strong>
+            <span style="font-size:11px;color:#94a3b8;">${dateStr}</span>
+          </div>
+          <p style="margin:4px 0 0;font-size:13px;color:#475569;line-height:1.4;">${t.message || t.subject || '—'}</p>
+        </div>
+      </div>`;
+    });
+  }
+
+  html += '<h3 style="margin:16px 0 12px;font-size:15px;color:#1e293b;display:flex;align-items:center;gap:8px;"><i data-lucide="bell-ring" style="width:16px;height:16px;color:#f59e0b;"></i> System Alerts</h3>';
+
+  html += alerts.map(a => `
     <div class="alert-item" style="display:flex;align-items:flex-start;gap:12px;padding:12px;border-bottom:1px solid #e2e8f0;">
       <i data-lucide="${a.icon}" style="width:20px;height:20px;color:${a.color};flex-shrink:0;margin-top:2px;"></i>
       <div style="flex:1;">
@@ -896,7 +940,8 @@ function renderAlerts(){
       <span style="font-size:11px;color:#94a3b8;white-space:nowrap;">${a.time ? new Date(a.time).toLocaleDateString() : ''}</span>
     </div>
   `).join('');
-  lucide.createIcons();
+
+  container.innerHTML = html;
 }
 
 // ---- RISK ----
@@ -962,58 +1007,6 @@ function renderRisk(){
 }
 
 // ---- NOTIFICATIONS (ADMIN) ----
-function renderNotifications(){
-  const container = document.getElementById('notifContent');
-  const notes = [];
-
-  dbLoans.forEach(l => {
-    const name = l.applicant || 'Unknown';
-    if(l.status === 'Pending'){
-      notes.push({ icon:'file-plus', color:'#3b82f6', title:'New Loan Application', desc:`${name} applied for $${Number(l.amount).toLocaleString()} (${l.purpose||'—'}).`, time: l.created_at });
-    }
-    if(l.status === 'Approved' || l.status === 'Disbursed'){
-      notes.push({ icon:'check-circle', color:'#16a34a', title:`Loan ${l.status}`, desc:`${name}'s loan of $${Number(l.amount).toLocaleString()} has been ${l.status.toLowerCase()}.`, time: l.created_at });
-    }
-    if(l.status === 'Declined'){
-      notes.push({ icon:'x-circle', color:'#dc2626', title:'Loan Declined', desc:`${name}'s loan of $${Number(l.amount).toLocaleString()} was declined.`, time: l.created_at });
-    }
-    if(l.ai_reason){
-      notes.push({ icon:'brain', color:'#8b5cf6', title:'AI Assessment Completed', desc:`${name}: ${l.ai_reason}`, time: l.created_at });
-    }
-  });
-
-  dbDocs.forEach(d => {
-    if(d.status === 'Verified'){
-      notes.push({ icon:'shield-check', color:'#16a34a', title:'Document Verified', desc:`${d.document_type} from user ${d.user_id} approved.`, time: d.updated_at || d.uploaded_at });
-    }
-    if(d.status === 'Rejected'){
-      notes.push({ icon:'shield-off', color:'#dc2626', title:'Document Rejected', desc:`${d.document_type} from user ${d.user_id} rejected.`, time: d.updated_at || d.uploaded_at });
-    }
-    if(d.status === 'Pending'){
-      notes.push({ icon:'clock', color:'#f59e0b', title:'Document Uploaded', desc:`${d.document_type} from user ${d.user_id} awaiting verification.`, time: d.uploaded_at });
-    }
-  });
-
-  notes.sort((a, b) => new Date(b.time||0) - new Date(a.time||0));
-
-  if(!notes.length){
-    container.innerHTML = '<div class="empty-state"><i data-lucide="bell" style="width:32px;height:32px;color:#cbd5e1;"></i><p>No notifications</p></div>';
-    lucide.createIcons();
-    return;
-  }
-  container.innerHTML = notes.map(n => `
-    <div class="notif-item" style="display:flex;align-items:flex-start;gap:12px;padding:12px;border-bottom:1px solid #e2e8f0;">
-      <i data-lucide="${n.icon}" style="width:20px;height:20px;color:${n.color};flex-shrink:0;margin-top:2px;"></i>
-      <div style="flex:1;">
-        <strong style="font-size:14px;color:#1e293b;">${n.title}</strong>
-        <p style="margin:4px 0 0;font-size:13px;color:#64748b;">${n.desc}</p>
-      </div>
-      <span style="font-size:11px;color:#94a3b8;white-space:nowrap;">${n.time ? new Date(n.time).toLocaleDateString() : ''}</span>
-    </div>
-  `).join('');
-  lucide.createIcons();
-}
-
 // ---- SMART CONTRACTS ----
 function renderContracts(){
   const container = document.getElementById('contractsContent');

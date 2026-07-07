@@ -182,8 +182,9 @@
 <div class="support-grid">
 <div class="support-card support-chat">
 <h3><i data-lucide="message-circle" style="width:16px;height:16px;"></i> Chat Support</h3>
-<textarea rows="4" placeholder="Type your message here..."></textarea>
-<button style="width:100%;justify-content:center;"><i data-lucide="send"></i> Send Message</button>
+<textarea id="supportMessage" rows="4" placeholder="Type your message here..."></textarea>
+<button onclick="sendSupportMessage()" style="width:100%;justify-content:center;"><i data-lucide="send"></i> Send Message</button>
+<div id="supportMsgStatus" style="font-size:12px;margin-top:6px;"></div>
 </div>
 
 <div class="support-card">
