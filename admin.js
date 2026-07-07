@@ -174,9 +174,11 @@ async function loadDashboard(){
 
   document.getElementById('statUsers').textContent = dbUsers.length;
   document.getElementById('statLoans').textContent = dbLoans.filter(l => l.status === 'Approved' || l.status === 'Disbursed').length;
-  document.getElementById('statDisbursed').textContent = '$' + dbLoans.filter(l => l.status === 'Disbursed').reduce((s,l) => s + Number(l.amount), 0);
+  var totalDisbursed = dbLoans.filter(l => l.status === 'Approved' || l.status === 'Disbursed').reduce((s,l) => s + Number(l.amount), 0);
+  var totalRepaid = dbPayments.reduce((s, p) => s + Number(p.amount), 0);
+  document.getElementById('statDisbursed').textContent = '$' + (totalDisbursed - totalRepaid).toLocaleString();
   document.getElementById('statPending').textContent = dbLoans.filter(l => l.status === 'Pending').length;
-  document.getElementById('statRepaid').textContent = '$' + dbPayments.reduce((s, p) => s + Number(p.amount), 0).toLocaleString();
+  document.getElementById('statRepaid').textContent = '$' + totalRepaid.toLocaleString();
   document.getElementById('statCollected').textContent = '$' + dbPayments.reduce((s, p) => s + Number(p.amount), 0).toLocaleString();
   document.getElementById('statPayCount').textContent = dbPayments.length;
   renderUsers(dbUsers);
