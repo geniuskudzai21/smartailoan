@@ -477,15 +477,20 @@ window.deleteUser = async function(id){
   const user = dbUsers.find(u => u.id === id || u.user_id === id);
   if(!user) return alert('User not found.');
   const userId = user.user_id || user.id;
-  await Promise.all([
+  const results = await Promise.all([
     supabase.from('transactions').delete().eq('user_id', userId),
     supabase.from('profiles').delete().eq('id', user.id),
     supabase.from('loan_applications').delete().eq('user_id', userId),
     supabase.from('user_documents').delete().eq('user_id', userId),
   ]);
+  const errors = results.filter(r => r.error).map(r => r.error.message);
+  if(errors.length){
+    return alert('Delete failed (RLS policy may be blocking):\n' + errors.join('\n'));
+  }
   dbUsers = dbUsers.filter(u => (u.id !== user.id && u.user_id !== userId));
   dbLoans = dbLoans.filter(l => l.user_id !== userId);
   dbDocs = dbDocs.filter(d => d.user_id !== userId);
+  dbPayments = dbPayments.filter(p => p.user_id !== userId);
   renderUsers(dbUsers);
 }
 
