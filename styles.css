@@ -329,6 +329,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--input-focus-border);b
   -webkit-text-fill-color:transparent;
   background-clip:text;
 }
+body.light-theme .welcome-content h1{background:none;-webkit-text-fill-color:white;color:white;}
 
 .welcome-content p{
   font-size:clamp(14px,2vw,16px);
@@ -371,6 +372,8 @@ input:focus,select:focus,textarea:focus{border-color:var(--input-focus-border);b
 }
 
 .btn-cta:hover{background:var(--btn-cta-hover);box-shadow:0 0 40px var(--primary-hover-glow);}
+body.light-theme .btn-cta{background:#1e3a8a;color:white;box-shadow:0 4px 15px rgba(0,0,0,.15);}
+body.light-theme .btn-cta:hover{background:#2563eb;}
 
 .footer{
   padding:20px;
