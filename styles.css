@@ -554,8 +554,10 @@ body.light-theme .auth-card{box-shadow:0 10px 40px rgba(0,0,0,.12);}
 .btn-submit{background:var(--btn-submit-bg);padding:14px 40px;font-size:16px;width:auto;justify-content:center;border-radius:10px;margin:8px auto 0;min-height:48px;color:var(--bg);}
 .btn-submit:hover{background:var(--btn-submit-hover);}
 
+.loan-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
 @media(max-width:768px){
   .form-row{grid-template-columns:1fr;}
+  .loan-grid{grid-template-columns:1fr;}
   .file-grid{grid-template-columns:1fr;}
 }
 
