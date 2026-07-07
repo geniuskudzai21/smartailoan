@@ -1046,7 +1046,25 @@ function renderContracts(){
 }
 
 // ---- PAYMENTS ----
-function renderPayments(){
+async function renderPayments(){
+  const { data: freshPayments } = await supabase
+    .from('transactions')
+    .select('*')
+    .eq('type', 'loan_repayment')
+    .order('created_at', { ascending: false });
+
+  dbPayments = freshPayments || [];
+
+  const [usersRes, loansRes] = await Promise.all([
+    supabase.from('profiles').select('*'),
+    supabase.from('loan_applications').select('*')
+  ]);
+  dbUsers = usersRes.data || [];
+  dbLoans = loansRes.data || [];
+
+  document.getElementById('statCollected').textContent = '$' + dbPayments.reduce((s, p) => s + Number(p.amount), 0).toLocaleString();
+  document.getElementById('statPayCount').textContent = dbPayments.length;
+
   const tbody = document.getElementById('paymentTable');
   const userMap = {};
   dbUsers.forEach(u => { userMap[u.user_id] = u.full_name || u.name || u.email || 'Unknown'; });
