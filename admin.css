@@ -96,7 +96,7 @@ input,select,textarea{
   margin:10px 0;
   border-radius:8px;
   border:1.5px solid var(--input-border);
-  font-size:16px;
+  font-size:14px;
   outline:none;
   background:var(--input-bg);
   color:var(--text);
@@ -266,7 +266,7 @@ tr:nth-child(even){background:var(--table-even);}
 }
 .sidebar .menu-item:hover,.sidebar .menu-item.active{background:var(--sidebar-item-hover-bg);box-shadow:0 0 15px var(--sidebar-item-glow);}
 body.light-theme .sidebar .menu-item{border:none;}
-.sidebar-footer{margin-top:auto;padding:12px 0;border-top:1px solid var(--sidebar-footer-border);font-size:13px;color:var(--sidebar-user-text);display:flex;align-items:center;gap:0px;}
+.sidebar-footer{margin-top:auto;padding:12px 0;border-top:1px solid var(--sidebar-footer-border);font-size:13px;color:var(--sidebar-user-text);display:flex;align-items:center;justify-content:space-between;gap:8px;}
 
 .main{flex:1;padding:20px;overflow-y:auto;min-width:0;}
 
@@ -470,7 +470,7 @@ body.light-theme .sidebar .menu-item{border:none;}
   margin:8px 0 4px;
   border-radius:8px;
   border:1.5px solid var(--input-border);
-  font-size:16px;
+  font-size:14px;
   outline:none;
   background:var(--input-bg);
   color:var(--text);

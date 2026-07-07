@@ -311,13 +311,22 @@ window.renderProfile = async function(){
   const { data: { session } } = await supabase.auth.getSession();
   if(!session) return;
 
-  let { data: profile } = await supabase.from('profiles').select('*').eq('user_id', session.user.id).single();
+  const { data: profile, error: fetchErr } = await supabase.from('profiles').select('*').eq('user_id', session.user.id).single();
+  if(fetchErr && fetchErr.code !== 'PGRST116'){
+    document.getElementById('profileContent').innerHTML = `<div class="empty-state"><p style="color:#dc2626;">Error loading profile: ${fetchErr.message}</p></div>`;
+    return;
+  }
+
   if(!profile){
-    const { data: newProfile } = await supabase.from('profiles').insert({
+    const { data: newProfile, error: insertErr } = await supabase.from('profiles').insert({
       user_id: session.user.id,
       full_name: session.user.user_metadata?.full_name || '',
       email: session.user.email
     }).select().single();
+    if(insertErr){
+      document.getElementById('profileContent').innerHTML = `<div class="empty-state"><p style="color:#dc2626;">Could not create profile: ${insertErr.message}</p></div>`;
+      return;
+    }
     profile = newProfile;
   }
 
@@ -331,8 +340,6 @@ window.renderProfile = async function(){
       <input id="profileEmail" value="${profile.email || session.user.email || ''}" placeholder="Email address" disabled style="background:#f1f5f9;cursor:not-allowed;">
       <label style="font-size:13px;font-weight:600;color:#475569;margin-top:12px;display:block;">Phone</label>
       <input id="profilePhone" value="${profile.phone || ''}" placeholder="Enter phone number" type="tel">
-      <label style="font-size:13px;font-weight:600;color:#475569;margin-top:12px;display:block;">Residential Address</label>
-      <input id="profileAddress" value="${profile.residential_address || ''}" placeholder="Enter your address">
       <button onclick="saveProfile()" style="margin-top:16px;"><i data-lucide="save"></i> Save Changes</button>
       <span id="profileSaveMsg" style="margin-left:12px;font-size:13px;"></span>
     </div>
@@ -371,10 +378,9 @@ window.saveProfile = async function(){
   if(!session) return;
   const name = document.getElementById('profileName').value.trim();
   const phone = document.getElementById('profilePhone').value.trim();
-  const address = document.getElementById('profileAddress').value.trim();
   if(!name) return document.getElementById('profileSaveMsg').textContent = 'Name is required.';
   const { error } = await supabase.from('profiles').update({
-    full_name: name, phone: phone || null, residential_address: address || null
+    full_name: name, phone: phone || null
   }).eq('user_id', session.user.id);
   const msg = document.getElementById('profileSaveMsg');
   if(error){ msg.innerHTML = '<span style="color:#dc2626;">Error: ' + error.message + '</span>'; return; }

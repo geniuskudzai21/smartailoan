@@ -25,7 +25,7 @@ window.checkSession = async function(){
   const { data: { session } } = await supabase.auth.getSession();
   if(session && session.user.email === ADMIN_EMAIL){
     document.getElementById('adminDashboard').classList.remove('hidden');
-    document.getElementById('adminEmail').textContent = session.user.email;
+    document.querySelector('#adminSidebarUser span').textContent = session.user.email;
     loadDashboard();
   } else if(session){
     await supabase.auth.signOut();
@@ -79,7 +79,6 @@ window.showSection = function(id){
   document.querySelector(`.menu-item[onclick*="'${id}'"]`).classList.add('active');
   closeSidebar();
   if(id === 'alerts') renderAlerts();
-  if(id === 'risk') renderRisk();
   if(id === 'notifications') renderNotifications();
   if(id === 'contracts') renderContracts();
 }
@@ -244,7 +243,7 @@ function renderLoans(list){
   lucide.createIcons();
 }
 
-function renderActivity(txns, showAllFlag){
+function renderActivity(txns){
   const tbody = document.getElementById('recentActivity');
   if(!txns.length){
     tbody.innerHTML = '<tr><td colspan="4" class="empty-state"><i data-lucide="activity" style="width:32px;height:32px;color:#cbd5e1;"></i><p>No recent activity</p><div class="sub">Activity will appear as users interact with the platform</div></td></tr>';
@@ -252,9 +251,7 @@ function renderActivity(txns, showAllFlag){
     return;
   }
   const sorted = [...txns].sort((a,b) => new Date(b.date) - new Date(a.date));
-  const display = showAllFlag ? sorted : sorted.slice(0, 5);
-  const hasMore = sorted.length > 5;
-  tbody.innerHTML = display.map(t => {
+  tbody.innerHTML = sorted.slice(0, 5).map(t => {
     const badgeCls = t.status === 'Success' ? 'badge-success' : t.status === 'Failed' ? 'badge-danger' : t.status === 'Pending' ? 'badge-warning' : 'badge-info';
     const displayDate = t.date ? new Date(t.date).toLocaleDateString() : '—';
     return `<tr>
@@ -264,10 +261,6 @@ function renderActivity(txns, showAllFlag){
       <td data-label="Status"><span class="badge ${badgeCls}">${t.status}</span></td>
     </tr>`;
   }).join('');
-  if(hasMore && !showAllFlag){
-    tbody.innerHTML += `<tr class="no-card"><td colspan="4" style="text-align:center;padding:8px;"><button style="padding:6px 16px;font-size:12px;min-height:auto;background:#475569;" onclick="renderActivity(dbTxn, true)"><i data-lucide="list" style="width:14px;height:14px;"></i> View All (${sorted.length})</button></td></tr>`;
-    lucide.createIcons();
-  }
 }
 
 window.filterDocuments = function(){
@@ -489,23 +482,29 @@ window.deleteUser = async function(id){
 }
 
 window.approveLoan = async function(btn, id){
-  if(id) await supabase.from('loan_applications').update({status:'Approved', ai_reason: 'Approved by admin after review.'}).eq('id',id);
-  const row = btn.closest('tr');
-  const statusCell = row.querySelector('td:nth-child(6)');
-  statusCell.innerHTML = '<span class="badge badge-success">Approved</span>';
-  const actionCell = row.querySelector('td:nth-child(7)');
-  actionCell.innerHTML = '<span style="color:#94a3b8;font-size:12px;"><i data-lucide="check-circle" style="width:14px;height:14px;color:#16a34a;"></i> Approved</span>';
-  lucide.createIcons();
+  if(id) {
+    const { error } = await supabase.from('loan_applications').update({status:'Approved'}).eq('id',id);
+    if(error) return alert('Approve failed: ' + error.message);
+  }
+  const loan = dbLoans.find(l => l.id === id);
+  if(loan) loan.status = 'Approved';
+  renderLoans(dbLoans);
+  document.getElementById('statLoans').textContent = dbLoans.filter(l => l.status === 'Approved' || l.status === 'Disbursed').length;
+  document.getElementById('statDisbursed').textContent = '$' + dbLoans.filter(l => l.status === 'Disbursed').reduce((s,l) => s + Number(l.amount), 0);
+  document.getElementById('statPending').textContent = dbLoans.filter(l => l.status === 'Pending').length;
 }
 
 window.declineLoan = async function(btn, id){
-  if(id) await supabase.from('loan_applications').update({status:'Declined', ai_reason: 'Declined by admin after review.'}).eq('id',id);
-  const row = btn.closest('tr');
-  const statusCell = row.querySelector('td:nth-child(6)');
-  statusCell.innerHTML = '<span class="badge badge-danger">Declined</span>';
-  const actionCell = row.querySelector('td:nth-child(7)');
-  actionCell.innerHTML = '<span style="color:#94a3b8;font-size:12px;"><i data-lucide="x-circle" style="width:14px;height:14px;color:#dc2626;"></i> Declined</span>';
-  lucide.createIcons();
+  if(id) {
+    const { error } = await supabase.from('loan_applications').update({status:'Declined'}).eq('id',id);
+    if(error) return alert('Decline failed: ' + error.message);
+  }
+  const loan = dbLoans.find(l => l.id === id);
+  if(loan) loan.status = 'Declined';
+  renderLoans(dbLoans);
+  document.getElementById('statLoans').textContent = dbLoans.filter(l => l.status === 'Approved' || l.status === 'Disbursed').length;
+  document.getElementById('statDisbursed').textContent = '$' + dbLoans.filter(l => l.status === 'Disbursed').reduce((s,l) => s + Number(l.amount), 0);
+  document.getElementById('statPending').textContent = dbLoans.filter(l => l.status === 'Pending').length;
 }
 
 let editingLoanId = null;
@@ -1016,7 +1015,7 @@ function renderContracts(){
       <thead><tr><th>Contract ID</th><th>Party</th><th>Amount</th><th>Terms</th><th>Status</th><th>Risk Level</th><th>Date</th></tr></thead>
       <tbody>${dbLoans.map(l => {
         const cs = contractStatus(l);
-        const riskCls = l.ai_risk === 'High' ? 'badge-danger' : l.ai_risk === 'Medium' ? 'badge-warning' : 'badge-success';
+        const riskCls = l.ai_risk === 'High' ? 'badge-danger' : l.ai_risk === 'Medium' ? 'badge-warning' : l.ai_risk === 'Low' ? 'badge-success' : 'badge-info';
         return `<tr>
           <td data-label="Contract ID" style="font-family:monospace;font-size:12px;">#${String(l.id).slice(0,8)}</td>
           <td data-label="Party"><strong>${l.applicant || userMap[l.user_id] || '—'}</strong></td>

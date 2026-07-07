@@ -5,8 +5,6 @@
 <div class="header-title"><i data-lucide="sparkles"></i> SmartLoan - Admin Dashboard</div>
 <div class="header-right">
 <button class="theme-toggle" onclick="toggleTheme()" id="themeToggleAdmin" title="Toggle theme" style="background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2);color:white;padding:6px 10px;min-height:auto;"><i data-lucide="sun"></i></button>
-<div class="user-info"><i data-lucide="user" style="width:14px;height:14px;"></i> <span id="adminEmail">admin@smartloan.com</span></div>
-<button onclick="logout()"><i data-lucide="log-out" style="width:16px;height:16px;"></i>Sign Out</button>
 </div>
 </div>
 
@@ -18,11 +16,10 @@
 <div class="menu-item" onclick="showSection('loans')"><i data-lucide="file-text"></i> Loan Applications</div>
 <div class="menu-item" onclick="showSection('charts')"><i data-lucide="bar-chart-3"></i> AI Charts & Analytics</div>
 <div class="menu-item" onclick="showSection('alerts')"><i data-lucide="bell-ring"></i> Alerts Centre</div>
-<div class="menu-item" onclick="showSection('risk')"><i data-lucide="shield-alert"></i> Risk Management</div>
 <div class="menu-item" onclick="showSection('notifications')"><i data-lucide="bell"></i> Notifications</div>
 <div class="menu-item" onclick="showSection('contracts')"><i data-lucide="file-code"></i> Contract Monitoring</div>
 
-<div class="sidebar-footer" id="adminSidebarUser"><i data-lucide="shield"></i>admin@smartloan.com</div>
+<div class="sidebar-footer" id="adminSidebarUser"><span>admin@smartloan.com</span><button class="logout-btn" onclick="logout()"><i data-lucide="log-out" style="width:14px;height:14px;"></i> Logout</button></div>
 </div>
 <div class="sidebar-overlay" onclick="closeSidebar()"></div>
 
@@ -140,11 +137,6 @@
 </div>
 
 <!-- RISK MANAGEMENT -->
-<div class="section hidden" id="risk">
-<div class="section-title"><i data-lucide="shield-alert"></i> Risk Management Dashboard</div>
-<div id="riskContent"><div class="empty-state"><i data-lucide="shield-alert" style="width:32px;height:32px;color:#cbd5e1;"></i><p>Loading risk data...</p></div></div>
-</div>
-
 <!-- NOTIFICATIONS & COMMUNICATION -->
 <div class="section hidden" id="notifications">
 <div class="section-title"><i data-lucide="bell"></i> Notifications &amp; Communication Centre</div>
