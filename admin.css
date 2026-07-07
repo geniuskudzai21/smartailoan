@@ -252,10 +252,10 @@ tr:nth-child(even){background:var(--table-even);}
   border-right:1px solid var(--sidebar-border);
 }
 
-.sidebar h2{margin-bottom:20px;font-size:18px;text-shadow:var(--admin-sidebar-heading-shadow);}
+.sidebar h2{margin-bottom:12px;font-size:18px;text-shadow:var(--admin-sidebar-heading-shadow);}
 .sidebar .menu-item{
-  padding:10px 12px;
-  margin:3px 0;
+  padding:8px 12px;
+  margin:0;
   border-radius:8px;
   cursor:pointer;
   font-size:14px;
