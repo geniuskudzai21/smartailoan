@@ -11,88 +11,32 @@ async function loadFragment(url) {
 }
 
 async function initAdmin() {
-  const [authHtml, dashboardHtml] = await Promise.all([
-    loadFragment('pages/auth.html'),
-    loadFragment('pages/admin-dashboard.html'),
-  ]);
-  document.getElementById('app').innerHTML = authHtml + dashboardHtml;
-  document.getElementById('userAuthForms').classList.add('hidden');
-  document.getElementById('adminLoginForm').classList.remove('hidden');
-  document.getElementById('authPage').classList.remove('hidden');
+  const dashboardHtml = await loadFragment('pages/admin-dashboard.html');
+  document.getElementById('app').innerHTML = dashboardHtml;
   lucide.createIcons();
   checkSession();
 }
 
 // ---- AUTH ----
-let ADMIN_EMAIL = 'admin@smartloan.com';
-const ADMIN_PASS = 'Admin@123';
-
-window.showAdminLogin = function(){
-  document.getElementById('userAuthForms').classList.add('hidden');
-  document.getElementById('adminLoginForm').classList.remove('hidden');
-  document.getElementById('authMessage').innerHTML = '';
-}
-
-window.showUserLogin = function(){
-  document.getElementById('adminLoginForm').classList.add('hidden');
-  document.getElementById('userAuthForms').classList.remove('hidden');
-  document.getElementById('loginForm').classList.remove('hidden');
-  document.getElementById('registerForm').classList.add('hidden');
-  document.getElementById('authMessage').innerHTML = '';
-}
+const ADMIN_EMAIL = 'admin@smartloan.com';
 
 window.checkSession = async function(){
-  const localAdmin = localStorage.getItem('adminSession');
-  if(localAdmin === 'true'){
-    document.getElementById('authPage').classList.add('hidden');
-    document.getElementById('adminDashboard').classList.remove('hidden');
-    document.getElementById('adminEmail').textContent = ADMIN_EMAIL;
-    loadDashboard();
-    return;
-  }
   const { data: { session } } = await supabase.auth.getSession();
   if(session && session.user.email === ADMIN_EMAIL){
-    localStorage.setItem('adminSession', 'true');
-    document.getElementById('authPage').classList.add('hidden');
     document.getElementById('adminDashboard').classList.remove('hidden');
     document.getElementById('adminEmail').textContent = session.user.email;
     loadDashboard();
   } else if(session){
-    showMessage('Your account is not authorized as admin.','red');
+    await supabase.auth.signOut();
+    window.location.href = 'index.html';
+  } else {
+    window.location.href = 'index.html';
   }
-}
-
-window.adminLogin = async function(){
-  const email = document.getElementById('adminEmailInput').value.trim();
-  const pass = document.getElementById('adminPassInput').value;
-  if(!email || !pass){
-    showMessage('Please enter email and password.','red');
-    return;
-  }
-  if(email !== ADMIN_EMAIL){
-    showMessage('Invalid admin credentials.','red');
-    return;
-  }
-  const { error } = await supabase.auth.signInWithPassword({ email, password: pass });
-  if(error){
-    showMessage(error.message === 'Invalid login credentials' ? 'Invalid admin credentials.' : error.message,'red');
-    return;
-  }
-  localStorage.setItem('adminSession','true');
-  document.getElementById('authPage').classList.add('hidden');
-  document.getElementById('adminDashboard').classList.remove('hidden');
-  document.getElementById('adminEmail').textContent = email;
-  loadDashboard();
 }
 
 window.logout = async function(){
-  localStorage.removeItem('adminSession');
   await supabase.auth.signOut().catch(() => {});
   window.location.href = 'index.html';
-}
-
-function showMessage(msg,color){
-  document.getElementById('adminMessage').innerHTML = '<p style="color:'+color+';">'+msg+'</p>';
 }
 
 // ---- SIDEBAR ----

@@ -44,20 +44,6 @@ window.goHome = function(){
   document.getElementById('welcomePage').classList.remove('hidden');
 }
 
-window.showAdminLogin = function(){
-  document.getElementById('userAuthForms').classList.add('hidden');
-  document.getElementById('adminLoginForm').classList.remove('hidden');
-  document.getElementById('authMessage').innerHTML = '';
-}
-
-window.showUserLogin = function(){
-  document.getElementById('adminLoginForm').classList.add('hidden');
-  document.getElementById('userAuthForms').classList.remove('hidden');
-  document.getElementById('loginForm').classList.remove('hidden');
-  document.getElementById('registerForm').classList.add('hidden');
-  document.getElementById('authMessage').innerHTML = '';
-}
-
 window.showLogin = function(){
   document.getElementById('loginForm').classList.remove('hidden');
   document.getElementById('registerForm').classList.add('hidden');
