@@ -440,13 +440,13 @@ body.light-theme .auth-card{box-shadow:0 10px 40px rgba(0,0,0,.12);}
   padding:20px;
   font-size:clamp(18px,3vw,24px);
   font-weight:bold;
-  text-align:center;
+  text-align:left;
   position:sticky;
   top:0;
   z-index:100;
   display:flex;
   align-items:center;
-  justify-content:center;
+  justify-content:flex-start;
   gap:8px;
   border-bottom:1px solid var(--header-border);
   box-shadow:var(--shadow);
