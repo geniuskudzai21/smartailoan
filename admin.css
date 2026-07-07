@@ -263,9 +263,9 @@ tr:nth-child(even){background:var(--table-even);}
   align-items:center;
   gap:10px;
   transition:all .3s;
-  border:1px solid transparent;
 }
 .sidebar .menu-item:hover,.sidebar .menu-item.active{background:var(--sidebar-item-hover-bg);border-color:var(--sidebar-item-hover-border);box-shadow:0 0 15px var(--sidebar-item-glow);}
+body.light-theme .sidebar .menu-item{border:none;}
 .sidebar-footer{margin-top:auto;padding:12px 0 0;border-top:1px solid var(--sidebar-footer-border);font-size:13px;color:var(--sidebar-user-text);display:flex;align-items:center;gap:8px;}
 
 .main{flex:1;padding:20px;overflow-y:auto;min-width:0;}
