@@ -81,10 +81,11 @@ window.showSection = function(id){
   if(id === 'alerts') renderAlerts();
   if(id === 'notifications') renderNotifications();
   if(id === 'contracts') renderContracts();
+  if(id === 'payments') renderPayments();
 }
 
 // ---- LOAD DASHBOARD ----
-let dbUsers = [], dbLoans = [], dbTxn = [], dbDocs = [];
+let dbUsers = [], dbLoans = [], dbTxn = [], dbDocs = [], dbPayments = [];
 
 function buildActivity(){
   const activities = [];
@@ -156,10 +157,11 @@ function buildActivity(){
 }
 
 async function loadDashboard(){
-  const [usersRes, loansRes, docsRes] = await Promise.all([
+  const [usersRes, loansRes, docsRes, paymentsRes] = await Promise.all([
     supabase.from('profiles').select('*'),
     supabase.from('loan_applications').select('*'),
     supabase.from('user_documents').select('*'),
+    supabase.from('transactions').select('*').eq('type', 'loan_repayment').order('created_at', { ascending: false }),
   ]);
   if(usersRes.error) console.error('Profiles error:', usersRes.error);
   if(loansRes.error) console.error('Loans error:', loansRes.error);
@@ -167,12 +169,15 @@ async function loadDashboard(){
   dbUsers = usersRes.data || [];
   dbLoans = loansRes.data || [];
   dbDocs = docsRes.data || [];
+  dbPayments = paymentsRes.data || [];
   dbTxn = buildActivity();
 
   document.getElementById('statUsers').textContent = dbUsers.length;
   document.getElementById('statLoans').textContent = dbLoans.filter(l => l.status === 'Approved' || l.status === 'Disbursed').length;
   document.getElementById('statDisbursed').textContent = '$' + dbLoans.filter(l => l.status === 'Disbursed').reduce((s,l) => s + Number(l.amount), 0);
   document.getElementById('statPending').textContent = dbLoans.filter(l => l.status === 'Pending').length;
+  document.getElementById('statCollected').textContent = '$' + dbPayments.reduce((s, p) => s + Number(p.amount), 0).toLocaleString();
+  document.getElementById('statPayCount').textContent = dbPayments.length;
   renderUsers(dbUsers);
   renderLoans(dbLoans);
   renderActivity(dbTxn);
@@ -1037,6 +1042,38 @@ function renderContracts(){
     </table>
     </div>
   `;
+  lucide.createIcons();
+}
+
+// ---- PAYMENTS ----
+function renderPayments(){
+  const tbody = document.getElementById('paymentTable');
+  const userMap = {};
+  dbUsers.forEach(u => { userMap[u.user_id] = u.full_name || u.name || u.email || 'Unknown'; });
+
+  const loanMap = {};
+  dbLoans.forEach(l => { loanMap[l.id] = l; });
+
+  if(!dbPayments.length){
+    tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><i data-lucide="wallet" style="width:32px;height:32px;color:#cbd5e1;"></i><p>No payments recorded yet</p><div class="sub">User repayments will appear here</div></td></tr>';
+    lucide.createIcons();
+    return;
+  }
+
+  tbody.innerHTML = dbPayments.map(p => {
+    const loan = loanMap[p.loan_id] || {};
+    const userName = loan.user_id ? (userMap[loan.user_id] || 'Unknown') : '—';
+    const remaining = loan.remaining_balance ? '$' + Number(loan.remaining_balance).toLocaleString() : '—';
+    const dateStr = p.created_at ? new Date(p.created_at).toLocaleDateString() + ' ' + new Date(p.created_at).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) : '—';
+    return `<tr>
+      <td data-label="User"><strong>${userName}</strong></td>
+      <td data-label="Loan Amount">$${Number(loan.amount || 0).toLocaleString()}</td>
+      <td data-label="Payment Amount"><strong style="color:#16a34a;">-$${Number(p.amount).toLocaleString()}</strong></td>
+      <td data-label="Remaining Balance">${remaining}</td>
+      <td data-label="Reference" style="font-size:12px;">${p.reference || '—'}</td>
+      <td data-label="Date" style="font-size:12px;color:#94a3b8;">${dateStr}</td>
+    </tr>`;
+  }).join('');
   lucide.createIcons();
 }
 

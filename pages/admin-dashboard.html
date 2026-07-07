@@ -14,6 +14,7 @@
 <div class="menu-item active" onclick="showSection('overview')"><i data-lucide="layout-dashboard"></i> System Overview</div>
 <div class="menu-item" onclick="showSection('users')"><i data-lucide="users"></i> User Management</div>
 <div class="menu-item" onclick="showSection('loans')"><i data-lucide="file-text"></i> Loan Applications</div>
+<div class="menu-item" onclick="showSection('payments')"><i data-lucide="wallet"></i> Payments & Repayments</div>
 <div class="menu-item" onclick="showSection('charts')"><i data-lucide="bar-chart-3"></i> AI Charts & Analytics</div>
 <div class="menu-item" onclick="showSection('alerts')"><i data-lucide="bell-ring"></i> Alerts Centre</div>
 <div class="menu-item" onclick="showSection('notifications')"><i data-lucide="bell"></i> Notifications</div>
@@ -113,6 +114,25 @@
 <thead><tr><th>User</th><th>Document Type</th><th>File Name</th><th>Size</th><th>Status</th><th>Uploaded</th><th>Action</th></tr></thead>
 <tbody id="docTable">
 <tr><td colspan="7" class="empty-state"><i data-lucide="file-text" style="width:32px;height:32px;color:#cbd5e1;"></i><p>No documents uploaded</p><div class="sub">User-uploaded documents will appear here</div></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<!-- PAYMENTS & REPAYMENTS -->
+<div class="section hidden" id="payments">
+<div class="section-title"><i data-lucide="wallet"></i> Payments &amp; Repayments</div>
+<div class="stats-grid" style="margin-bottom:16px;">
+<div class="stat-card"><i data-lucide="circle-dollar-sign"></i><div class="label">Total Collected</div><div class="value" id="statCollected">$0</div></div>
+<div class="stat-card"><i data-lucide="refresh-cw"></i><div class="label">Total Transactions</div><div class="value" id="statPayCount">0</div></div>
+</div>
+<div class="card">
+<div class="table-wrap">
+<table>
+<thead><tr><th>User</th><th>Loan Amount</th><th>Payment Amount</th><th>Remaining Balance</th><th>Reference</th><th>Date</th></tr></thead>
+<tbody id="paymentTable">
+<tr><td colspan="6" class="empty-state"><i data-lucide="wallet" style="width:32px;height:32px;color:#cbd5e1;"></i><p>No payments recorded yet</p></td></tr>
 </tbody>
 </table>
 </div>
