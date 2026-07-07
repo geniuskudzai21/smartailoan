@@ -79,6 +79,7 @@ window.showSection = function(id){
   document.querySelector(`.menu-item[onclick*="'${id}'"]`).classList.add('active');
   closeSidebar();
   if(id === 'alerts') renderAlerts();
+  if(id === 'messages') renderMessages();
   if(id === 'contracts') renderContracts();
   if(id === 'payments') renderPayments();
 }
@@ -940,7 +941,46 @@ function renderAlerts(){
     });
   }
 
-  html += '<h3 style="margin:16px 0 12px;font-size:15px;color:#1e293b;display:flex;align-items:center;gap:8px;"><i data-lucide="bell-ring" style="width:16px;height:16px;color:#f59e0b;"></i> System Alerts</h3>';
+  html += '<h3 style="margin:20px 0 12px;font-size:15px;color:#1e293b;display:flex;align-items:center;gap:8px;"><i data-lucide="bell" style="width:16px;height:16px;color:#2563eb;"></i> Notifications</h3>';
+
+  const notes = [];
+  dbLoans.forEach(l => {
+    const name = l.applicant || userMap[l.user_id] || 'Unknown';
+    if(l.status === 'Pending')
+      notes.push({ icon:'file-plus', color:'#3b82f6', title:'New Loan Application', desc:`${name} applied for $${Number(l.amount).toLocaleString()} (${l.purpose||'—'}).`, time: l.created_at });
+    if(l.status === 'Approved' || l.status === 'Disbursed')
+      notes.push({ icon:'check-circle', color:'#16a34a', title:`Loan ${l.status}`, desc:`${name}'s loan of $${Number(l.amount).toLocaleString()} has been ${l.status.toLowerCase()}.`, time: l.updated_at || l.created_at });
+    if(l.status === 'Declined')
+      notes.push({ icon:'x-circle', color:'#dc2626', title:'Loan Declined', desc:`${name}'s loan of $${Number(l.amount).toLocaleString()} was declined.`, time: l.updated_at || l.created_at });
+    if(l.ai_reason)
+      notes.push({ icon:'brain', color:'#8b5cf6', title:'AI Assessment Completed', desc:`${name}: ${l.ai_reason}`, time: l.created_at });
+  });
+  dbDocs.forEach(d => {
+    if(d.status === 'Verified')
+      notes.push({ icon:'shield-check', color:'#16a34a', title:'Document Verified', desc:`${d.document_type} from ${userMap[d.user_id]||d.user_id} approved.`, time: d.updated_at || d.uploaded_at });
+    if(d.status === 'Rejected')
+      notes.push({ icon:'shield-off', color:'#dc2626', title:'Document Rejected', desc:`${d.document_type} from ${userMap[d.user_id]||d.user_id} rejected.`, time: d.updated_at || d.uploaded_at });
+    if(d.status === 'Pending')
+      notes.push({ icon:'clock', color:'#f59e0b', title:'Document Uploaded', desc:`${d.document_type} from ${userMap[d.user_id]||d.user_id} awaiting verification.`, time: d.uploaded_at });
+  });
+  notes.sort((a, b) => new Date(b.time||0) - new Date(a.time||0));
+
+  if(notes.length){
+    html += notes.map(n => `
+      <div class="alert-item" style="display:flex;align-items:flex-start;gap:12px;padding:12px;border-bottom:1px solid #e2e8f0;">
+        <i data-lucide="${n.icon}" style="width:20px;height:20px;color:${n.color};flex-shrink:0;margin-top:2px;"></i>
+        <div style="flex:1;">
+          <strong style="font-size:14px;color:#1e293b;">${n.title}</strong>
+          <p style="margin:4px 0 0;font-size:13px;color:#64748b;">${n.desc}</p>
+        </div>
+        <span style="font-size:11px;color:#94a3b8;white-space:nowrap;">${n.time ? new Date(n.time).toLocaleDateString() : ''}</span>
+      </div>
+    `).join('');
+  } else {
+    html += '<div style="padding:12px;color:#94a3b8;font-size:13px;">No recent notifications.</div>';
+  }
+
+  html += '<h3 style="margin:20px 0 12px;font-size:15px;color:#1e293b;display:flex;align-items:center;gap:8px;"><i data-lucide="alert-triangle" style="width:16px;height:16px;color:#f59e0b;"></i> System Alerts</h3>';
 
   html += alerts.map(a => `
     <div class="alert-item" style="display:flex;align-items:flex-start;gap:12px;padding:12px;border-bottom:1px solid #e2e8f0;">
@@ -976,6 +1016,87 @@ window.replyToTicket = async function(ticketId){
     ticket.status = 'Resolved';
   }
   renderAlerts();
+}
+
+// ---- MESSAGES ----
+async function renderMessages(){
+  const container = document.getElementById('messagesContent');
+  const { data: tickets } = await supabase.from('support_tickets').select('*').order('created_at', { ascending: false });
+  dbTickets = tickets || [];
+
+  if(!dbTickets.length){
+    container.innerHTML = '<div class="empty-state"><i data-lucide="message-circle" style="width:32px;height:32px;color:#cbd5e1;"></i><p>No messages from users</p><div class="sub">User messages will appear here</div></div>';
+    lucide.createIcons();
+    return;
+  }
+
+  const userMap = {};
+  dbUsers.forEach(u => { userMap[u.user_id] = u.full_name || u.name || u.email || 'Unknown'; });
+
+  let html = `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:16px;">
+    <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:12px;">
+      <div style="font-size:11px;color:#1e40af;">Total Messages</div>
+      <div style="font-size:20px;font-weight:700;color:#2563eb;">${dbTickets.length}</div>
+    </div>
+    <div style="background:#fef3c7;border:1px solid #fde68a;border-radius:10px;padding:12px;">
+      <div style="font-size:11px;color:#92400e;">Open / Unresolved</div>
+      <div style="font-size:20px;font-weight:700;color:#d97706;">${dbTickets.filter(t => t.status === 'Open').length}</div>
+    </div>
+  </div>`;
+
+  dbTickets.forEach(t => {
+    const name = userMap[t.user_id] || t.user_id?.slice(0, 8) || 'Unknown';
+    const dateStr = t.created_at ? new Date(t.created_at).toLocaleDateString() + ' ' + new Date(t.created_at).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) : '';
+    const isOpen = t.status === 'Open';
+
+    html += `<div style="border:1px solid ${isOpen ? '#bfdbfe' : '#e2e8f0'};border-radius:10px;padding:16px;margin-bottom:10px;background:${isOpen ? '#f8faff' : '#fff'};">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <div>
+          <strong style="color:#1e293b;">${name}</strong>
+          <span class="badge ${isOpen ? 'badge-warning' : 'badge-success'}" style="margin-left:8px;">${t.status}</span>
+        </div>
+        <span style="font-size:12px;color:#94a3b8;">${dateStr}</span>
+      </div>
+      <div style="padding:10px 12px;background:#f1f5f9;border-radius:8px;font-size:14px;color:#1e293b;line-height:1.5;">${t.message}</div>
+      ${t.admin_reply ? `
+        <div style="margin-top:8px;padding:10px 12px;background:#f0fdf4;border-radius:8px;border:1px solid #bbf7d0;">
+          <div style="font-size:11px;font-weight:600;color:#16a34a;margin-bottom:4px;display:flex;align-items:center;gap:6px;"><i data-lucide="check-circle" style="width:12px;height:12px;"></i> Your Reply</div>
+          <div style="font-size:14px;color:#1e293b;">${t.admin_reply}</div>
+        </div>
+      ` : `
+        <div id="reply-msg-${t.id}" style="font-size:12px;margin-top:6px;"></div>
+        <div id="reply-row-${t.id}" style="margin-top:8px;display:flex;gap:8px;">
+          <input id="reply-input-${t.id}" placeholder="Type your reply to ${name}..." style="flex:1;font-size:13px;">
+          <button onclick="replyToMessage('${t.id}')" style="padding:8px 16px;font-size:13px;min-height:auto;background:#2563eb;color:white;border:none;border-radius:8px;cursor:pointer;"><i data-lucide="send" style="width:14px;height:14px;"></i> Send</button>
+        </div>
+      `}
+    </div>`;
+  });
+
+  container.innerHTML = html;
+  lucide.createIcons();
+}
+
+window.replyToMessage = async function(ticketId){
+  const input = document.getElementById('reply-input-' + ticketId);
+  const msgEl = document.getElementById('reply-msg-' + ticketId);
+  const replyRow = document.getElementById('reply-row-' + ticketId);
+  const reply = input.value.trim();
+  if(!reply) return msgEl.innerHTML = '<span style="color:#dc2626;">Please enter a reply.</span>';
+
+  const { error } = await supabase.from('support_tickets').update({
+    admin_reply: reply,
+    status: 'Resolved'
+  }).eq('id', ticketId);
+
+  if(error) return msgEl.innerHTML = '<span style="color:#dc2626;">Error: ' + error.message + '</span>';
+
+  const ticket = dbTickets.find(t => t.id === ticketId);
+  if(ticket) {
+    ticket.admin_reply = reply;
+    ticket.status = 'Resolved';
+  }
+  renderMessages();
 }
 
 // ---- RISK ----

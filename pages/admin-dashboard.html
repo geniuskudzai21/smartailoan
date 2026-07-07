@@ -15,8 +15,9 @@
 <div class="menu-item" onclick="showSection('users')"><i data-lucide="users"></i> User Management</div>
 <div class="menu-item" onclick="showSection('loans')"><i data-lucide="file-text"></i> Loan Applications</div>
 <div class="menu-item" onclick="showSection('payments')"><i data-lucide="wallet"></i> Payments & Repayments</div>
+<div class="menu-item" onclick="showSection('messages')"><i data-lucide="message-circle"></i> Messages</div>
 <div class="menu-item" onclick="showSection('charts')"><i data-lucide="bar-chart-3"></i> AI Charts & Analytics</div>
-<div class="menu-item" onclick="showSection('alerts')"><i data-lucide="bell-ring"></i> Alerts & Messages</div>
+<div class="menu-item" onclick="showSection('alerts')"><i data-lucide="bell-ring"></i> Alerts</div>
 <div class="menu-item" onclick="showSection('contracts')"><i data-lucide="file-code"></i> Contract Monitoring</div>
 
 <div class="sidebar-footer" id="adminSidebarUser"><span>admin@smartloan.com</span><button class="logout-btn" onclick="logout()"><i data-lucide="log-out" style="width:14px;height:14px;"></i> Logout</button></div>
@@ -170,10 +171,16 @@
 </div>
 </div>
 
-<!-- ALERTS & MESSAGES -->
+<!-- ALERTS -->
 <div class="section hidden" id="alerts">
-<div class="section-title"><i data-lucide="bell-ring"></i> Alerts &amp; Messages</div>
+<div class="section-title"><i data-lucide="bell-ring"></i> Alerts</div>
 <div id="alertsContent"><div class="empty-state"><i data-lucide="bell-ring" style="width:32px;height:32px;color:#cbd5e1;"></i><p>Loading alerts...</p></div></div>
+</div>
+
+<!-- MESSAGES -->
+<div class="section hidden" id="messages">
+<div class="section-title"><i data-lucide="message-circle"></i> Messages</div>
+<div id="messagesContent"><div class="empty-state"><i data-lucide="message-circle" style="width:32px;height:32px;color:#cbd5e1;"></i><p>Loading messages...</p></div></div>
 </div>
 
 <!-- SMART CONTRACT MONITORING -->
