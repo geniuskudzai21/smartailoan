@@ -99,6 +99,15 @@ window.registerUser = async function(){
     return;
   }
 
+  const userId = data.user?.id;
+  if(userId){
+    await supabase.from('profiles').insert({
+      user_id: userId,
+      full_name: fullname,
+      email: contact,
+    }).catch(() => {});
+  }
+
   document.getElementById('authMessage').innerHTML = '<p style="color:green;">Registration Sucessful!</p>';
 }
 
@@ -130,6 +139,15 @@ window.loginUser = async function(){
   document.getElementById('sidebarUser').textContent = name;
   document.getElementById('authPage').classList.add('hidden');
   document.getElementById('dashboardPage').classList.remove('hidden');
+
+  const userId = data.user?.id;
+  if(userId){
+    await supabase.from('profiles').upsert({
+      user_id: userId,
+      full_name: name,
+      email: data.user.email,
+    }, { onConflict: 'user_id' }).catch(() => {});
+  }
 }
 
 window.logout = async function(){

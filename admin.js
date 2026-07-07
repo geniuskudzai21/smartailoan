@@ -162,6 +162,9 @@ async function loadDashboard(){
     supabase.from('loan_applications').select('*'),
     supabase.from('user_documents').select('*'),
   ]);
+  if(usersRes.error) console.error('Profiles error:', usersRes.error);
+  if(loansRes.error) console.error('Loans error:', loansRes.error);
+  if(docsRes.error) console.error('Docs error:', docsRes.error);
   dbUsers = usersRes.data || [];
   dbLoans = loansRes.data || [];
   dbDocs = docsRes.data || [];
