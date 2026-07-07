@@ -37,7 +37,7 @@
 </div>
 
 <div class="quick-actions" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:20px;">
-  <div class="card" style="padding:20px;cursor:pointer;border-left:4px solid #f59e0b;transition:transform .15s;" onclick="document.getElementById('statPending').textContent != '0' ? showSection('loans') : alert('No pending loans to review.')" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
+  <div class="card" style="padding:20px;cursor:pointer;border-left:4px solid #f59e0b;transition:transform .15s;" onclick="showSection('loans')" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
     <div style="display:flex;align-items:center;gap:12px;">
       <div style="background:#fef3c7;border-radius:10px;width:40px;height:40px;display:flex;align-items:center;justify-content:center;"><i data-lucide="clock" style="width:20px;height:20px;color:#d97706;"></i></div>
       <div><div style="font-size:13px;font-weight:600;color:#1e293b;">Review Pending Loans</div><div style="font-size:12px;color:#64748b;">Approve or decline applications</div></div>
@@ -49,7 +49,7 @@
       <div><div style="font-size:13px;font-weight:600;color:#1e293b;">Run AI Credit Scoring</div><div style="font-size:12px;color:#64748b;">Analyze creditworthiness now</div></div>
     </div>
   </div>
-  <div class="card" style="padding:20px;cursor:pointer;border-left:4px solid #16a34a;transition:transform .15s;" onclick="document.getElementById('statPayCount').textContent != '0' ? showSection('payments') : alert('No payments recorded yet.')" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
+  <div class="card" style="padding:20px;cursor:pointer;border-left:4px solid #16a34a;transition:transform .15s;" onclick="showSection('payments')" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
     <div style="display:flex;align-items:center;gap:12px;">
       <div style="background:#dcfce7;border-radius:10px;width:40px;height:40px;display:flex;align-items:center;justify-content:center;"><i data-lucide="wallet" style="width:20px;height:20px;color:#16a34a;"></i></div>
       <div><div style="font-size:13px;font-weight:600;color:#1e293b;">View Recent Repayments</div><div style="font-size:12px;color:#64748b;">See payment transactions</div></div>
