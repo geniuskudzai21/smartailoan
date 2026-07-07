@@ -415,7 +415,6 @@ window.submitLoan = async function(){
   const { error: loanErr } = await supabase.from('loan_applications').insert({
     user_id: session.user.id,
     amount: parseFloat(amount),
-    phone,
     purpose,
     monthly_income: parseFloat(income),
     employment_status: employment,
