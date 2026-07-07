@@ -50,7 +50,7 @@ window.checkSession = async function(){
     document.getElementById('authPage').classList.add('hidden');
     document.getElementById('dashboardPage').classList.remove('hidden');
     document.getElementById('sidebarUser').textContent = session.user.user_metadata?.full_name || session.user.email;
-  }
+    loadSupportHistory();
 }
 
 window.openAuth = function(){
@@ -714,6 +714,34 @@ window.sendSupportMessage = async function(){
   status.innerHTML = '<span style="color:#16a34a;">Message sent! Admin will respond shortly.</span>';
   showToast('Message sent to admin successfully!', 'success');
   setTimeout(() => status.innerHTML = '', 4000);
+  loadSupportHistory();
+}
+
+window.loadSupportHistory = async function(){
+  const { data: { session } } = await supabase.auth.getSession();
+  if(!session) return;
+  const { data: tickets } = await supabase.from('support_tickets').select('*').eq('user_id', session.user.id).order('created_at', { ascending: false }).limit(10);
+  const container = document.getElementById('supportHistory');
+  if(!tickets || !tickets.length){
+    container.innerHTML = '<div style="color:#94a3b8;font-size:13px;text-align:center;padding:10px;">No previous messages. Send a message above.</div>';
+    return;
+  }
+  container.innerHTML = tickets.map(t => {
+    const dateStr = t.created_at ? new Date(t.created_at).toLocaleDateString() + ' ' + new Date(t.created_at).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) : '';
+    return `<div style="padding:8px 10px;margin-bottom:6px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;">
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:#64748b;margin-bottom:4px;">
+        <span style="font-weight:600;color:#1e293b;">You</span>
+        <span>${dateStr}</span>
+      </div>
+      <div style="font-size:13px;color:#475569;">${t.message}</div>
+      ${t.admin_reply ? `
+        <div style="margin-top:6px;padding:6px 8px;background:#f0fdf4;border-radius:6px;border:1px solid #bbf7d0;">
+          <div style="font-size:11px;font-weight:600;color:#16a34a;margin-bottom:2px;">Admin Response:</div>
+          <div style="font-size:13px;color:#1e293b;">${t.admin_reply}</div>
+        </div>
+      ` : ''}
+    </div>`;
+  }).join('');
 }
 
 initApp();

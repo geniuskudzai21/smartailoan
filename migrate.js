@@ -80,6 +80,9 @@ CREATE TABLE IF NOT EXISTS support_tickets (
   status TEXT DEFAULT 'Open',
   created_at TIMESTAMPTZ DEFAULT now()
 );
+
+ALTER TABLE support_tickets ADD COLUMN IF NOT EXISTS admin_reply TEXT;
+ALTER TABLE support_tickets ADD COLUMN IF NOT EXISTS replied_at TIMESTAMPTZ;
 `;
 
 (async () => {

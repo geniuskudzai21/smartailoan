@@ -923,6 +923,18 @@ function renderAlerts(){
             <span style="font-size:11px;color:#94a3b8;">${dateStr}</span>
           </div>
           <p style="margin:4px 0 0;font-size:13px;color:#475569;line-height:1.4;">${t.message || t.subject || '—'}</p>
+          ${t.admin_reply ? `
+            <div style="margin-top:8px;padding:8px 10px;background:#f0fdf4;border-radius:6px;border:1px solid #bbf7d0;">
+              <div style="font-size:11px;font-weight:600;color:#16a34a;margin-bottom:2px;">Your Reply:</div>
+              <div style="font-size:13px;color:#1e293b;">${t.admin_reply}</div>
+            </div>
+          ` : `
+            <div id="reply-form-${t.id}" style="margin-top:8px;display:flex;gap:8px;">
+              <input id="reply-input-${t.id}" placeholder="Type your reply..." style="flex:1;font-size:13px;">
+              <button onclick="replyToTicket('${t.id}')" style="padding:6px 14px;font-size:12px;min-height:auto;background:#2563eb;color:white;border:none;border-radius:6px;cursor:pointer;">Send</button>
+            </div>
+            <div id="reply-msg-${t.id}" style="font-size:12px;margin-top:4px;"></div>
+          `}
         </div>
       </div>`;
     });
@@ -942,6 +954,28 @@ function renderAlerts(){
   `).join('');
 
   container.innerHTML = html;
+  lucide.createIcons();
+}
+
+window.replyToTicket = async function(ticketId){
+  const input = document.getElementById('reply-input-' + ticketId);
+  const msgEl = document.getElementById('reply-msg-' + ticketId);
+  const reply = input.value.trim();
+  if(!reply) return msgEl.innerHTML = '<span style="color:#dc2626;">Please enter a reply.</span>';
+
+  const { error } = await supabase.from('support_tickets').update({
+    admin_reply: reply,
+    status: 'Resolved'
+  }).eq('id', ticketId);
+
+  if(error) return msgEl.innerHTML = '<span style="color:#dc2626;">Error: ' + error.message + '</span>';
+
+  const ticket = dbTickets.find(t => t.id === ticketId);
+  if(ticket) {
+    ticket.admin_reply = reply;
+    ticket.status = 'Resolved';
+  }
+  renderAlerts();
 }
 
 // ---- RISK ----
