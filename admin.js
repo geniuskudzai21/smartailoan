@@ -478,6 +478,7 @@ window.deleteUser = async function(id){
   if(!user) return alert('User not found.');
   const userId = user.user_id || user.id;
   await Promise.all([
+    supabase.from('transactions').delete().eq('user_id', userId),
     supabase.from('profiles').delete().eq('id', user.id),
     supabase.from('loan_applications').delete().eq('user_id', userId),
     supabase.from('user_documents').delete().eq('user_id', userId),
@@ -596,9 +597,11 @@ window.saveEditLoan = async function(){
 
 window.deleteLoan = async function(id){
   if(!confirm('Delete this loan application?')) return;
+  await supabase.from('transactions').delete().eq('loan_id', id).catch(() => {});
   const { error } = await supabase.from('loan_applications').delete().eq('id', id);
   if(error) return alert('Error: ' + error.message);
   dbLoans = dbLoans.filter(l => l.id !== id);
+  dbPayments = dbPayments.filter(p => p.loan_id !== id);
   renderLoans(dbLoans);
 }
 
