@@ -254,8 +254,8 @@ tr:nth-child(even){background:var(--table-even);}
 
 .sidebar h2{margin-bottom:12px;font-size:18px;text-shadow:var(--admin-sidebar-heading-shadow);}
 .sidebar .menu-item.menu-item{
-  padding:4px 12px;
-  margin:0;
+  padding:10px 12px;
+  margin:5px;
   border-radius:8px;
   cursor:pointer;
   font-size:14px;
@@ -266,7 +266,7 @@ tr:nth-child(even){background:var(--table-even);}
 }
 .sidebar .menu-item:hover,.sidebar .menu-item.active{background:var(--sidebar-item-hover-bg);border-color:var(--sidebar-item-hover-border);box-shadow:0 0 15px var(--sidebar-item-glow);}
 body.light-theme .sidebar .menu-item{border:none;}
-.sidebar-footer{margin-top:auto;padding:12px 0 0;border-top:1px solid var(--sidebar-footer-border);font-size:13px;color:var(--sidebar-user-text);display:flex;align-items:center;gap:8px;}
+.sidebar-footer{margin-top:auto;padding:12px 0;border-top:1px solid var(--sidebar-footer-border);font-size:13px;color:var(--sidebar-user-text);display:flex;align-items:center;gap:0px;}
 
 .main{flex:1;padding:20px;overflow-y:auto;min-width:0;}
 
