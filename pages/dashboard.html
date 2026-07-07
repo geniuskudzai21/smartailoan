@@ -1,0 +1,213 @@
+<section id="dashboardPage" class="hidden">
+
+<div class="header">
+<button class="hamburger" onclick="toggleSidebar()" aria-label="Toggle menu"><i data-lucide="menu"></i></button>
+<i data-lucide="sparkles"></i> SmartLoan - AI Banking Dashboard
+</div>
+
+<div class="dashboard">
+
+<div class="sidebar">
+<h2>Menu</h2>
+<div onclick="showSection('loan')"><i data-lucide="hand-coins"></i> Apply for a Loan</div>
+<div onclick="showSection('repayment')"><i data-lucide="wallet"></i> Loan Repayment Status</div>
+<div onclick="showSection('notifications')"><i data-lucide="bell"></i> Notification Centre</div>
+<div onclick="showSection('profile')"><i data-lucide="settings"></i> Profile & Account Settings</div>
+<div onclick="showSection('support')"><i data-lucide="life-buoy"></i> Support & Help</div>
+<div class="sidebar-footer"><span id="sidebarUser"><i data-lucide="user" style="width:14px;height:14px;"></i> Not logged in</span><button class="logout-btn" onclick="logout()"><i data-lucide="log-out" style="width:14px;height:14px;"></i> Logout</button></div>
+</div>
+<div class="sidebar-overlay" onclick="closeSidebar()"></div>
+
+<div class="main">
+
+<div class="card section" id="loan">
+<div class="loan-form">
+
+<div class="loan-section">
+<div class="loan-section-title"><i data-lucide="clipboard-list" style="width:18px;height:18px;"></i> Loan Details</div>
+<div class="form-row">
+<div class="form-group">
+<label><i data-lucide="dollar-sign" style="width:14px;height:14px;"></i> Loan Amount</label>
+<input id="loanAmount" placeholder="e.g. 5000">
+</div>
+<div class="form-group">
+<label><i data-lucide="phone" style="width:14px;height:14px;"></i> Phone Number</label>
+<input id="loanPhone" type="tel" placeholder="e.g. +1 555 000 0000">
+</div>
+<div class="form-group">
+<label><i data-lucide="target" style="width:14px;height:14px;"></i> Loan Purpose</label>
+<select id="loanPurpose"><option value="">Select purpose</option><option>Business</option><option>Education</option><option>Emergency</option><option>Personal</option></select>
+</div>
+<div class="form-group">
+<label><i data-lucide="calendar" style="width:14px;height:14px;"></i> Preferred Date</label>
+<input id="loanDate" type="date">
+</div>
+</div>
+</div>
+
+<div class="loan-section">
+<div class="loan-section-title"><i data-lucide="briefcase" style="width:18px;height:18px;"></i> Financial Information</div>
+<div class="form-row">
+<div class="form-group">
+<label><i data-lucide="trending-up" style="width:14px;height:14px;"></i> Monthly Income</label>
+<input id="loanIncome" placeholder="e.g. 2000">
+</div>
+<div class="form-group">
+<label><i data-lucide="building" style="width:14px;height:14px;"></i> Employment Status</label>
+<select id="loanEmployment"><option value="">Select status</option><option>Employed</option><option>Self Employed</option><option>Vendor</option><option>Unemployed</option></select>
+</div>
+<div class="form-group">
+<label><i data-lucide="clock" style="width:14px;height:14px;"></i> Repayment Period</label>
+<select id="loanPeriod"><option value="">Select period</option><option>3 Months</option><option>6 Months</option><option>12 Months</option><option>24 Months</option></select>
+</div>
+</div>
+</div>
+
+<div class="loan-section">
+<div class="loan-section-title"><i data-lucide="file-text" style="width:18px;height:18px;"></i> KYC & Document Upload</div>
+<div class="file-grid">
+<div class="file-upload-zone" onclick="document.getElementById('kycNationalId').click()">
+<i data-lucide="id-card" style="width:24px;height:24px;color:#94a3b8;"></i>
+<div class="upload-text">National ID</div>
+<div class="upload-name" id="kycNationalIdName"></div>
+<input id="kycNationalId" type="file" onchange="document.getElementById('kycNationalIdName').textContent=this.files[0]?.name||'';this.closest('.file-upload-zone').classList.toggle('has-file',!!this.files[0])">
+</div>
+<div class="file-upload-zone" onclick="document.getElementById('kycPayslip').click()">
+<i data-lucide="receipt" style="width:24px;height:24px;color:#94a3b8;"></i>
+<div class="upload-text">Payslip</div>
+<div class="upload-name" id="kycPayslipName"></div>
+<input id="kycPayslip" type="file" onchange="document.getElementById('kycPayslipName').textContent=this.files[0]?.name||'';this.closest('.file-upload-zone').classList.toggle('has-file',!!this.files[0])">
+</div>
+<div class="file-upload-zone" onclick="document.getElementById('kycUtility').click()">
+<i data-lucide="file" style="width:24px;height:24px;color:#94a3b8;"></i>
+<div class="upload-text">Utility Bill</div>
+<div class="upload-name" id="kycUtilityName"></div>
+<input id="kycUtility" type="file" onchange="document.getElementById('kycUtilityName').textContent=this.files[0]?.name||'';this.closest('.file-upload-zone').classList.toggle('has-file',!!this.files[0])">
+</div>
+<div class="file-upload-zone" onclick="document.getElementById('kycInsurance').click()">
+<i data-lucide="shield" style="width:24px;height:24px;color:#94a3b8;"></i>
+<div class="upload-text">Insurance</div>
+<div class="upload-name" id="kycInsuranceName"></div>
+<input id="kycInsurance" type="file" onchange="document.getElementById('kycInsuranceName').textContent=this.files[0]?.name||'';this.closest('.file-upload-zone').classList.toggle('has-file',!!this.files[0])">
+</div>
+<div class="file-upload-zone" onclick="document.getElementById('kycBank').click()" style="grid-column:1/-1;">
+<i data-lucide="landmark" style="width:24px;height:24px;color:#94a3b8;"></i>
+<div class="upload-text">Bank Statements</div>
+<div class="upload-name" id="kycBankName"></div>
+<input id="kycBank" type="file" onchange="document.getElementById('kycBankName').textContent=this.files[0]?.name||'';this.closest('.file-upload-zone').classList.toggle('has-file',!!this.files[0])">
+</div>
+</div>
+</div>
+
+<button class="btn-submit" onclick="submitLoan()"><i data-lucide="send"></i> Submit Loan Application</button>
+
+</div>
+</div>
+
+<div class="card section hidden" id="verification">
+<h2><i data-lucide="badge-check"></i> Verification Status</h2>
+<div class="status">KYC Verification: PASSED</div>
+<div class="status">National ID Verification: VERIFIED</div>
+<div class="status">Document Review: COMPLETED</div>
+<div class="status">Eligibility Assessment: IN PROGRESS</div>
+</div>
+
+<div class="card section hidden" id="bureau">
+<h2><i data-lucide="search-check"></i> Credit & Bureau Results</h2>
+<div class="status">CRB Result: CLEAR</div>
+<div class="status">FCB Result: CLEAR</div>
+<div class="status">SRL Status: CLEAR</div>
+<div class="status">Risk Category: MEDIUM RISK</div>
+<div class="status">Eligibility Status: CONDITIONALLY APPROVED</div>
+</div>
+
+<div class="card section hidden" id="repayment">
+<h2><i data-lucide="wallet"></i> Repayment & Smart Contract Tracking</h2>
+<div id="repaymentContent"><div class="empty-state"><p>Loading your loan information...</p></div></div>
+</div>
+
+<div class="card section hidden" id="mobile">
+<h2><i data-lucide="smartphone"></i> Mobile Money & Transaction History</h2>
+<div class="grid">
+<div>
+<label>Upload Mobile Money Statement</label>
+<input type="file">
+<button><i data-lucide="line-chart"></i> Analyze Transactions</button>
+</div>
+<div>
+<div class="status">AI Transaction Score: 82%</div>
+<div class="status">Spending Behaviour: MODERATE</div>
+<div class="status">Transaction Trend: STABLE</div>
+<div class="status">Cash Flow Rating: POSITIVE</div>
+</div>
+</div>
+</div>
+
+<div class="card section hidden" id="notifications">
+<h2><i data-lucide="bell"></i> Notification Centre</h2>
+<div id="notificationContent"><div class="empty-state"><p>Loading notifications...</p></div></div>
+</div>
+
+<div class="card section hidden" id="profile">
+<h2><i data-lucide="settings"></i> Profile & Account Settings</h2>
+<div id="profileContent"><div class="empty-state"><p>Loading profile...</p></div></div>
+</div>
+
+<div class="card section hidden" id="support">
+<div class="support-wrap">
+
+<div class="support-card support-faq">
+<h3><i data-lucide="help-circle" style="width:16px;height:16px;"></i> Frequently Asked Questions</h3>
+<details>
+<summary><i data-lucide="chevron-right" style="width:14px;height:14px;"></i> How do I apply for a loan?</summary>
+<div class="faq-answer">Navigate to "Apply for a Loan" from the sidebar, fill in your details, upload the required KYC documents, and submit. Your application will be reviewed and you'll receive a notification once processed.</div>
+</details>
+<details>
+<summary><i data-lucide="chevron-right" style="width:14px;height:14px;"></i> What documents are required?</summary>
+<div class="faq-answer">You need to upload a National ID, Payslip, Utility Bill, Insurance Documents, and Bank Statements. All documents must be clear and valid.</div>
+</details>
+<details>
+<summary><i data-lucide="chevron-right" style="width:14px;height:14px;"></i> How long does approval take?</summary>
+<div class="faq-answer">Most applications are processed within 24&ndash;48 hours. You will receive a notification once your application status is updated.</div>
+</details>
+<details>
+<summary><i data-lucide="chevron-right" style="width:14px;height:14px;"></i> How do I track my repayment schedule?</summary>
+<div class="faq-answer">Go to "Loan Repayment Status" in the sidebar to view all your active loans, repayment periods, and smart contract tracking details.</div>
+</details>
+</div>
+
+<div class="support-grid">
+<div class="support-card support-chat">
+<h3><i data-lucide="message-circle" style="width:16px;height:16px;"></i> Chat Support</h3>
+<textarea rows="4" placeholder="Type your message here..."></textarea>
+<button style="width:100%;justify-content:center;"><i data-lucide="send"></i> Send Message</button>
+</div>
+
+<div class="support-card">
+<h3><i data-lucide="phone" style="width:16px;height:16px;"></i> Contact Details</h3>
+<div class="contact-list">
+<div class="contact-item"><i data-lucide="mail" style="width:16px;height:16px;"></i> <strong>Email:</strong> support@smartloan.com</div>
+<div class="contact-item"><i data-lucide="phone" style="width:16px;height:16px;"></i> <strong>Phone:</strong> +263 77 000 0000</div>
+<div class="contact-item"><i data-lucide="clock" style="width:16px;height:16px;"></i> <strong>Hours:</strong> Mon&ndash;Fri, 8:00 AM &ndash; 6:00 PM</div>
+</div>
+</div>
+</div>
+
+<div class="support-card support-info">
+<h3><i data-lucide="info" style="width:16px;height:16px;"></i> About SmartLoan</h3>
+<p>This AI-powered banking application helps customers with digital banking, loan applications, KYC verification, AI credit scoring, repayment monitoring and financial analytics.</p>
+</div>
+
+<div class="support-card support-info">
+<h3><i data-lucide="file-text" style="width:16px;height:16px;"></i> Terms &amp; Conditions</h3>
+<p>All customers agree to responsible borrowing, credit verification and repayment compliance policies. By using SmartLoan, you consent to our data processing practices as outlined in our privacy policy.</p>
+</div>
+
+</div>
+</div>
+
+</div>
+
+</div>
+
+</section>
