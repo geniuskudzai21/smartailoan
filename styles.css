@@ -196,10 +196,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--input-focus-border);b
   font-size:clamp(28px,5vw,42px);
   font-weight:800;
   margin-bottom:12px;
-  background:var(--heading-grad);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-  background-clip:text;
+  color:white;
 }
 
 
@@ -237,13 +234,13 @@ input:focus,select:focus,textarea:focus{border-color:var(--input-focus-border);b
   padding:14px 40px;
   font-size:16px;
   background:var(--btn-cta-bg);
-  color:var(--bg);
+  color:black;
   border-radius:10px;
   font-weight:700;
   box-shadow:0 0 30px var(--primary-glow);
 }
 
-.btn-cta:hover{background:var(--btn-cta-hover);box-shadow:0 0 40px var(--primary-hover-glow);}
+.btn-cta:hover{background:var(--btn-cta-hover);box-shadow:0 0 40px var(--primary-hover-glow);color:black;}
 
 
 .footer{

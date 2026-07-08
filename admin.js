@@ -667,6 +667,7 @@ window.runAiScoring = async function(){
     lucide.createIcons();
     return;
   }
+  showToast('AI credit scoring running...', 'info');
   const tbody = document.getElementById('creditScoreTable');
   tbody.innerHTML = '<tr class="no-card"><td colspan="8" style="text-align:center;padding:20px;"><i data-lucide="loader-2" style="width:24px;height:24px;animation:spin 1s linear infinite;color:#2563eb;"></i><p style="margin-top:8px;color:#64748b;">AI is analyzing creditworthiness...</p></td></tr>';
   lucide.createIcons();
@@ -758,7 +759,7 @@ function showToast(message, type){
     position: 'fixed', top: '20px', right: '20px', zIndex: '9999',
     padding: '14px 20px', borderRadius: '10px', fontSize: '14px', fontWeight: '500',
     color: '#fff', boxShadow: '0 4px 20px rgba(0,0,0,.2)', maxWidth: '400px',
-    background: type === 'success' ? '#16a34a' : '#dc2626',
+    background: type === 'success' ? '#16a34a' : type === 'info' ? '#2563eb' : '#dc2626',
     opacity: '0', transform: 'translateY(-10px)', transition: 'all .3s'
   });
   document.body.appendChild(toast);
