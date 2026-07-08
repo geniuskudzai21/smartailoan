@@ -18,9 +18,9 @@ if (!GROK_KEYS.length) {
 }
 
 const MODELS = [
+  'llama-3.3-70b-versatile',
   'qwen/qwen3.6-27b',
   'llama-3.1-8b-instant',
-  'llama-3.3-70b-versatile'
 ];
 
 let keyIndex = 0;
