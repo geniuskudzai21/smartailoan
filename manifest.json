@@ -1,0 +1,17 @@
+{
+  "name": "SmartLoan - AI-Powered Banking",
+  "short_name": "SmartLoan",
+  "description": "AI-powered loan approvals, instant KYC verification, and intelligent credit scoring",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#1e3a8a",
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

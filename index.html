@@ -4,11 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SmartLoan - AI-Powered Banking</title>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#1e3a8a">
+<link rel="apple-touch-icon" href="/icons/icon.svg">
 <link rel="stylesheet" href="styles.css">
 <script src="https://unpkg.com/lucide@latest" defer></script>
 </head>
 <body>
 <div id="app"></div>
 <script type="module" src="app.js"></script>
+<script>if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');</script>
 </body>
 </html>
