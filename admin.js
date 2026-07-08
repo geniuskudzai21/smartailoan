@@ -711,7 +711,7 @@ Return a JSON array. For each loan provide: "loanId" (the loan ID), "user" (thei
   let lastErr;
   for (let attempt = 1; attempt <= 3; attempt++) {
     try {
-      const res = await fetch('http://localhost:3456/api/grok', {
+      const res = await fetch('/api/grok', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
