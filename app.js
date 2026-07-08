@@ -19,6 +19,9 @@ async function initApp() {
   document.getElementById('app').innerHTML = welcomeHtml + authHtml + dashboardHtml;
   lucide.createIcons();
   checkSession();
+  supabase.auth.onAuthStateChange((event, session) => {
+    if (event === 'SIGNED_IN' && session) checkSession();
+  });
   applyTheme();
   setTimeout(typeWriter, 500);
 }
@@ -109,9 +112,19 @@ window.registerUser = async function(){
     }).catch(() => {});
   }
 
-  showToast('Account created successfully! Please sign in.', 'success');
-  document.getElementById('authMessage').innerHTML = '<p style="color:green;">Registration Successful! Redirecting...</p>';
-  setTimeout(() => showLogin(), 2000);
+  document.getElementById('registerForm').innerHTML = `
+    <div style="text-align:center;padding:20px 0;">
+      <div style="font-size:48px;margin-bottom:12px;">📧</div>
+      <h3 style="margin:0 0 8px 0;font-size:18px;color:#1e293b;">Check Your Email</h3>
+      <p style="margin:0 0 4px 0;font-size:14px;color:#475569;">We sent a confirmation link to</p>
+      <p style="margin:0 0 16px 0;font-size:14px;font-weight:600;color:#2563eb;">${contact}</p>
+      <p style="margin:0;font-size:13px;color:#94a3b8;">Click the link to activate your account, then sign in.</p>
+    </div>
+    <div style="text-align:center;margin-top:8px;">
+      <a onclick="showLogin()" style="color:#2563eb;cursor:pointer;font-size:13px;text-decoration:underline;">Back to Sign In</a>
+    </div>
+  `;
+  showToast('Confirmation email sent! Check your inbox.', 'success');
 }
 
 function showToast(message, type){
