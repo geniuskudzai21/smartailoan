@@ -186,25 +186,9 @@ window.logout = async function(){
   }
 }
 
-window.toggleTheme = function(){
-  document.body.classList.toggle('light-theme');
-  const isLight = document.body.classList.contains('light-theme');
-  localStorage.setItem('smartloan-theme', isLight ? 'light' : 'dark');
-  document.querySelectorAll('.theme-toggle i').forEach(el => {
-    el.setAttribute('data-lucide', isLight ? 'moon' : 'sun');
-  });
-  lucide.createIcons();
-}
-
 function applyTheme(){
-  const saved = localStorage.getItem('smartloan-theme');
-  if(saved === 'light'){
-    document.body.classList.add('light-theme');
-    document.querySelectorAll('.theme-toggle i').forEach(el => {
-      el.setAttribute('data-lucide', 'moon');
-    });
-    lucide.createIcons();
-  }
+  document.body.classList.remove('light-theme');
+  localStorage.removeItem('smartloan-theme');
 }
 
 window.toggleSidebar = function(){

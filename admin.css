@@ -1,35 +1,4 @@
 :root{
-  --table-border:rgba(0,240,255,.12);
-  --table-hover:rgba(0,240,255,.04);
-  --table-even:rgba(0,240,255,.02);
-  --table-th-bg:rgba(0,240,255,.08);
-  --table-th-color:#00f0ff;
-  --stat-card-hover:rgba(0,240,255,.3);
-  --modal-bg:linear-gradient(135deg,#12122a,#1a1a3a);
-  --modal-border:rgba(0,240,255,.15);
-  --modal-shadow:0 0 40px rgba(0,240,255,.15),0 20px 60px rgba(0,0,0,.5);
-  --modal-header-border:rgba(0,240,255,.12);
-  --modal-close-color:#6666aa;
-  --modal-close-hover:#ff2d95;
-  --detail-row-border:rgba(0,240,255,.08);
-  --detail-label:#8888bb;
-  --detail-value:#e0e0ff;
-  --modal-h3-color:#00f0ff;
-  --toolbar-input-min-width:200px;
-  --admin-header-text-shadow:0 0 20px rgba(0,240,255,.4);
-  --btn-secondary-bg:rgba(0,240,255,.08);
-  --btn-secondary-color:#00f0ff;
-  --btn-secondary-border:rgba(0,240,255,.2);
-  --btn-secondary-hover-bg:rgba(0,240,255,.15);
-  --header-right-btn-bg:rgba(0,240,255,.1);
-  --header-right-btn-color:#00f0ff;
-  --header-right-btn-border:rgba(0,240,255,.2);
-  --header-right-btn-hover-bg:rgba(0,240,255,.2);
-  --empty-state-icon:#4444aa;
-  --admin-sidebar-heading-shadow:0 0 15px rgba(0,240,255,.4);
-}
-
-body.light-theme{
   --table-border:#e2e8f0;
   --table-hover:#f8fafc;
   --table-even:transparent;
@@ -46,6 +15,7 @@ body.light-theme{
   --detail-label:#64748b;
   --detail-value:#1e293b;
   --modal-h3-color:#1e3a8a;
+  --toolbar-input-min-width:200px;
   --admin-header-text-shadow:none;
   --btn-secondary-bg:#e2e8f0;
   --btn-secondary-color:#475569;
@@ -265,7 +235,7 @@ tr:nth-child(even){background:var(--table-even);}
   transition:all .3s;
 }
 .sidebar .menu-item:hover,.sidebar .menu-item.active{background:var(--sidebar-item-hover-bg);box-shadow:0 0 15px var(--sidebar-item-glow);}
-body.light-theme .sidebar .menu-item{border:none;}
+
 .sidebar-footer{margin-top:auto;padding:12px 0;border-top:1px solid var(--sidebar-footer-border);font-size:13px;color:var(--sidebar-user-text);display:flex;align-items:center;justify-content:space-between;gap:8px;}
 
 .main{flex:1;padding:20px;overflow-y:auto;min-width:0;}
@@ -379,7 +349,7 @@ body.light-theme .sidebar .menu-item{border:none;}
     justify-content:space-between;
     align-items:center;
     padding:8px 0;
-    border-bottom:1px solid rgba(0,240,255,.05);
+    border-bottom:1px solid var(--table-border);
     border-top:none;
     gap:8px;
   }
