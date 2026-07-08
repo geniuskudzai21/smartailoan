@@ -25,7 +25,7 @@ window.checkSession = async function(){
   const { data: { session } } = await supabase.auth.getSession();
   if(session && session.user.email === ADMIN_EMAIL){
     document.getElementById('adminDashboard').classList.remove('hidden');
-    document.querySelector('#adminSidebarUser span').textContent = session.user.email;
+    document.querySelector('#adminSidebarUser span').textContent = 'Admin';
     loadDashboard();
   } else if(session){
     await supabase.auth.signOut();

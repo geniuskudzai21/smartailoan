@@ -204,6 +204,9 @@ window.closeSidebar = function(){
 window.showSection = function(id){
   document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
   document.getElementById(id).classList.remove('hidden');
+  document.querySelectorAll('.sidebar div').forEach(d => d.classList.remove('active'));
+  const target = document.querySelector(`.sidebar div[onclick*="'${id}'"]`);
+  if(target) target.classList.add('active');
   closeSidebar();
   if(id === 'repayment') renderRepayment();
   if(id === 'notifications') renderNotifications();
