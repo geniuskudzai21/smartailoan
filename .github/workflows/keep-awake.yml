@@ -1,0 +1,16 @@
+name: Keep Alive
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping site
+        run: curl -s -o /dev/null -w "%{http_code}" https://smartailoan.vercel.app
+
+      - name: Ping admin page
+        run: curl -s -o /dev/null -w "%{http_code}" https://smartailoan.vercel.app/admin.html
