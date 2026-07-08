@@ -99,7 +99,21 @@ window.registerUser = async function(){
   });
 
   if(error){
-    document.getElementById('authMessage').innerHTML = '<p style="color:red;">' + error.message + '</p>';
+    if (error.message.toLowerCase().includes('already registered') || error.message.toLowerCase().includes('already exists')) {
+      document.getElementById('registerForm').innerHTML = `
+        <div style="text-align:center;padding:20px 0;">
+          <div style="font-size:48px;margin-bottom:12px;">👤</div>
+          <h3 style="margin:0 0 8px 0;font-size:18px;color:#1e293b;">Account Already Exists</h3>
+          <p style="margin:0 0 4px 0;font-size:14px;color:#475569;">${contact}</p>
+          <p style="margin:0 0 16px 0;font-size:13px;color:#94a3b8;">This email is already registered. Please sign in instead.</p>
+        </div>
+        <div style="text-align:center;margin-top:8px;">
+          <a onclick="showLogin()" style="color:#2563eb;cursor:pointer;font-size:13px;text-decoration:underline;">Go to Sign In</a>
+        </div>
+      `;
+    } else {
+      document.getElementById('authMessage').innerHTML = `<p style="color:#dc2626;font-size:14px;text-align:center;">${error.message}</p>`;
+    }
     return;
   }
 
