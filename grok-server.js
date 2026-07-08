@@ -5,9 +5,39 @@ const path = require('path');
 const PORT = 3456;
 require('dotenv').config();
 
-const GROK_API_KEY = process.env.GROK_API_KEY || process.env.GROK_API || '';
+const GROK_KEYS = [
+  process.env.GROK_API_KEY_1,
+  process.env.GROK_API_KEY_2,
+  process.env.GROK_API_KEY_3,
+  process.env.GROK_API_KEY_4,
+].filter(Boolean);
 
-const MODEL = 'llama-3.3-70b-versatile';
+if (!GROK_KEYS.length) {
+  console.error('No GROK_API_KEY_1..5 found in .env');
+  process.exit(1);
+}
+
+const MODELS = [
+  'qwen/qwen3.6-27b',
+  'llama-3.1-8b-instant',
+  'llama-3.3-70b-versatile'
+];
+
+let keyIndex = 0;
+let modelIndex = 0;
+
+function getNextKey() {
+  const key = GROK_KEYS[keyIndex % GROK_KEYS.length];
+  keyIndex++;
+  return key;
+}
+
+function getNextModel() {
+  const model = MODELS[modelIndex % MODELS.length];
+  modelIndex++;
+  return model;
+}
+
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
 const server = http.createServer((req, res) => {
@@ -26,10 +56,10 @@ const server = http.createServer((req, res) => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${GROK_API_KEY}`
+            'Authorization': `Bearer ${getNextKey()}`
           },
           body: JSON.stringify({
-            model: MODEL,
+            model: getNextModel(),
             messages: [
               { role: 'system', content: system || 'You are a helpful financial AI assistant.' },
               { role: 'user', content: prompt }
@@ -39,7 +69,16 @@ const server = http.createServer((req, res) => {
           })
         });
         const data = await response.json();
-        const content = data.choices?.[0]?.message?.content || 'No response';
+        if (!response.ok || data.error) {
+          const msg = data.error?.message || data.error || `HTTP ${response.status}`;
+          res.writeHead(429, { 'Content-Type': 'application/json' });
+          return res.end(JSON.stringify({ error: 'Groq API: ' + msg }));
+        }
+        const content = data.choices?.[0]?.message?.content;
+        if (!content) {
+          res.writeHead(500, { 'Content-Type': 'application/json' });
+          return res.end(JSON.stringify({ error: 'Groq returned empty response' }));
+        }
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ result: content }));
       } catch (e) {

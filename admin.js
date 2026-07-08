@@ -709,42 +709,55 @@ window.runAiScoring = async function(){
 
 Return a JSON array. For each loan provide: "loanId" (the loan ID), "user" (their name), "amount" (loan amount), "purpose" (loan purpose), "score" (0-100, where 70+ = low risk, 50-69 = medium, below 50 = high), "risk" ("Low"/"Medium"/"High"), "decision" ("Approved" for strong applications, "Declined" for high-risk, "Review" for borderline cases needing manual document review), "reason" (a brief 1-sentence explanation of why this decision was made, mentioning income vs amount, employment, purpose, etc.). Only return valid JSON, no explanation.\n\nLoans: ${JSON.stringify(loansList)}`;
 
-  try {
-    const res = await fetch('http://localhost:3456/api/grok', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        system: 'You are a credit risk assessment AI. Output only valid JSON arrays.',
-        prompt
-      })
-    });
-    const data = await res.json();
-    if (data.error) throw new Error(data.error);
-    const parsed = JSON.parse(data.result);
-    if (Array.isArray(parsed)) {
-      creditScores = parsed.map((c, i) => ({ ...c, loanId: loansList[i] ? loansList[i].loanId : c.loanId, date: new Date().toLocaleDateString() }));
-      for (const score of creditScores) {
-        await supabase.from('loan_applications').update({
-          ai_score: score.score,
-          ai_risk: score.risk,
-          ai_decision: score.decision,
-          ai_reason: score.reason || null
-        }).eq('id', score.loanId);
-        const loan = dbLoans.find(l => l.id === score.loanId);
-        if(loan){
-          loan.ai_score = score.score;
-          loan.ai_risk = score.risk;
-          loan.ai_decision = score.decision;
-          loan.ai_reason = score.reason || null;
+  let lastErr;
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      const res = await fetch('http://localhost:3456/api/grok', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          system: 'You are a credit risk assessment AI. Output only valid JSON arrays.',
+          prompt
+        })
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      const parsed = JSON.parse(data.result);
+      if (Array.isArray(parsed)) {
+        creditScores = parsed.map((c, i) => ({ ...c, loanId: loansList[i] ? loansList[i].loanId : c.loanId, date: new Date().toLocaleDateString() }));
+        for (const score of creditScores) {
+          await supabase.from('loan_applications').update({
+            ai_score: score.score,
+            ai_risk: score.risk,
+            ai_decision: score.decision,
+            ai_reason: score.reason || null
+          }).eq('id', score.loanId);
+          const loan = dbLoans.find(l => l.id === score.loanId);
+          if(loan){
+            loan.ai_score = score.score;
+            loan.ai_risk = score.risk;
+            loan.ai_decision = score.decision;
+            loan.ai_reason = score.reason || null;
+          }
         }
+      } else {
+        throw new Error('Unexpected response format');
       }
-    } else {
-      throw new Error('Unexpected response format');
+      lastErr = null;
+      break;
+    } catch (e) {
+      lastErr = e;
+      if (attempt < 3) {
+        await new Promise(r => setTimeout(r, 2000 * attempt));
+        tbody.innerHTML = `<tr class="no-card"><td colspan="8" style="text-align:center;padding:20px;"><i data-lucide="loader-2" style="width:24px;height:24px;animation:spin 1s linear infinite;color:#2563eb;"></i><p style="margin-top:8px;color:#64748b;">Retrying (${attempt}/3)...</p></td></tr>`;
+        lucide.createIcons();
+      }
     }
-  } catch (e) {
-    tbody.innerHTML = `<tr class="no-card"><td colspan="8" style="text-align:center;padding:20px;color:#dc2626;"><p>AI scoring failed: ${e.message}</p></td></tr>`;
+  }
+  if (lastErr) {
+    tbody.innerHTML = `<tr class="no-card"><td colspan="8" style="text-align:center;padding:20px;color:#dc2626;"><p>AI scoring failed: ${lastErr.message}</p></td></tr>`;
     lucide.createIcons();
-    showToast('AI scoring failed: ' + e.message, 'error');
+    showToast('AI scoring failed: ' + lastErr.message, 'error');
     return;
   }
   renderCreditScores();
