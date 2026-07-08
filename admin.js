@@ -1287,20 +1287,27 @@ function renderContracts(){
     return { label:'Draft', cls:'badge-warning' };
   };
 
+  const contractRisk = (l) => {
+    if(l.ai_risk) return { label: l.ai_risk, cls: l.ai_risk === 'High' ? 'badge-danger' : l.ai_risk === 'Medium' ? 'badge-warning' : 'badge-success' };
+    if(l.status === 'Declined') return { label: 'High', cls: 'badge-danger' };
+    if(l.status === 'Approved' || l.status === 'Disbursed') return { label: 'Low', cls: 'badge-success' };
+    return { label: 'Not Scored', cls: 'badge-info' };
+  };
+
   container.innerHTML = summaryHtml + `
     <div style="overflow-x:auto;">
     <table class="data-table">
       <thead><tr><th>Contract ID</th><th>Party</th><th>Amount</th><th>Terms</th><th>Status</th><th>Risk Level</th><th>Date</th></tr></thead>
       <tbody>${dbLoans.map(l => {
         const cs = contractStatus(l);
-        const riskCls = l.ai_risk === 'High' ? 'badge-danger' : l.ai_risk === 'Medium' ? 'badge-warning' : l.ai_risk === 'Low' ? 'badge-success' : 'badge-info';
+        const rl = contractRisk(l);
         return `<tr>
           <td data-label="Contract ID" style="font-family:monospace;font-size:12px;">#${String(l.id).slice(0,8)}</td>
           <td data-label="Party"><strong>${l.applicant || userMap[l.user_id] || '—'}</strong></td>
           <td data-label="Amount">$${Number(l.amount).toLocaleString()}</td>
           <td data-label="Terms">${l.term||l.repayment_period||'—'}</td>
           <td data-label="Status"><span class="badge ${cs.cls}">${cs.label}</span></td>
-          <td data-label="Risk Level"><span class="badge ${riskCls}">${l.ai_risk||'N/A'}</span></td>
+          <td data-label="Risk Level"><span class="badge ${rl.cls}">${rl.label}</span></td>
           <td data-label="Date" style="font-size:12px;color:#94a3b8;">${l.created_at ? new Date(l.created_at).toLocaleDateString() : '—'}</td>
         </tr>`;
       }).join('')}</tbody>
