@@ -390,27 +390,6 @@ function renderCharts(){
     }
   });
 
-  const userMonths = Array(12).fill(0);
-  dbUsers.forEach(u => {
-    const d = u.created_at ? new Date(u.created_at) : null;
-    if(d) userMonths[d.getMonth()]++;
-  });
-
-  chartInstances.customers = new Chart(document.getElementById('chartCustomers'), {
-    type: 'bar',
-    data: {
-      labels: months,
-      datasets: [{ label: 'New Users', data: userMonths, backgroundColor: '#3b82f6', borderRadius: 4 }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: { callbacks: { label: ctx => ctx.raw + ' user' + (ctx.raw !== 1 ? 's' : '') } }
-      },
-      scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
-    }
-  });
 }
 
 // ---- FILTERS ----
