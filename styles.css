@@ -23,7 +23,7 @@
   --sidebar-border:#1e3a8a;
   --header-bg:#1e3a8a;
   --header-border:none;
-  --welcome-bg:linear-gradient(135deg,#1e3a8a,#3b82f6);
+  --welcome-bg:linear-gradient(135deg,#0b1120 0%,#111827 50%,#1e3a8a 100%);
   --auth-card-bg:white;
   --auth-card-border:none;
   --feature-bg:rgba(255,255,255,.15);
@@ -248,9 +248,76 @@ input:focus,select:focus,textarea:focus{border-color:var(--input-focus-border);b
   text-align:center;
   font-size:13px;
   opacity:.4;
-  color:var(--text-dim);
+  color:white;
   position:relative;
   z-index:1;
+}
+
+/* Cyberpunk background elements */
+.cyber-grid{
+  position:absolute;
+  inset:0;
+  background-image:
+    linear-gradient(rgba(37,99,235,.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(37,99,235,.1) 1px, transparent 1px);
+  background-size:45px 45px;
+  z-index:0;
+  pointer-events:none;
+}
+
+.cyber-dots{
+  position:absolute;
+  inset:0;
+  background-image:radial-gradient(circle, rgba(59,130,246,.35) 1px, transparent 1px);
+  background-size:45px 45px;
+  z-index:0;
+  pointer-events:none;
+}
+
+.welcome::after{
+  content:'';
+  position:absolute;
+  left:0;
+  right:0;
+  height:3px;
+  background:linear-gradient(90deg, transparent 0%, rgba(37,99,235,.4) 10%, rgba(59,130,246,.9) 50%, rgba(37,99,235,.4) 90%, transparent 100%);
+  box-shadow:0 0 20px rgba(59,130,246,.5), 0 0 60px rgba(37,99,235,.3), 0 0 100px rgba(37,99,235,.15);
+  z-index:0;
+  pointer-events:none;
+  animation:cyber-scan 5s ease-in-out infinite;
+}
+
+@keyframes cyber-scan{
+  0%{top:-3%;opacity:0;}
+  8%{opacity:1;}
+  92%{opacity:1;}
+  100%{top:103%;opacity:0;}
+}
+
+
+.cyber-orb{
+  position:absolute;
+  border-radius:50%;
+  z-index:0;
+  pointer-events:none;
+  filter:blur(80px);
+  opacity:.12;
+}
+.cyber-orb-1{
+  width:400px;height:400px;
+  background:radial-gradient(circle, #3b82f6, transparent);
+  top:-100px;right:-100px;
+  animation:cyber-pulse 6s ease-in-out infinite alternate;
+}
+.cyber-orb-2{
+  width:300px;height:300px;
+  background:radial-gradient(circle, #2563eb, transparent);
+  bottom:-50px;left:-50px;
+  animation:cyber-pulse 8s ease-in-out infinite alternate-reverse;
+}
+@keyframes cyber-pulse{
+  0%{opacity:.08;transform:scale(1);}
+  100%{opacity:.18;transform:scale(1.1);}
 }
 
 /* ===== AUTH ===== */
