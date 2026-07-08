@@ -151,7 +151,7 @@ async function loadDashboard(){
   if(usersRes.error) console.error('Profiles error:', usersRes.error);
   if(loansRes.error) console.error('Loans error:', loansRes.error);
   if(docsRes.error) console.error('Docs error:', docsRes.error);
-  dbUsers = usersRes.data || [];
+  dbUsers = (usersRes.data || []).filter(u => u.email !== ADMIN_EMAIL);
   dbLoans = loansRes.data || [];
   dbDocs = docsRes.data || [];
   dbPayments = paymentsRes.data || [];
@@ -306,34 +306,56 @@ function renderCharts(){
   chartInstances = {};
 
   const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  const growthData = Array(12).fill(0);
+  const appVolume = Array(12).fill(0);
+  const approvedVolume = Array(12).fill(0);
   dbLoans.forEach(l => {
     const d = l.created_at ? new Date(l.created_at) : null;
-    if(d) growthData[d.getMonth()] += Number(l.amount) || 0;
+    if(!d) return;
+    appVolume[d.getMonth()] += Number(l.amount) || 0;
+    if(l.status === 'Approved' || l.status === 'Disbursed')
+      approvedVolume[d.getMonth()] += Number(l.amount) || 0;
   });
 
   chartInstances.growth = new Chart(document.getElementById('chartGrowth'), {
     type: 'line',
     data: {
       labels: months,
-      datasets: [{ label: 'Loan Volume ($)', data: growthData, borderColor: '#3b82f6', tension: 0.3, fill: false }]
+      datasets: [
+        { label: 'Applications ($)', data: appVolume, borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,.1)', tension: 0.3, fill: true },
+        { label: 'Approved ($)', data: approvedVolume, borderColor: '#16a34a', backgroundColor: 'rgba(22,163,74,.1)', tension: 0.3, fill: true }
+      ]
     },
-    options: { responsive: true, plugins: { legend: { display: false } } }
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { position: 'bottom', labels: { boxWidth: 12, padding: 12, font: { size: 11 } } },
+        tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': $' + Number(ctx.raw).toLocaleString() } }
+      },
+      scales: { y: { ticks: { callback: v => '$' + (v >= 1000 ? (v/1000).toFixed(0) + 'k' : v) } } }
+    }
   });
 
-  const statusCounts = { Approved: 0, Declined: 0, Pending: 0, Disbursed: 0 };
-  dbLoans.forEach(l => { if(statusCounts[l.status] !== undefined) statusCounts[l.status]++; });
+  const totalDisbursed = dbLoans.filter(l => l.status === 'Approved' || l.status === 'Disbursed').reduce((s,l) => s + Number(l.amount), 0);
+  const totalRepaid = dbPayments.reduce((s, p) => s + Number(p.amount), 0);
+  const outstanding = Math.max(0, totalDisbursed - totalRepaid);
 
   chartInstances.repayment = new Chart(document.getElementById('chartRepayment'), {
-    type: 'doughnut',
+    type: 'bar',
     data: {
-      labels: Object.keys(statusCounts),
+      labels: ['Disbursed', 'Repaid', 'Outstanding'],
       datasets: [{
-        data: Object.values(statusCounts),
-        backgroundColor: ['#16a34a', '#dc2626', '#f59e0b', '#3b82f6']
+        data: [totalDisbursed, totalRepaid, outstanding],
+        backgroundColor: ['#3b82f6', '#16a34a', '#f59e0b']
       }]
     },
-    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => '$' + Number(ctx.raw).toLocaleString() } }
+      },
+      scales: { y: { beginAtZero: true, ticks: { callback: v => '$' + (v >= 1000 ? (v/1000).toFixed(0) + 'k' : v) } } }
+    }
   });
 
   const riskCounts = { Low: 0, Medium: 0, High: 0, 'Not Scored': 0 };
@@ -341,9 +363,10 @@ function renderCharts(){
     if(l.ai_risk) riskCounts[l.ai_risk] = (riskCounts[l.ai_risk] || 0) + 1;
     else riskCounts['Not Scored']++;
   });
+  const riskTotal = Object.values(riskCounts).reduce((a,b) => a + b, 0);
 
   chartInstances.risk = new Chart(document.getElementById('chartRisk'), {
-    type: 'pie',
+    type: 'doughnut',
     data: {
       labels: Object.keys(riskCounts),
       datasets: [{
@@ -351,30 +374,42 @@ function renderCharts(){
         backgroundColor: ['#16a34a', '#f59e0b', '#dc2626', '#94a3b8']
       }]
     },
-    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom', labels: { boxWidth: 12, padding: 12, font: { size: 11 } } },
+        tooltip: {
+          callbacks: {
+            label: ctx => {
+              const pct = riskTotal > 0 ? ((ctx.raw / riskTotal) * 100).toFixed(1) : 0;
+              return ctx.label + ': ' + ctx.raw + ' (' + pct + '%)';
+            }
+          }
+        }
+      }
+    }
   });
 
-  const docUsers = new Set((dbDocs||[]).map(d => d.user_id));
-  const verifiedDocs = {};
-  (dbDocs||[]).forEach(d => { if(d.status === 'Verified') verifiedDocs[d.user_id] = true; });
-  const catCounts = { 'Has Documents': 0, 'Verified KYC': 0, 'No Docs': 0 };
+  const userMonths = Array(12).fill(0);
   dbUsers.forEach(u => {
-    const uid = u.user_id || u.id;
-    if(verifiedDocs[uid]) catCounts['Verified KYC']++;
-    else if(docUsers.has(uid)) catCounts['Has Documents']++;
-    else catCounts['No Docs']++;
+    const d = u.created_at ? new Date(u.created_at) : null;
+    if(d) userMonths[d.getMonth()]++;
   });
 
   chartInstances.customers = new Chart(document.getElementById('chartCustomers'), {
-    type: 'doughnut',
+    type: 'bar',
     data: {
-      labels: Object.keys(catCounts),
-      datasets: [{
-        data: Object.values(catCounts),
-        backgroundColor: ['#16a34a', '#3b82f6', '#94a3b8']
-      }]
+      labels: months,
+      datasets: [{ label: 'New Users', data: userMonths, backgroundColor: '#3b82f6', borderRadius: 4 }]
     },
-    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => ctx.raw + ' user' + (ctx.raw !== 1 ? 's' : '') } }
+      },
+      scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+    }
   });
 }
 

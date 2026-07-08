@@ -1,4 +1,4 @@
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
 const supabase = createClient(
 'https://ozkcpvlutmupqblfzcro.supabase.co',
@@ -284,10 +284,10 @@ window.renderRepayment = async function(){
           </button>
           <div id="payment-form-${loan.id}" class="hidden" style="margin-top:12px;padding:12px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;">
             <label style="font-size:13px;font-weight:600;color:#475569;">Payment Amount ($)</label>
-            <div style="display:flex;gap:8px;margin-top:6px;">
+            <div style="display:flex;align-items:center;gap:8px;margin-top:6px;">
               <input id="payment-amount-${loan.id}" type="number" min="1" step="0.01" max="${remaining}" value="${Math.min(monthlyEst, remaining).toFixed(2)}" style="flex:1;">
-              <button onclick="submitPayment('${loan.id}')" style="padding:8px 16px;font-size:13px;background:#2563eb;color:white;border:none;border-radius:8px;cursor:pointer;">Pay</button>
-              <button onclick="document.getElementById('payment-form-${loan.id}').classList.add('hidden')" style="padding:8px 12px;font-size:13px;background:#94a3b8;color:white;border:none;border-radius:8px;cursor:pointer;">Cancel</button>
+              <button onclick="submitPayment('${loan.id}')" style="padding:11px 16px;font-size:13px;min-height:0;background:#2563eb;color:white;border:none;border-radius:8px;cursor:pointer;">Pay</button>
+              <button onclick="document.getElementById('payment-form-${loan.id}').classList.add('hidden')" style="padding:11px 12px;font-size:13px;min-height:0;background:#94a3b8;color:white;border:none;border-radius:8px;cursor:pointer;">Cancel</button>
             </div>
             <div id="payment-msg-${loan.id}" style="margin-top:6px;font-size:12px;"></div>
           </div>
