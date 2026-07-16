@@ -98,41 +98,44 @@ window.registerUser = async function(){
     options: { data: { full_name: fullname } }
   });
 
+  const msg = document.getElementById('authMessage');
+
   if(error){
     if (error.message.toLowerCase().includes('already registered') || error.message.toLowerCase().includes('already exists')) {
-      document.getElementById('registerForm').innerHTML = `
-        <div style="text-align:center;padding:20px 0;">
-          <div style="font-size:48px;margin-bottom:12px;">👤</div>
-          <h3 style="margin:0 0 8px 0;font-size:18px;color:#1e293b;">Account Already Exists</h3>
-          <p style="margin:0 0 4px 0;font-size:14px;color:#475569;">${contact}</p>
-          <p style="margin:0 0 16px 0;font-size:13px;color:#94a3b8;">This email is already registered. Please sign in instead.</p>
-        </div>
-        <div style="text-align:center;margin-top:8px;">
-          <a onclick="showLogin()" style="color:#2563eb;cursor:pointer;font-size:13px;text-decoration:underline;">Go to Sign In</a>
+      msg.innerHTML = `
+        <div style="text-align:center;padding:16px 0;border-bottom:1px solid #e2e8f0;margin-bottom:16px;">
+          <div style="font-size:40px;margin-bottom:8px;">👤</div>
+          <div style="font-size:15px;font-weight:600;color:#1e293b;">Account Already Exists</div>
+          <div style="font-size:13px;color:#475569;margin:4px 0 8px;">${contact}</div>
+          <a onclick="showLogin()" style="color:#2563eb;cursor:pointer;font-size:13px;text-decoration:underline;">Sign in instead</a>
         </div>
       `;
+      showToast('This email is already registered.', 'error');
     } else {
-      document.getElementById('authMessage').innerHTML = `<p style="color:#dc2626;font-size:14px;text-align:center;">${error.message}</p>`;
+      msg.innerHTML = `<div style="text-align:center;padding:12px;background:#fef2f2;border-radius:8px;margin-bottom:12px;font-size:13px;color:#dc2626;">${error.message}</div>`;
+      showToast(error.message, 'error');
     }
     return;
   }
 
   const userId = data.user?.id;
   if(userId){
-    await supabase.from('profiles').insert({
-      user_id: userId,
-      full_name: fullname,
-      email: contact,
-    }).catch(() => {});
+    try {
+      await supabase.from('profiles').insert({
+        user_id: userId,
+        full_name: fullname,
+        email: contact,
+      });
+    } catch(e) {}
   }
 
   document.getElementById('registerForm').innerHTML = `
     <div style="text-align:center;padding:20px 0;">
       <div style="font-size:48px;margin-bottom:12px;">📧</div>
-      <h3 style="margin:0 0 8px 0;font-size:18px;color:#1e293b;">Check Your Email</h3>
-      <p style="margin:0 0 4px 0;font-size:14px;color:#475569;">We sent a confirmation link to</p>
-      <p style="margin:0 0 16px 0;font-size:14px;font-weight:600;color:#2563eb;">${contact}</p>
-      <p style="margin:0;font-size:13px;color:#94a3b8;">Click the link to activate your account, then sign in.</p>
+      <div style="font-size:16px;font-weight:600;color:#1e293b;">Check Your Email</div>
+      <div style="font-size:13px;color:#475569;margin:8px 0 4px;">We sent a confirmation link to</div>
+      <div style="font-size:14px;font-weight:600;color:#2563eb;">${contact}</div>
+      <div style="font-size:12px;color:#94a3b8;margin-top:12px;">Click the link to activate your account, then sign in.</div>
     </div>
     <div style="text-align:center;margin-top:8px;">
       <a onclick="showLogin()" style="color:#2563eb;cursor:pointer;font-size:13px;text-decoration:underline;">Back to Sign In</a>
