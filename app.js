@@ -5,6 +5,8 @@ const supabase = createClient(
 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im96a2Nwdmx1dG11cHFibGZ6Y3JvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIzNDI2NDgsImV4cCI6MjA5NzkxODY0OH0.7aSDXDTvY3A5izw0lU_KUmiQSKtaYA0xPSyQ4kYqOyQ'
 );
 
+let isRegistering = false;
+
 async function loadFragment(url) {
   const res = await fetch(url);
   return res.text();
@@ -19,8 +21,9 @@ async function initApp() {
   document.getElementById('app').innerHTML = welcomeHtml + authHtml + dashboardHtml;
   lucide.createIcons();
   checkSession();
+
   supabase.auth.onAuthStateChange((event, session) => {
-    if (event === 'SIGNED_IN' && session) checkSession();
+    if (event === 'SIGNED_IN' && session && !isRegistering) checkSession();
   });
   applyTheme();
   setTimeout(typeWriter, 500);
@@ -92,6 +95,8 @@ window.registerUser = async function(){
     return;
   }
 
+  isRegistering = true;
+
   const { data, error } = await supabase.auth.signUp({
     email: contact,
     password,
@@ -115,6 +120,7 @@ window.registerUser = async function(){
       msg.innerHTML = `<div style="text-align:center;padding:12px;background:#fef2f2;border-radius:8px;margin-bottom:12px;font-size:13px;color:#dc2626;">${error.message}</div>`;
       showToast(error.message, 'error');
     }
+    isRegistering = false;
     return;
   }
 
@@ -129,19 +135,21 @@ window.registerUser = async function(){
     } catch(e) {}
   }
 
+  await supabase.auth.signOut();
+  isRegistering = false;
+
   document.getElementById('registerForm').innerHTML = `
     <div style="text-align:center;padding:20px 0;">
-      <div style="font-size:48px;margin-bottom:12px;">📧</div>
-      <div style="font-size:16px;font-weight:600;color:#1e293b;">Check Your Email</div>
-      <div style="font-size:13px;color:#475569;margin:8px 0 4px;">We sent a confirmation link to</div>
-      <div style="font-size:14px;font-weight:600;color:#2563eb;">${contact}</div>
-      <div style="font-size:12px;color:#94a3b8;margin-top:12px;">Click the link to activate your account, then sign in.</div>
+      <div style="font-size:48px;margin-bottom:12px;">✅</div>
+      <div style="font-size:16px;font-weight:600;color:#1e293b;">Account Created</div>
+      <div style="font-size:13px;color:#475569;margin:8px 0 4px;">Your account has been created successfully.</div>
+      <div style="font-size:12px;color:#94a3b8;margin-top:12px;">You can now sign in.</div>
     </div>
     <div style="text-align:center;margin-top:8px;">
-      <a onclick="showLogin()" style="color:#2563eb;cursor:pointer;font-size:13px;text-decoration:underline;">Back to Sign In</a>
+      <a onclick="showLogin()" style="color:#2563eb;cursor:pointer;font-size:13px;text-decoration:underline;">Go to Sign In</a>
     </div>
   `;
-  showToast('Confirmation email sent! Check your inbox.', 'success');
+  showToast('Account created successfully!', 'success');
 }
 
 function showToast(message, type){
